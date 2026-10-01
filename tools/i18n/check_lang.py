@@ -40,8 +40,8 @@ def check(lang, name):
     text = raw.decode('utf-8')
     if '\n' in text.replace('\r\n', ''):
         errs.append(f'{name}: LF-only line endings (need CRLF)')
-    en = [l for l in open(en_path, encoding='utf-8-sig').read().splitlines()]
-    tr = text.lstrip('﻿').splitlines()
+    en = [l.rstrip() for l in open(en_path, encoding='utf-8-sig').read().splitlines()]
+    tr = [l.rstrip() for l in text.lstrip('﻿').splitlines()]
     en_ent = [(i, l) for i, l in enumerate(en) if l.strip()]
     tr_ent = [(i, l) for i, l in enumerate(tr) if l.strip()]
     if len(en_ent) != len(tr_ent):

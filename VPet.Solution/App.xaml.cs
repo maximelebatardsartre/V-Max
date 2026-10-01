@@ -31,7 +31,7 @@ public partial class App : Application
             case "removestarup":
                 var path =
                     Environment.GetFolderPath(Environment.SpecialFolder.Startup)
-                    + @"\VPET_Simulator.lnk";
+                    + @"\V-Max.lnk";
                 if (File.Exists(path))
                 {
                     File.Delete(path);

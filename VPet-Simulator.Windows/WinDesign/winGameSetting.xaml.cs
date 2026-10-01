@@ -130,17 +130,6 @@ namespace VPet_Simulator.Windows
                 BtnStartUpGet.IsEnabled = true;
             }
 
-            if (mw.Set.Diagnosis)
-                RBDiagnosisYES.IsChecked = true;
-            else
-                RBDiagnosisNO.IsChecked = true;
-
-            List<int> cbDiagnosis = new List<int> { 200, 500, 1000, 2000, 5000, 10000, 20000 };
-            int ds = cbDiagnosis.IndexOf(mw.Set.DiagnosisInterval);
-            if (ds == -1)
-                ds = 1;
-            CBDiagnosis.SelectedIndex = ds;
-
             foreach (ComboBoxItem v in CBAutoSave.Items)
             {
                 if ((int)v.Tag == mw.Set.AutoSaveInterval)
@@ -261,7 +250,7 @@ namespace VPet_Simulator.Windows
             ListMenuItems.Add(listmenuswith("自定义链接", 3, btn_DIY));
 
             ListMenuItems.Add(listmenuswith("自动超模MOD优化", 4, swAutoCal));
-            ListMenuItems.Add(listmenuswith("诊断与反馈", 4, RBDiagnosisYES));
+            ListMenuItems.Add(listmenuswith("当前存档Hash验证信息", 4, RHashCheckBlock));
 
             ListMenuItems.Add(listmenuswith("MOD管理", 5, ButtonOpenModFolder));
 
@@ -751,29 +740,8 @@ namespace VPet_Simulator.Windows
         }
 
 
-        private void RBDiagnosisYES_Checked(object sender, RoutedEventArgs e)
-        {
-            if (!AllowChange)
-                return;
-            mw.Set.Diagnosis = true;
-            CBDiagnosis.IsEnabled = true;
-        }
 
-        private void RBDiagnosisNO_Checked(object sender, RoutedEventArgs e)
-        {
-            if (!AllowChange)
-                return;
-            mw.Set.Diagnosis = false;
-            CBDiagnosis.IsEnabled = false;
-        }
 
-        private void CBDiagnosis_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            if (!AllowChange)
-                return;
-            List<int> cbDiagnosis = new List<int> { 200, 500, 1000, 2000, 5000, 10000, 20000 };
-            mw.Set.DiagnosisInterval = cbDiagnosis[CBDiagnosis.SelectedIndex];
-        }
 
         private void ListMod_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
@@ -896,10 +864,6 @@ namespace VPet_Simulator.Windows
             wma.ShowDialog();
         }
 
-        private void hyper_moreInfo(object sender, RoutedEventArgs e)
-        {
-            ExtensionFunction.StartURL("https://www.exlb.net/Diagnosis");
-        }
 
         public new void Show()
         {
@@ -1038,7 +1002,7 @@ namespace VPet_Simulator.Windows
         public void GenStartUP()
         {
             mw.Set["v"][(gbol)"newverstartup"] = true;
-            var path = Environment.GetFolderPath(Environment.SpecialFolder.Startup) + @"\VPET_Simulator.lnk";
+            var path = Environment.GetFolderPath(Environment.SpecialFolder.Startup) + @"\V-Max.lnk";
             if (mw.Set.StartUPBoot)
             {
                 if (File.Exists(path))
@@ -1046,7 +1010,7 @@ namespace VPet_Simulator.Windows
                 var link = (IShellLink)new ShellLink();
                 link.SetPath(System.Reflection.Assembly.GetExecutingAssembly().Location.Replace(".dll", ".exe"));
 
-                link.SetDescription("VPet Simulator");
+                link.SetDescription("V-Max");
                 link.SetIconLocation(ExtensionValue.BaseDirectory + @"vpeticon.ico", 0);
                 try
                 {

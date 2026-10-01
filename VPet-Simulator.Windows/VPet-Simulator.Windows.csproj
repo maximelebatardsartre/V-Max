@@ -27,12 +27,12 @@
 		<Platforms>x86;x64</Platforms>
 
 		<AssemblyTitle>虚拟桌宠模拟器</AssemblyTitle>
-		<Description>VPET的独立窗口实现</Description>
-		<Company>LB Game</Company>
+		<Description>V-Max — compagnon de bureau et agent IA (basé sur VPet)</Description>
+		<Company>V-Max</Company>
 		<AssemblyVersion>1.0.0.0</AssemblyVersion>
 		<FileVersion>1.0.0.0</FileVersion>
-		<Product>VPet-Simulator.Windows</Product>
-		<Copyright>Copyright © exLB.org 2022</Copyright>
+		<Product>V-Max</Product>
+		<Copyright>V-Max © 2026 — basé sur VPet © exLB.org / LorisYounger (Apache-2.0)</Copyright>
 		<StartupObject>VPet_Simulator.Windows.App</StartupObject>
 		<Nullable>enable</Nullable>
 		<!-- Work around CoreCLR startup failures on Windows 10 systems whose CET
