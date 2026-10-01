@@ -72,7 +72,7 @@ public sealed class AgentTalkBox : TalkBox
 
     public override void Responded(string text)
     {
-        _ = Task.Run(() => plugin.Orchestrator.RespondAsync(text, this));
+        _ = Task.Run(() => plugin.Orchestrator.RespondAsync(text));
     }
 
     public override void Setting() => plugin.Setting();

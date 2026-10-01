@@ -258,4 +258,7 @@
 	  <ProjectReference Include="..\VPet-Simulator.Core\VPet-Simulator.Core.csproj" />
 	  <ProjectReference Include="..\VPet-Simulator.Windows.Interface\VPet-Simulator.Windows.Interface.csproj" />
 	</ItemGroup>
+	<ItemGroup>
+		<InternalsVisibleTo Include="VMax.Tests" />
+	</ItemGroup>
 </Project>

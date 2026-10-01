@@ -8,59 +8,103 @@ using System.Text;
 using System.Text.Json.Nodes;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Windows;
-using System.Windows.Controls;
 using VPet_Simulator.Core;
+using VPet_Simulator.Windows.Agent.Providers;
 using VPet_Simulator.Windows.Interface;
 using static VPet_Simulator.Core.GraphInfo;
 
 namespace VPet_Simulator.Windows.Agent;
 
+/// <summary>État de l'agent (piloté par l'orchestrateur, affiché par l'interface et les animations)</summary>
+public enum AgentState { Idle, Thinking, Acting, Speaking, AwaitingConfirmation, Error }
+
+/// <summary>Décision de l'utilisateur pour une action sensible</summary>
+public enum Decision { Refused, Once, Always }
+
+/// <summary>Activité d'un outil (affichée sous forme de carte dans la discussion)</summary>
+public sealed record ToolActivity(string Title, string ToolName, bool Done, bool Ok, string? Detail);
+
 /// <summary>
-/// V-Max : orchestrateur de l'agent IA.
-/// Boucle conversationnelle avec appel d'outils (Gemini), réponse en streaming dans la bulle,
-/// confirmations dans la bulle pour les actions sensibles, journal d'audit, états d'animation.
+/// V-Max : orchestrateur de l'agent IA (indépendant du fournisseur et de l'interface).
+/// Boucle conversationnelle avec appel d'outils, bascule automatique entre IA gratuites (<see cref="ProviderRouter"/>),
+/// confirmations, journal d'audit, animations du compagnon. L'interface s'abonne aux événements.
 /// </summary>
 public sealed class AgentOrchestrator
 {
+    /// <summary>Nom historique du secret Gemini (compatibilité)</summary>
     public const string SecretName = "GeminiApiKey";
     private const int MaxToolRounds = 8;
-    private const int MaxHistoryTurns = 24;
+    private const int MaxHistoryMessages = 48;
 
     private readonly MainWindow mw;
-    private readonly JsonArray history = new();
+    private readonly List<ChatMessage> history = new();
     private readonly SemaphoreSlim busy = new(1, 1);
     private CancellationTokenSource? cts;
 
-    public AgentOrchestrator(MainWindow mw) => this.mw = mw;
+    public AgentOrchestrator(MainWindow mw)
+    {
+        this.mw = mw;
+        ProviderRouter.ModelFor = id => id == "gemini" ? Model : Cfg.GetString("model_" + id, null);
+        _ = ProviderRouter.RefreshLocalAsync();
+    }
 
-    #region Réglages (Setting.lps, section vmax_agent — la clé API est dans le Gestionnaire d'identification)
+    #region Événements pour l'interface
+    /// <summary>Message ajouté à la conversation (utilisateur, ou réponse complète de l'assistant)</summary>
+    public event Action<ChatMessage>? MessageAdded;
+    /// <summary>Début d'une réponse de l'assistant</summary>
+    public event Action? AssistantStarted;
+    /// <summary>Morceau de texte de la réponse en cours</summary>
+    public event Action<string>? AssistantDelta;
+    /// <summary>Fin de la réponse (texte complet)</summary>
+    public event Action<string>? AssistantFinished;
+    public event Action<AgentState>? StateChanged;
+    public event Action<ToolActivity>? ToolActivityChanged;
+    /// <summary>Erreur à afficher (message, faut-il proposer de connecter une IA)</summary>
+    public event Action<string, bool>? ErrorRaised;
+
+    /// <summary>
+    /// Demande de confirmation fournie par l'interface (panneau de discussion). Sinon : boutons dans la bulle.
+    /// </summary>
+    public Func<IAgentTool, string, Task<Decision>>? ConfirmHandler { get; set; }
+
+    /// <summary>
+    /// Vrai quand le panneau de discussion est visible : la réponse y est affichée et pas dans la bulle
+    /// </summary>
+    public bool PanelVisible { get; set; }
+
+    public AgentState State { get; private set; }
+    private void SetState(AgentState s)
+    {
+        State = s;
+        StateChanged?.Invoke(s);
+    }
+    #endregion
+
+    #region Réglages (Setting.lps, section vmax_agent — les clés API sont dans le Gestionnaire d'identification)
     private ILine Cfg => mw.Set["vmax_agent"];
     public string Model
     {
         get => Cfg.GetString("model", GeminiClient.DefaultModel) ?? GeminiClient.DefaultModel;
-        set => Cfg.SetString("model", value);
+        set { Cfg.SetString("model", value); ProviderRouter.Reset("gemini"); }
     }
     public bool IsToolEnabled(IAgentTool t) => !Cfg.GetBool("tool_off_" + t.Name);
     public void SetToolEnabled(IAgentTool t, bool enabled) => Cfg.SetBool("tool_off_" + t.Name, !enabled);
-    /// <summary>Autorisation « toujours » mémorisée pour un outil sensible</summary>
     private bool IsAlwaysAllowed(IAgentTool t) => Cfg.GetBool("allow_" + t.Name);
-    public static bool HasApiKey => !string.IsNullOrEmpty(SecretStore.Get(SecretName));
+    public static bool HasApiKey => ProviderRouter.HasAnyConfigured();
     public static string AuditLogPath => Path.Combine(ExtensionValue.DataDirectory, "agent-audit.log");
     #endregion
 
-    /// <summary>
-    /// Oublie la conversation en cours
-    /// </summary>
+    public IReadOnlyList<ChatMessage> History
+    {
+        get { lock (history) return history.ToList(); }
+    }
+
     public void ResetConversation()
     {
         lock (history)
             history.Clear();
     }
 
-    /// <summary>
-    /// Annule la réponse en cours
-    /// </summary>
     public void Cancel() => cts?.Cancel();
 
     private string SystemPrompt()
@@ -71,7 +115,7 @@ public sealed class AgentOrchestrator
         return $"""
             Tu es {pet}, la compagne de bureau animée de V-Max, sur le PC Windows de {host}.
             Tu parles français, avec un ton chaleureux, espiègle et naturel. Tu tutoies {host} et tu peux l'appeler « maître » de temps en temps.
-            Réponds brièvement : 1 à 4 phrases, sauf si on te demande explicitement des détails. Texte brut uniquement : pas de Markdown, pas de listes à puces, pas d'émojis en excès.
+            Réponds brièvement : 1 à 4 phrases, sauf si on te demande explicitement des détails. Texte brut : pas de Markdown, pas de listes à puces.
             Nous sommes le {DateTime.Now.ToString("dddd d MMMM yyyy, HH:mm", fr)}.
             Tu peux agir sur le PC grâce aux outils fournis. Utilise-les quand {host} te le demande ou quand c'est clairement utile.
             N'invente jamais le résultat d'une action : appuie-toi sur la réponse de l'outil. Si une action échoue ou est refusée, dis-le simplement.
@@ -80,97 +124,131 @@ public sealed class AgentOrchestrator
     }
 
     /// <summary>
-    /// Traite un message de l'utilisateur
+    /// Traite un message de l'utilisateur (appelable depuis n'importe quel thread)
     /// </summary>
-    public async Task RespondAsync(string userText, TalkBox talkBox)
+    public async Task RespondAsync(string userText)
     {
-        // Développement : la clé peut venir de la variable d'environnement VMAX_GEMINI_APIKEY
-        var apiKey = SecretStore.Get(SecretName) ?? Environment.GetEnvironmentVariable("VMAX_GEMINI_APIKEY");
-        if (string.IsNullOrEmpty(apiKey))
-        {
-            Say("Pour que je puisse te répondre, ajoute une clé API Gemini dans Paramètres › Intelligence artificielle.", "serious");
+        userText = userText.Trim();
+        if (userText.Length == 0)
             return;
+        if (!ProviderRouter.HasAnyConfigured())
+        {
+            await ProviderRouter.RefreshLocalAsync();
+            if (!ProviderRouter.HasAnyConfigured())
+            {
+                ErrorRaised?.Invoke("Aucune IA n'est encore connectée. Choisis une IA gratuite ci-dessous : ça prend 30 secondes.", true);
+                if (!PanelVisible)
+                    PetSay("Connecte-moi à une IA gratuite pour que je puisse te répondre : ouvre la discussion depuis mon menu !", "serious");
+                return;
+            }
         }
         if (!await busy.WaitAsync(0))
         {
-            Say("Une seconde, je réfléchis encore à ta demande précédente…");
+            ErrorRaised?.Invoke("Je réfléchis encore à ta demande précédente…", false);
             return;
         }
         cts = new CancellationTokenSource(TimeSpan.FromMinutes(3));
         var ct = cts.Token;
+        var user = ChatMessage.User(userText);
+        Add(user);
+        MessageAdded?.Invoke(user);
+        SetState(AgentState.Thinking);
+        PetThink();
+
+        var fullText = new StringBuilder();
+        SayInfoWithStream? bubble = null;
+        bool started = false;
         try
         {
-            var client = new GeminiClient(apiKey, Model);
-            AddToHistory(new JsonObject { ["role"] = "user", ["parts"] = new JsonArray(new JsonObject { ["text"] = userText }) });
-            mw.Dispatcher.Invoke(talkBox.DisplayThink);
-
-            SayInfoWithStream? stream = null;
+            var tools = AgentToolRegistry.All.Where(IsToolEnabled).Select(t => new ToolSpec(t.Name, t.Description, t.Parameters)).ToList();
             for (int round = 0; round <= MaxToolRounds; round++)
             {
-                var declarations = round < MaxToolRounds ? AgentToolRegistry.Declarations(IsToolEnabled) : null;
-                var modelParts = new JsonArray();
-                var calls = new List<JsonObject>();
-                var text = new StringBuilder();
-
-                JsonArray snapshot;
-                lock (history)
-                    snapshot = (JsonArray)history.DeepClone();
-
-                await foreach (var chunk in client.StreamAsync(snapshot, SystemPrompt(), declarations, ct))
+                var roundText = new StringBuilder();
+                IReadOnlyList<ToolCall>? calls = null;
+                IChatProvider? used = null;
+                await foreach (var (provider, ev) in ProviderRouter.StreamAsync(History, SystemPrompt(),
+                    round < MaxToolRounds ? tools : [], ct))
                 {
-                    AppendPart(modelParts, chunk.RawPart);
-                    if (chunk.FunctionCall != null)
-                        calls.Add(chunk.FunctionCall);
-                    else if (!string.IsNullOrEmpty(chunk.Text))
+                    used = provider;
+                    switch (ev)
                     {
-                        text.Append(chunk.Text);
-                        if (stream == null)
-                        {
-                            stream = new SayInfoWithStream();
-                            var s = stream;
-                            mw.Dispatcher.Invoke(() => talkBox.DisplayThinkToSayRnd(s));
-                        }
-                        stream.UpdateText(chunk.Text);
+                        case TextDelta d:
+                            if (!started)
+                            {
+                                started = true;
+                                SetState(AgentState.Speaking);
+                                AssistantStarted?.Invoke();
+                                if (!PanelVisible)
+                                    bubble = PetStartSpeaking();
+                            }
+                            roundText.Append(d.Text);
+                            fullText.Append(d.Text);
+                            AssistantDelta?.Invoke(d.Text);
+                            bubble?.UpdateText(d.Text);
+                            break;
+                        case ToolCallsRequested r:
+                            calls = r.Calls;
+                            break;
                     }
                 }
-                if (modelParts.Count > 0)
-                    AddToHistory(new JsonObject { ["role"] = "model", ["parts"] = modelParts });
-
-                if (calls.Count == 0)
+                Add(new ChatMessage { Role = ChatRole.Assistant, Text = roundText.ToString(), ToolCalls = calls, ProviderId = used?.Id });
+                if (calls == null || calls.Count == 0)
                     break;
 
-                // Exécution des outils demandés, puis on renvoie les résultats au modèle
-                var responses = new JsonArray();
                 foreach (var call in calls)
                 {
-                    string name = call["name"]?.GetValue<string>() ?? "";
-                    var args = call["args"] as JsonObject ?? new JsonObject();
-                    var result = await RunToolAsync(name, args, talkBox, ct);
-                    responses.Add(new JsonObject { ["functionResponse"] = new JsonObject { ["name"] = name, ["response"] = result } });
+                    var result = await RunToolAsync(call, ct);
+                    Add(new ChatMessage { Role = ChatRole.Tool, ToolCallId = call.Id, ToolName = call.Name, ToolResult = result });
                 }
-                AddToHistory(new JsonObject { ["role"] = "user", ["parts"] = responses });
-                if (stream == null)
-                    mw.Dispatcher.Invoke(talkBox.DisplayThink);
+                if (!started)
+                {
+                    SetState(AgentState.Thinking);
+                    PetThink();
+                }
             }
 
-            if (stream == null)
-                Say("…", null);
-            else
-                stream.FinishGenerate();
+            var text = fullText.ToString().Trim();
+            if (!started)
+            {
+                AssistantStarted?.Invoke();
+                text = "C'est fait !";
+                AssistantDelta?.Invoke(text);
+                if (!PanelVisible)
+                    PetSay(text);
+            }
+            bubble?.FinishGenerate();
+            AssistantFinished?.Invoke(text);
+            MessageAdded?.Invoke(new ChatMessage { Role = ChatRole.Assistant, Text = text, ProviderId = ProviderRouter.Current?.Id });
+            SetState(AgentState.Idle);
+            if (PanelVisible)
+                PetIdle();
         }
         catch (OperationCanceledException)
         {
-            Say("D'accord, j'arrête.");
+            bubble?.FinishGenerate();
+            AssistantFinished?.Invoke(fullText.ToString());
+            SetState(AgentState.Idle);
+            PetIdle();
         }
-        catch (GeminiClient.GeminiException e)
+        catch (ProviderException e)
         {
-            Say(e.Message, "serious");
+            bubble?.FinishGenerate();
             Audit("erreur", "", null, e.Message);
+            SetState(AgentState.Error);
+            ErrorRaised?.Invoke(e.Failure == ProviderFailure.Auth && !ProviderRouter.HasAnyConfigured()
+                ? "Aucune IA n'est encore connectée."
+                : "Aucune IA n'a pu répondre :\n" + e.Message, e.Failure == ProviderFailure.Auth);
+            if (!PanelVisible)
+                PetSay("Oups, je n'arrive à joindre aucune IA pour le moment.", "serious");
+            PetIdle();
         }
         catch (Exception e)
         {
-            Say("Oups, quelque chose s'est mal passé : " + e.Message, "serious");
+            bubble?.FinishGenerate();
             Audit("erreur", "", null, e.ToString());
+            SetState(AgentState.Error);
+            ErrorRaised?.Invoke("Erreur inattendue : " + e.Message, false);
+            PetIdle();
         }
         finally
         {
@@ -180,93 +258,95 @@ public sealed class AgentOrchestrator
         }
     }
 
-    /// <summary>
-    /// Fusionne les morceaux de texte consécutifs ; conserve tels quels les appels de fonction
-    /// (y compris une éventuelle « thoughtSignature », qui doit être renvoyée à l'identique)
-    /// </summary>
-    private static void AppendPart(JsonArray parts, JsonObject part)
-    {
-        bool plainText = part.Count == 1 && part["text"] != null;
-        if (plainText && parts.Count > 0 && parts[^1] is JsonObject last && last.Count == 1 && last["text"] != null)
-        {
-            last["text"] = last["text"]!.GetValue<string>() + part["text"]!.GetValue<string>();
-            return;
-        }
-        parts.Add(part.DeepClone());
-    }
-
-    private void AddToHistory(JsonObject content)
+    private void Add(ChatMessage m)
     {
         lock (history)
         {
-            history.Add(content);
-            // Historique borné : on retire les plus anciens échanges en commençant par un message utilisateur texte
-            while (history.Count > MaxHistoryTurns * 2)
+            history.Add(m);
+            // Historique borné : on coupe au début d'un message utilisateur pour garder des échanges cohérents
+            if (history.Count > MaxHistoryMessages)
             {
-                history.RemoveAt(0);
-                while (history.Count > 0 && !(history[0]?["role"]?.GetValue<string>() == "user" && history[0]?["parts"]?[0]?["text"] != null))
-                    history.RemoveAt(0);
+                int cut = history.FindIndex(history.Count - MaxHistoryMessages, x => x.Role == ChatRole.User);
+                if (cut > 0)
+                    history.RemoveRange(0, cut);
             }
         }
     }
 
-    private async Task<JsonObject> RunToolAsync(string name, JsonObject args, TalkBox talkBox, CancellationToken ct)
+    private async Task<JsonObject> RunToolAsync(ToolCall call, CancellationToken ct)
     {
-        var tool = AgentToolRegistry.Find(name);
+        var tool = AgentToolRegistry.Find(call.Name);
+        var args = call.Arguments;
         if (tool == null || !IsToolEnabled(tool))
         {
-            Audit(name, args.ToJsonString(), "refusé (outil indisponible)", null);
+            Audit(call.Name, args.ToJsonString(), "refusé (outil indisponible)", null);
             return new JsonObject { ["ok"] = false, ["error"] = "Cet outil n'est pas disponible." };
         }
 
-        // Confirmation selon le niveau de risque
         if (tool.Risk == ToolRisk.Dangerous || tool.Risk == ToolRisk.Sensitive && !IsAlwaysAllowed(tool))
         {
-            var decision = await AskConfirmationAsync(tool, args, ct);
+            SetState(AgentState.AwaitingConfirmation);
+            var description = tool.DescribeAction(args);
+            var decision = ConfirmHandler != null && PanelVisible
+                ? await WithTimeout(ConfirmHandler(tool, description), ct)
+                : await WithTimeout(ConfirmInBubbleAsync(tool, description), ct);
             if (decision == Decision.Refused)
             {
-                Audit(name, args.ToJsonString(), "refusé par l'utilisateur", null);
+                Audit(call.Name, args.ToJsonString(), "refusé par l'utilisateur", null);
+                ToolActivityChanged?.Invoke(new ToolActivity(tool.Title, tool.Name, true, false, "Refusé"));
                 return new JsonObject { ["ok"] = false, ["error"] = "L'utilisateur a refusé cette action." };
             }
             if (decision == Decision.Always)
                 Cfg.SetBool("allow_" + tool.Name, true);
-            mw.Dispatcher.Invoke(talkBox.DisplayThink);
         }
 
+        SetState(AgentState.Acting);
+        ToolActivityChanged?.Invoke(new ToolActivity(tool.Title, tool.Name, false, true, null));
         PetActing();
         try
         {
-            var ctx = new ToolContext { MW = mw, Say = t => Say(t) };
+            var ctx = new ToolContext { MW = mw, Say = t => PetSay(t) };
             var result = await tool.ExecuteAsync(args, ctx, ct);
-            Audit(name, args.ToJsonString(), "exécuté", result.ToJsonString());
+            bool ok = result["ok"]?.GetValue<bool>() ?? true;
+            Audit(call.Name, args.ToJsonString(), "exécuté", result.ToJsonString());
+            ToolActivityChanged?.Invoke(new ToolActivity(tool.Title, tool.Name, true, ok, result["message"]?.ToString() ?? result["error"]?.ToString()));
             return result;
         }
         catch (Exception e)
         {
-            Audit(name, args.ToJsonString(), "échec", e.Message);
+            Audit(call.Name, args.ToJsonString(), "échec", e.Message);
+            ToolActivityChanged?.Invoke(new ToolActivity(tool.Title, tool.Name, true, false, e.Message));
             return new JsonObject { ["ok"] = false, ["error"] = e.Message };
         }
     }
 
-    private enum Decision { Refused, Once, Always }
+    private static async Task<Decision> WithTimeout(Task<Decision> task, CancellationToken ct)
+    {
+        var done = await Task.WhenAny(task, Task.Delay(TimeSpan.FromSeconds(90), ct));
+        return done == task ? task.Result : Decision.Refused;
+    }
 
     /// <summary>
-    /// Demande l'autorisation dans la bulle du compagnon (boutons Autoriser / Toujours / Refuser), 60 s maximum
+    /// Confirmation dans la bulle du compagnon (quand le panneau de discussion est fermé)
     /// </summary>
-    private Task<Decision> AskConfirmationAsync(IAgentTool tool, JsonObject args, CancellationToken ct)
+    private Task<Decision> ConfirmInBubbleAsync(IAgentTool tool, string description)
     {
         var tcs = new TaskCompletionSource<Decision>(TaskCreationOptions.RunContinuationsAsynchronously);
         mw.Dispatcher.Invoke(() =>
         {
-            var panel = new StackPanel { Orientation = Orientation.Horizontal, HorizontalAlignment = HorizontalAlignment.Right, Margin = new Thickness(0, 6, 0, 0) };
-            Button B(string text, Decision d, bool accent)
+            var panel = new System.Windows.Controls.StackPanel
             {
-                var b = new Button
+                Orientation = System.Windows.Controls.Orientation.Horizontal,
+                HorizontalAlignment = System.Windows.HorizontalAlignment.Right,
+                Margin = new System.Windows.Thickness(0, 6, 0, 0),
+            };
+            System.Windows.Controls.Button B(string text, Decision d, bool accent)
+            {
+                var b = new System.Windows.Controls.Button
                 {
                     Content = text,
-                    FontSize = 20,
-                    Margin = new Thickness(6, 0, 0, 0),
-                    Style = (Style)Application.Current.FindResource(accent ? "VMaxAccentButton" : "VMaxButton"),
+                    Margin = new System.Windows.Thickness(6, 0, 0, 0),
+                    Style = (System.Windows.Style)System.Windows.Application.Current.FindResource(accent ? "VMaxAccentButton" : "VMaxButton"),
                 };
                 b.Click += (_, _) =>
                 {
@@ -279,27 +359,61 @@ public sealed class AgentOrchestrator
             if (tool.Risk == ToolRisk.Sensitive)
                 panel.Children.Add(B("Toujours", Decision.Always, false));
             panel.Children.Add(B("Autoriser", Decision.Once, true));
-            mw.Main.Say("Je peux ? " + tool.DescribeAction(args) + ".", panel, "serious", true);
+            mw.Main.Say("Je peux ? " + description + ".", panel, "serious", true);
         });
-        ct.Register(() => tcs.TrySetResult(Decision.Refused));
-        _ = Task.Delay(TimeSpan.FromSeconds(60)).ContinueWith(_ => tcs.TrySetResult(Decision.Refused));
         return tcs.Task;
     }
 
-    /// <summary>
-    /// Animation « au travail » pendant l'exécution d'un outil (si le personnage la possède)
-    /// </summary>
+    #region Animations du compagnon
+    private void PetThink()
+    {
+        mw.Dispatcher.Invoke(() =>
+        {
+            if (mw.Main.DisplayType.Name == "think")
+                return;
+            if (mw.Core.Graph!.FindGraphs("think", AnimatType.A_Start, mw.Core.Save!.Mode).Count > 0)
+                mw.Main.Display("think", AnimatType.A_Start, mw.Main.DisplayBLoopingForce);
+        });
+    }
+
     private void PetActing()
     {
         mw.Dispatcher.Invoke(() =>
         {
-            var graph = mw.Core.Graph;
-            if (graph != null && graph.FindGraphs("workone", AnimatType.A_Start, mw.Core.Save!.Mode).Count > 0)
+            if (mw.Core.Graph!.FindGraphs("workone", AnimatType.A_Start, mw.Core.Save!.Mode).Count > 0)
                 mw.Main.Display("workone", AnimatType.A_Start, mw.Main.DisplayBLoopingForce);
         });
     }
 
-    private void Say(string text, string? graph = null)
+    private void PetIdle()
+    {
+        mw.Dispatcher.Invoke(() =>
+        {
+            var name = mw.Main.DisplayType.Name;
+            if (name == "think" || name == "workone")
+                mw.Main.DisplayCEndtoNomal(name);
+        });
+    }
+
+    /// <summary>
+    /// Fin de la réflexion puis parole en streaming dans la bulle (panneau fermé)
+    /// </summary>
+    private SayInfoWithStream PetStartSpeaking()
+    {
+        var stream = new SayInfoWithStream { Force = true };
+        mw.Dispatcher.Invoke(() =>
+        {
+            var name = mw.Main.DisplayType.Name;
+            var end = mw.Core.Graph!.FindGraphs(name, AnimatType.C_End, mw.Core.Save!.Mode);
+            if ((name == "think" || name == "workone") && end.Count > 0)
+                mw.Main.Display(end[0], () => mw.Main.SayRnd(stream));
+            else
+                mw.Main.SayRnd(stream);
+        });
+        return stream;
+    }
+
+    private void PetSay(string text, string? graph = null)
     {
         mw.Dispatcher.Invoke(() =>
         {
@@ -309,10 +423,9 @@ public sealed class AgentOrchestrator
                 mw.Main.SayRnd(text, true);
         });
     }
+    #endregion
 
-    /// <summary>
-    /// Journal d'audit des actions de l'agent (une ligne JSON par événement), dans le dossier des données
-    /// </summary>
+    #region Journal d'audit
     private static readonly object AuditLock = new();
     private static readonly System.Text.Json.JsonSerializerOptions AuditJson = new()
     {
@@ -325,6 +438,7 @@ public sealed class AgentOrchestrator
             var line = new JsonObject
             {
                 ["date"] = DateTime.Now.ToString("O"),
+                ["fournisseur"] = ProviderRouter.Current?.DisplayName,
                 ["outil"] = tool,
                 ["arguments"] = args.Length > 500 ? args[..500] : args,
                 ["decision"] = decision,
@@ -335,4 +449,5 @@ public sealed class AgentOrchestrator
         }
         catch { }
     }
+    #endregion
 }

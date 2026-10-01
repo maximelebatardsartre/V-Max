@@ -1,0 +1,10 @@
+<Project>
+  <!-- V-Max : propriétés communes à tous les projets -->
+  <PropertyGroup>
+    <Version>0.4.0</Version>
+    <Company>V-Max</Company>
+    <Authors>V-Max (fork de VPet par LorisYounger / exLB.org)</Authors>
+    <Copyright>V-Max © 2026 — basé sur VPet © exLB.org / LorisYounger (Apache-2.0)</Copyright>
+    <Deterministic>true</Deterministic>
+  </PropertyGroup>
+</Project>
