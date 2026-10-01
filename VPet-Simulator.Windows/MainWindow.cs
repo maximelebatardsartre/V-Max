@@ -115,6 +115,39 @@ namespace VPet_Simulator.Windows
         /// <summary>
         /// V-Max (QA) : rend une fenêtre de l'application dans un PNG, sans capturer l'écran
         /// </summary>
+        /// <summary>
+        /// QA : rend une fenêtre et les fenêtres posées dessus (compagnon, bulles) à leur position relative
+        /// </summary>
+        public static void QaSnapshotComposite(Window back, Window[] fronts, string path)
+        {
+            try
+            {
+                if (back.Content is not FrameworkElement root || root.ActualWidth < 1)
+                    return;
+                var dpi = VisualTreeHelper.GetDpi(root);
+                var rtb = new System.Windows.Media.Imaging.RenderTargetBitmap((int)(root.ActualWidth * dpi.DpiScaleX), (int)(root.ActualHeight * dpi.DpiScaleY),
+                    dpi.PixelsPerInchX, dpi.PixelsPerInchY, PixelFormats.Pbgra32);
+                var dv = new DrawingVisual();
+                using (var dc = dv.RenderOpen())
+                {
+                    dc.DrawRectangle(back.Background ?? Brushes.Black, null, new Rect(0, 0, root.ActualWidth, root.ActualHeight));
+                    dc.DrawRectangle(new VisualBrush(root), null, new Rect(0, 0, root.ActualWidth, root.ActualHeight));
+                    foreach (var w in fronts)
+                        if (w.Content is FrameworkElement fr && fr.ActualWidth > 0 && w.IsVisible && w.Opacity > 0)
+                            dc.DrawRectangle(new VisualBrush(fr), null, new Rect(w.Left - back.Left, w.Top - back.Top, fr.ActualWidth, fr.ActualHeight));
+                }
+                rtb.Render(dv);
+                var enc = new System.Windows.Media.Imaging.PngBitmapEncoder();
+                enc.Frames.Add(System.Windows.Media.Imaging.BitmapFrame.Create(rtb));
+                using var fs = File.Create(path);
+                enc.Save(fs);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("QaSnapshotComposite: " + e.Message);
+            }
+        }
+
         public static void QaSnapshot(Window window, string path)
         {
             try
@@ -1707,6 +1740,7 @@ namespace VPet_Simulator.Windows
                   Main.Resources = Application.Current.Resources;
                   // V-Max HUD : anneau orbital, panneaux et bulle flottante remplacent la barre et la bulle de VPet
                   Hud = new HUD.HudController(this);
+                  Habitat = new Habitat.HabitatMode(this);
                   // V-Max HUD : la bulle de VPet est remplacée par la bulle flottante (même interface IMassageBar)
                   if (Main.MsgBar is MessageBar oldBar)
                   {
@@ -2032,6 +2066,7 @@ namespace VPet_Simulator.Windows
                   if (Set.DeBug)
                       Main.ToolBar.AddMenuButton(ToolBar.MenuType.Setting, "开发控制台".Translate(), () => { Main.ToolBar.Visibility = Visibility.Collapsed; new winConsole(this).Show(); });
                   Main.ToolBar.AddMenuButton(ToolBar.MenuType.Setting, "照片图库".Translate(), ShowGallery);
+                  Main.ToolBar.AddMenuButton(ToolBar.MenuType.Setting, "Habitat (mode autonome)".Translate(), () => _ = ToggleHabitat());
                   Main.ToolBar.AddMenuButton(ToolBar.MenuType.Setting, "操作教程".Translate(), () =>
                   {
                       ExtensionFunction.StartURL(ExtensionValue.RepositoryURL + "#readme");// V-Max : documentation du projet
@@ -2594,6 +2629,51 @@ namespace VPet_Simulator.Windows
                           Dispatcher.Invoke(() => QaSnapshot(Hud!.PanelWindow ?? (Window)this, System.IO.Path.Combine(System.IO.Path.GetTempPath(), "vmax-qa-settings.png")));
                       });
                   }
+                  if (Habitat?.Enabled == true && Args.FindLine("vmax-habitat") == null)
+                      _ = ToggleHabitat();
+                  if (Args.FindLine("vmax-habitat") is ILine qaHabitat)
+                  {// QA : habitat avec l'image donnée (sans rien enregistrer), rendu composé dans %TEMP%\vmax-qa-settings.png et trace des déplacements
+                      Task.Run(async () =>
+                      {
+                          await Task.Delay(8000);
+                          await Dispatcher.InvokeAsync(async () =>
+                          {
+                              var err = await Habitat!.EnableAsync(qaHabitat.Info, persist: false);
+                              System.IO.File.WriteAllText(System.IO.Path.Combine(System.IO.Path.GetTempPath(), "vmax-qa-debug.txt"), "image=" + qaHabitat.Info + " erreur=" + (err ?? "aucune"));
+                              if (qaHabitat.GetString("edit") != null)
+                              {
+                                  Habitat.Window?.StartEditing();
+                                  Habitat.Window?.QaHover(new Point(560, 520), "f2");
+                              }
+                          }).Task.Unwrap();
+                          var trace = new System.Text.StringBuilder();
+                          int samples = int.TryParse(qaHabitat.GetString("samples"), out var n) ? n : 16;
+                          for (int qi = 0; qi < samples; qi++)
+                          {
+                              await Task.Delay(500);
+                              Dispatcher.Invoke(() =>
+                              {
+                                  var p = Habitat!.Projection;
+                                  var m = Habitat.Metrics;
+                                  double s = ActualWidth;
+                                  trace.AppendLine($"{qi * 500 + 500}ms habitat={Habitat!.IsActive} visible={IsVisible} graph={Main.DisplayType.Name}/{Main.DisplayType.Type} x={p.ToImageX(Left + s * m.CenterRatio):0} pieds={p.ToImageY(Top + s * m.FootRatio):0} zoom={Set.ZoomLevel:0.000} L={Core.Controller.GetWindowsDistanceLeft():0} R={Core.Controller.GetWindowsDistanceRight():0} D={Core.Controller.GetWindowsDistanceDown():0}");
+                              });
+                              if (qi == 4 && qaHabitat.GetString("close") != null)
+                                  Dispatcher.Invoke(() => Habitat!.Window?.Close());
+                              if (qi % 6 == 0 && qaHabitat.GetString("walk") != null)
+                                  Dispatcher.Invoke(() => Main.DisplayToMove());
+                              if (qi == 3 && qaHabitat.GetString("drop") != null)
+                                  Dispatcher.Invoke(() =>
+                                  {// lâcher le compagnon en l'air : il doit retomber sur un sol
+                                      Top -= ActualHeight * (qaHabitat.GetString("drop") == "2" ? 2.2 : 0.8);
+                                      Left += ActualWidth * 0.3;
+                                      Core.Controller.CheckPosition();
+                                  });
+                          }
+                          System.IO.File.WriteAllText(System.IO.Path.Combine(System.IO.Path.GetTempPath(), "vmax-qa-trace.txt"), trace.ToString());
+                          Dispatcher.Invoke(() => QaSnapshotComposite(Habitat!.Window!, new Window[] { this }, System.IO.Path.Combine(System.IO.Path.GetTempPath(), "vmax-qa-settings.png")));
+                      });
+                  }
                   if (Args.FindLine("vmax-toast") is ILine qaToast)
                   {// QA : notification rendue dans %TEMP%\vmax-qa-settings.png
                       Task.Run(async () =>
@@ -2970,6 +3050,23 @@ namespace VPet_Simulator.Windows
                 else
                     NoticeBox.Show(text, "V-Max", kind == HUD.HudToast.Kind.Warning ? Panuon.WPF.UI.MessageBoxIcon.Warning : Panuon.WPF.UI.MessageBoxIcon.Info, true, (int)(seconds * 1000));
             });
+        }
+
+        /// <summary>
+        /// V-Max habitat : active ou quitte le mode autonome (message en cas d'échec)
+        /// </summary>
+        public async Task ToggleHabitat()
+        {
+            if (Habitat == null)
+                return;
+            if (Habitat.IsActive)
+            {
+                Habitat.Disable();
+                return;
+            }
+            var error = await Habitat.EnableAsync();
+            if (error != null)
+                Toast(error, HUD.HudToast.Kind.Warning, 6);
         }
 
         public void CheckGalleryUnlock()

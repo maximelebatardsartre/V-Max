@@ -504,7 +504,7 @@ public partial class winVMaxSettings : Window
                     set.Font = f;
                 }), advancedOnly: true);
 
-        Add("apparence", "Compagnon", "Taille du compagnon", "Taille d'affichage à l'écran.",
+        Add("apparence", "Compagnon", "Taille du compagnon", "Taille d'affichage à l'écran. Astuce : Ctrl + molette sur le compagnon pour l'ajuster à tout moment.",
             () => SliderRow(0.25, 4, 0.05, () => set.ZoomLevel, v => mw.SetZoomLevel(v), v => $"{v * 100:0} %"));
         Add("apparence", "Compagnon", "Opacité", "Transparence du compagnon.",
             () => SliderRow(0.1, 1, 0.05, () => set.OpacityMain ? set.Opacity : 1, v =>
@@ -562,6 +562,31 @@ public partial class winVMaxSettings : Window
                 i => set.SetSmartMoveInterval(smartIntervals[i]), width: 140), advancedOnly: true);
         Add("compagnon", "Déplacements", "Changer d'écran automatiquement", "Adapte la zone de déplacement à l'écran où tu déposes le compagnon.",
             () => Toggle(() => set.AutoChangeWindow, v => set.AutoChangeWindow = v), advancedOnly: true);
+
+        Add("compagnon", "Habitat (mode autonome)", "Mode autonome",
+            "Le compagnon vit dans une fenêtre « habitat » qui affiche ton décor (par défaut ton fond d'écran) et se promène sur les sols que tu traces.",
+            () => Toggle(() => mw.Habitat?.IsActive == true, v =>
+            {
+                if (mw.Habitat == null) return;
+                if (v != mw.Habitat.IsActive) _ = mw.ToggleHabitat();
+            }));
+        Add("compagnon", "Habitat (mode autonome)", "Décor",
+            "Une image avec des espaces dégagés (une maison en coupe, par exemple). Chaque image garde sa propre carte.",
+            HabitatImagePicker, fullWidth: true);
+        Add("compagnon", "Habitat (mode autonome)", "Modifier la carte", "Trace les sols sur lesquels le compagnon marche et règle sa taille dans ce décor.",
+            () => ActionButton(T("Ouvrir l'éditeur"), async () =>
+            {
+                if (mw.Habitat == null) return;
+                if (!mw.Habitat.IsActive)
+                {
+                    var err = await mw.Habitat.EnableAsync();
+                    if (err != null) { Pulse(T(err)); return; }
+                }
+                mw.Habitat.Window?.StartEditing();
+                mw.Habitat.Window?.Activate();
+            }));
+        Add("compagnon", "Habitat (mode autonome)", "Habitat toujours au premier plan", "Garde la fenêtre habitat au-dessus des autres fenêtres.",
+            () => Toggle(() => mw.Habitat?.AlwaysOnTop == true, v => { if (mw.Habitat != null) mw.Habitat.AlwaysOnTop = v; }), advancedOnly: true);
 
         Add("compagnon", "Simulation", "Besoins du compagnon", "Faim, soif, humeur et endurance évoluent avec le temps.",
             () => Toggle(() => set.EnableFunction, v =>
@@ -796,6 +821,44 @@ public partial class winVMaxSettings : Window
         line.Children.Add(combo);
         line.Children.Add(refresh);
         return line;
+    }
+
+    private FrameworkElement HabitatImagePicker()
+    {
+        var root = new StackPanel();
+        var line = new StackPanel { Orientation = Orientation.Horizontal };
+        var status = new TextBlock { Margin = new Thickness(0, 6, 0, 0), FontSize = 12, Foreground = (Brush)FindResource("VMaxSubtleText"), TextTrimming = TextTrimming.CharacterEllipsis, MaxWidth = 560 };
+        void Refresh()
+        {
+            var chosen = mw.Habitat?.ChosenImage;
+            status.Text = chosen != null ? chosen : T("Ton fond d'écran actuel") + (Habitat.WallpaperInfo.CurrentPath() is { } wp ? " · " + wp : " (introuvable : choisis une image)");
+        }
+        var pick = (Button)ActionButton(T("Choisir une image…"), async () =>
+        {
+            var dlg = new Microsoft.Win32.OpenFileDialog
+            {
+                Title = T("Image de l'habitat"),
+                Filter = T("Images") + "|*.png;*.jpg;*.jpeg;*.bmp;*.webp|" + T("Tous les fichiers") + "|*.*",
+            };
+            if (dlg.ShowDialog(this) != true || mw.Habitat == null) return;
+            var err = await mw.Habitat.UseImageAsync(dlg.FileName);
+            Refresh();
+            if (err != null) Pulse(T(err));
+        });
+        var wallpaper = (Button)ActionButton(T("Utiliser mon fond d'écran"), async () =>
+        {
+            if (mw.Habitat == null) return;
+            var err = await mw.Habitat.UseImageAsync(null);
+            Refresh();
+            if (err != null) Pulse(T(err));
+        });
+        wallpaper.Margin = new Thickness(8, 0, 0, 0);
+        line.Children.Add(pick);
+        line.Children.Add(wallpaper);
+        root.Children.Add(line);
+        root.Children.Add(status);
+        Refresh();
+        return root;
     }
 
     private void SyncTrayCheck(string name, bool value)

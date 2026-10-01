@@ -92,6 +92,10 @@ public partial class MainWindow
     /// V-Max HUD : interface autour du compagnon
     /// </summary>
     public HUD.HudController? Hud { get; private set; }
+    /// <summary>
+    /// V-Max habitat : mode autonome dans un décor personnalisé
+    /// </summary>
+    public Habitat.HabitatMode? Habitat { get; private set; }
     public winBetterBuy? winBetterBuy { get; set; }
     public winGallery? winGallery { get; set; } 
     public winInventory? winInventory { get; set; }
