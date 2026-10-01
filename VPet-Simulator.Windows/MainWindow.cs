@@ -1864,12 +1864,7 @@ namespace VPet_Simulator.Windows
                   Main.ToolBar.AddMenuButton(ToolBar.MenuType.Setting, "照片图库".Translate(), ShowGallery);
                   Main.ToolBar.AddMenuButton(ToolBar.MenuType.Setting, "操作教程".Translate(), () =>
                   {
-                      if (LocalizeCore.CurrentCulture == "zh-Hans")
-                          ExtensionFunction.StartURL("https://wiki.exlb.net/vpet/tutorial");
-                      else if (LocalizeCore.CurrentCulture == "zh-Hant")
-                          ExtensionFunction.StartURL("https://wiki.exlb.net/zh-hant/vpet/tutorial");
-                      else
-                          ExtensionFunction.StartURL("https://wiki.exlb.net/en/vpet/tutorial");
+                      ExtensionFunction.StartURL(ExtensionValue.RepositoryURL + "#readme");// V-Max : documentation du projet
                   });
                   Main.ToolBar.AddMenuButton(ToolBar.MenuType.Setting, "反馈中心".Translate(), () => { Main.ToolBar.Visibility = Visibility.Collapsed; new winReport(this).Show(); });
                   Main.ToolBar.AddMenuButton(ToolBar.MenuType.Setting, "设置面板".Translate(), () =>
@@ -1956,12 +1951,7 @@ namespace VPet_Simulator.Windows
                   m_menu.Items.Add(topmost);
                   m_menu.Items.Add(new MenuItem("操作教程".Translate(), null, (x, y) =>
                   {
-                      if (LocalizeCore.CurrentCulture == "zh-Hans")
-                          ExtensionFunction.StartURL("https://wiki.exlb.net/vpet/tutorial");
-                      else if (LocalizeCore.CurrentCulture == "zh-Hant")
-                          ExtensionFunction.StartURL("https://wiki.exlb.net/zh-hant/vpet/tutorial");
-                      else
-                          ExtensionFunction.StartURL("https://wiki.exlb.net/en/vpet/tutorial");
+                      ExtensionFunction.StartURL(ExtensionValue.RepositoryURL + "#readme");// V-Max : documentation du projet
                   }));
                   m_menu.Items.Add(new MenuItem("重置位置与状态".Translate(), null, (x, y) =>
                   {
@@ -2296,7 +2286,7 @@ namespace VPet_Simulator.Windows
                       if (!cm.SuccessLoad)
                           if (cm.Tag.Contains("该模组已损坏"))
                               MessageBoxX.Show("模组 {0} 插件损坏\n虚拟桌宠模拟器未能成功加载该插件\n请联系MOD作者修复该问题".Translate(cm.Name) + '\n' + cm.ErrorMessage, "该模组已损坏".Translate());
-                          else if (Set.IsPassMOD(cm.Name) || !string.IsNullOrEmpty(cm.ErrorMessage))
+                          else if (cm.IsPassMOD(this) || !string.IsNullOrEmpty(cm.ErrorMessage))
                               MessageBoxX.Show("模组 {0} 的代码插件损坏\n虚拟桌宠模拟器未能成功加载该插件\n请联系MOD作者修复该问题".Translate(cm.Name) + '\n' + cm.ErrorMessage, "{0} 未加载代码插件".Translate(cm.Name));
                           else if (Set.IsMSGMOD(cm.Name))
                               MessageBoxX.Show("由于 {0} 包含代码插件\n虚拟桌宠模拟器已自动停止加载该插件\n请手动前往设置允许启用该mod 代码插件".Translate(cm.Name), "{0} 未加载代码插件".Translate(cm.Name));

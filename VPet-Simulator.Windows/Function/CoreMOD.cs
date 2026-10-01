@@ -109,22 +109,22 @@ namespace VPet_Simulator.Windows
             else
                 ItemID = 0;
             CacheDate = modlps.GetDateTime("cachedate", DateTime.MinValue);
-            foreach (var skip in modlps["dllskip"])
-            {
-                LoadedDLL.Add(skip.Name);
-            }
             if (CacheDate > DateTime.Now)
             {//去掉不合理的清理缓存日期
                 CacheDate = DateTime.MinValue;
             }
 
             //MOD未加载时支持翻译
+            // V-Max (AUDIT S-05) : un mod désactivé ne peut traduire que son propre nom et sa description
+            // (sinon il pourrait réécrire n'importe quel texte de l'interface, y compris les avertissements de sécurité)
+            bool modEnabled = IsOnMOD(mw);
             foreach (var line in modlps.FindAllLine("lang"))
             {
                 List<ILine> ls = new List<ILine>();
                 foreach (var sub in line)
                 {
-                    ls.Add(new Line(sub.Name, sub.info));
+                    if (modEnabled || sub.Name == Name || sub.Name == Intro)
+                        ls.Add(new Line(sub.Name, sub.info));
                 }
                 LocalizeCore.AddCulture(line.info, ls);
             }
@@ -136,12 +136,17 @@ namespace VPet_Simulator.Windows
                 return;
             }
 
-            if (!IsOnMOD(mw))
+            if (!modEnabled)
             {
                 Tag.Add("该模组已停用");
                 foreach (DirectoryInfo di in Path.EnumerateDirectories())
                     Tag.Add(di.Name.ToLowerInvariant());
                 return;
+            }
+
+            foreach (var skip in modlps["dllskip"])
+            {
+                LoadedDLL.Add(skip.Name);
             }
 
             foreach (DirectoryInfo di in Path.EnumerateDirectories())
@@ -350,38 +355,13 @@ namespace VPet_Simulator.Windows
                                 if (LoadedDLL.Contains(path))
                                     continue;
                                 LoadedDLL.Add(path);
-                                X509Certificate2? certificate;
-                                try
-                                {
-                                    certificate = new X509Certificate2(tmpfi.FullName);
-                                }
-                                catch
-                                {
-                                    certificate = null;
-                                }
-                                if (certificate != null)
-                                {
-                                    if (IsLBGameCertificate(certificate))
-                                    {//LBGame 信任的证书
-                                        if (authtype != "FAIL")
-                                            authtype = "[认证]".Translate();
-                                    }
-                                    else if (!IsTrustedCertificate(certificate)
-                                        && !IsPassMOD(mw))
-                                    {//不是通过模组,不加载
-                                        SuccessLoad = false;
-                                        continue;
-                                    }
-                                }
-                                else
+                                // V-Max (AUDIT S-01 à S-04) : chaque DLL doit avoir été approuvée explicitement,
+                                // avec son empreinte SHA-256 actuelle. Plus de confiance automatique par certificat.
+                                if (!PluginTrustStore.IsApproved(Name, tmpfi))
                                 {
                                     authtype = "FAIL";
-                                    if (!IsPassMOD(mw))
-                                    {//不是通过模组,不加载
-                                        SuccessLoad = false;
-                                        Author = modlps.FindSub("author")!.Info.Split('[').First();
-                                        continue;
-                                    }
+                                    SuccessLoad = false;
+                                    continue;
                                 }
                                 Assembly dll = Assembly.LoadFrom(tmpfi.FullName);
                                 var v = dll.GetExportedTypes();
@@ -427,11 +407,10 @@ namespace VPet_Simulator.Windows
 #endif
         }
         public bool IsOnMOD(MainWindow mw) => mw.Set.IsOnMod(Name);
-#if DEBUG
-        public bool IsPassMOD(MainWindow mw) => true;
-#else
-        public bool IsPassMOD(MainWindow mw) => mw.Set.IsPassMOD(Name);
-#endif
+        /// <summary>
+        /// V-Max : toutes les DLL du mod sont approuvées dans leur version actuelle (voir <see cref="PluginTrustStore"/>)
+        /// </summary>
+        public bool IsPassMOD(MainWindow mw) => PluginTrustStore.IsModApproved(Name, Path);
 
         public void WriteFile()
         {
@@ -444,21 +423,6 @@ namespace VPet_Simulator.Windows
             modlps.FindorAddLine("authorid").InfoToInt64 = AuthorID;
             modlps.FindorAddLine("itemid").info = ItemID.ToString();
             File.WriteAllText(Path.FullName + @"\info.lps", modlps.ToString());
-        }
-
-        public static bool IsLBGameCertificate(X509Certificate2 certificate)
-        {
-            return (certificate.Subject == "CN=\"Shenzhen Lingban Computer Technology Co., Ltd.\", O=\"Shenzhen Lingban Computer Technology Co., Ltd.\", L=Shenzhen, S=Guangdong Province, C=CN, SERIALNUMBER=91440300MA5H8REU3K, OID.2.5.4.15=Private Organization, OID.1.3.6.1.4.1.311.60.2.1.1=Shenzhen, OID.1.3.6.1.4.1.311.60.2.1.2=Guangdong Province, OID.1.3.6.1.4.1.311.60.2.1.3=CN"
-                                        && certificate.Issuer == "CN=DigiCert Trusted G4 Code Signing RSA4096 SHA384 2021 CA1, O=\"DigiCert, Inc.\", C=US")
-                                        || (certificate.Subject == "CN=\"Shenzhen Zero Edition Computer Technology Co., Ltd.\", O=\"Shenzhen Zero Edition Computer Technology Co., Ltd.\", L=Shenzhen, S=Guangdong, C=CN, SERIALNUMBER=91440300MA5H8REU3K, OID.1.3.6.1.4.1.311.60.2.1.1=Shenzhen, OID.1.3.6.1.4.1.311.60.2.1.2=Guangdong, OID.1.3.6.1.4.1.311.60.2.1.3=CN, OID.2.5.4.15=Private Organization"
-                                        && certificate.Issuer == "CN=Certum Extended Validation Code Signing 2021 CA, O=Asseco Data Systems S.A., C=PL");
-        }
-        public static bool IsTrustedCertificate(X509Certificate2 certificate)
-        {
-            return certificate.Issuer.Contains("Microsoft Corporation") ||
-                                        certificate.Issuer.Contains(".NET Foundation Projects") ||
-                                        certificate.Issuer == "CN=DigiCert Trusted G4 Code Signing RSA4096 SHA384 2021 CA1, O=\"DigiCert, Inc.\", C=US" ||
-                                        certificate.Issuer == "CN=Certum Extended Validation Code Signing 2021 CA, O=Asseco Data Systems S.A., C=PL";
         }
     }
     public static class ExtensionSetting

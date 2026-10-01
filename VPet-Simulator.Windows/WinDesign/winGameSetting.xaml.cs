@@ -355,51 +355,11 @@ namespace VPet_Simulator.Windows
                 GameVer = gameVer;
                 Ver = ver;
                 Tag = tag;
-                HasTrustedCertificate = !IsPlugin || HasTrustedPluginCertificate(path);
+                HasTrustedCertificate = !IsPlugin || PluginTrustStore.IsModApproved(name, path);
             }
 
 
 
-            private static bool HasTrustedPluginCertificate(DirectoryInfo directory)
-            {
-                string dllPath = System.IO.Path.Combine(directory.FullName, "plugin");
-                var loadfile = new LpsDocument();
-                string loadFilePath = System.IO.Path.Combine(dllPath, "load.lps");
-                if (File.Exists(loadFilePath))
-                    loadfile = new LpsDocument(File.ReadAllText(loadFilePath));
-
-                foreach (FileInfo tmpfi in new DirectoryInfo(dllPath).EnumerateFiles("*.dll"))
-                {
-#if X64
-                    if (tmpfi.Name.Contains("x86"))
-                        continue;
-                    string cputype = "x64";
-#else
-                    if (tmpfi.Name.Contains("x64"))
-                        continue;
-                    string cputype = "x86";
-#endif
-                    if (loadfile[tmpfi.Name][(gbol)"skip"])
-                        continue;
-
-                    string? dllcpu = loadfile[tmpfi.Name].GetString("cpu", "anycpu")?.ToLowerInvariant();
-                    if (dllcpu != "anycpu" && dllcpu != cputype)
-                        continue;
-
-                    try
-                    {
-                        var certificate = new X509Certificate2(tmpfi.FullName);
-                        if (!(CoreMOD.IsTrustedCertificate(certificate) || CoreMOD.IsLBGameCertificate(certificate)))
-                            return false;
-                    }
-                    catch
-                    {
-                        return false;
-                    }
-                }
-
-                return true;
-            }
 
             public bool MatchesSearch(string? searchText)
             {
@@ -673,7 +633,7 @@ namespace VPet_Simulator.Windows
                 content += tag.Translate() + "\n";
             }
             GameHave.Text = content;
-            ButtonAllow.Visibility = ((mod?.SuccessLoad == false || (modInfo.IsPlugin && !modInfo.HasTrustedCertificate)) && !mw.Set.IsPassMOD(modInfo.Name)) ? Visibility.Visible : Visibility.Collapsed;
+            ButtonAllow.Visibility = (modInfo.IsPlugin && !PluginTrustStore.IsModApproved(modInfo.Name, modInfo.Path)) ? Visibility.Visible : Visibility.Collapsed;
 
             if (mod != null)
             {
@@ -800,10 +760,15 @@ namespace VPet_Simulator.Windows
             if (modInfo == null)
                 return;
 
-            if (MessageBoxX.Show("是否启用 {0} 的代码插件?\n一经启用,该插件将会允许访问该系统(包括外部系统)的所有数据\n如果您不确定,请先使用杀毒软件查杀检查".Translate(modInfo.Name),
-                "启用 {0} 的代码插件?".Translate(modInfo.Name), MessageBoxButton.YesNo, MessageBoxIcon.Warning) == MessageBoxResult.Yes)
+            // V-Max : avertissement de sécurité volontairement NON traduisible par les mods (anti-usurpation, AUDIT S-05)
+            var dlls = string.Join("\n", PluginTrustStore.PluginDlls(modInfo.Path).Select(d => "  • " + d.Name + "  (SHA-256 " + PluginTrustStore.ComputeHash(d.FullName)[..16] + "…)"));
+            if (MessageBoxX.Show($"Autoriser le code du mod « {modInfo.Name} » ?\n\n"
+                + "Un plugin de code s'exécute avec tous vos droits : il peut lire vos fichiers, accéder au réseau et lancer des programmes.\n"
+                + "N'autorisez que des mods de confiance. L'autorisation est liée à la version exacte des fichiers ci-dessous ; "
+                + "toute modification demandera une nouvelle autorisation.\n\n" + dlls,
+                "Autoriser un plugin de code", MessageBoxButton.YesNo, MessageBoxIcon.Warning) == MessageBoxResult.Yes)
             {
-                mw.Set.PassMod(modInfo.Name);
+                PluginTrustStore.ApproveMod(modInfo.Name, modInfo.Path);
                 ShowMod(modInfo);
                 ButtonRestart.Visibility = Visibility.Visible;
             }
