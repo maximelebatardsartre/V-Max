@@ -127,6 +127,50 @@ public static class ProviderRouter
     }
 
     /// <summary>
+    /// État lisible d'un fournisseur pour l'interface (connecté, en pause après un quota, clé refusée…)
+    /// </summary>
+    public static (bool ok, string text) StatusOf(ProviderInfo p)
+    {
+        string? key = KeyFor(p);
+        if (p.IsLocal)
+            return IsLocalReachable(p.Id) ? (true, "Détecté") : (false, "Non détecté");
+        if (string.IsNullOrEmpty(key))
+            return (false, "");
+        if (rejectedKeys.TryGetValue(p.Id, out var bad) && bad == key)
+            return (false, "Clé refusée");
+        if (cooldown.TryGetValue(p.Id, out var until) && until > DateTime.Now)
+            return (false, $"En pause jusqu'à {until:HH:mm}");
+        return (true, "Connecté");
+    }
+
+    /// <summary>
+    /// Vérifie une clé par un appel léger (liste des modèles). Retourne null si elle fonctionne, sinon le motif.
+    /// </summary>
+    public static async Task<string?> ValidateKeyAsync(ProviderInfo p, string key, CancellationToken ct = default)
+    {
+        try
+        {
+            if (p.Id == "gemini")
+                await GeminiClient.ListModelsAsync(key, ct).ConfigureAwait(false);
+            else if (p.Create(key, null) is OpenAiCompatibleProvider oa)
+                await oa.ListModelsAsync(ct).ConfigureAwait(false);
+            return null;
+        }
+        catch (ProviderException e) when (e.Failure == ProviderFailure.Auth)
+        {
+            return "le service a refusé cette clé.";
+        }
+        catch (HttpRequestException)
+        {
+            return "le service est injoignable (connexion internet ?).";
+        }
+        catch (Exception e)
+        {
+            return e.Message;
+        }
+    }
+
+    /// <summary>
     /// Au moins un fournisseur est-il configuré (clé ou IA locale) ?
     /// </summary>
     public static bool HasAnyConfigured() =>

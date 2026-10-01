@@ -87,6 +87,22 @@ public sealed class AgentOrchestrator
         get => Cfg.GetString("model", GeminiClient.DefaultModel) ?? GeminiClient.DefaultModel;
         set { Cfg.SetString("model", value); ProviderRouter.Reset("gemini"); }
     }
+    /// <summary>Modèle choisi pour un fournisseur (null = automatique)</summary>
+    public string? ModelOf(string providerId) => providerId == "gemini" ? Model : Cfg.GetString("model_" + providerId, null);
+    public void SetModelOf(string providerId, string? model)
+    {
+        model = string.IsNullOrWhiteSpace(model) ? null : model.Trim();
+        if (providerId == "gemini")
+            Model = model ?? GeminiClient.DefaultModel;
+        else
+        {
+            if (model == null)
+                Cfg.Remove("model_" + providerId);
+            else
+                Cfg.SetString("model_" + providerId, model);
+            ProviderRouter.Reset(providerId);
+        }
+    }
     public bool IsToolEnabled(IAgentTool t) => !Cfg.GetBool("tool_off_" + t.Name);
     public void SetToolEnabled(IAgentTool t, bool enabled) => Cfg.SetBool("tool_off_" + t.Name, !enabled);
     private bool IsAlwaysAllowed(IAgentTool t) => Cfg.GetBool("allow_" + t.Name);

@@ -633,40 +633,25 @@ public partial class winVMaxSettings : Window
     private void DefineAgentSettings()
     {
         var agent = mw.AgentPlugin?.Orchestrator;
-        Add("ia", "Agent V-Max", "Activer l'agent V-Max",
-            "Ton compagnon répond avec Gemini dans la zone « Écris-moi… » et peut agir sur ton PC avec ta permission.",
-            () => Toggle(() => Agent.VMaxAgentPlugin.IsActive(mw), v => Agent.VMaxAgentPlugin.Activate(mw, v)));
-        Add("ia", "Agent V-Max", "Clé API Gemini",
-            "Stockée dans le Gestionnaire d'identification Windows, jamais dans les fichiers de V-Max.",
-            ApiKeyEditor, fullWidth: true);
-        Add("ia", "Agent V-Max", "Tester la connexion", "Envoie une courte requête à Gemini avec la clé et le modèle choisis.",
-            () => ActionButton(T("Tester"), async () =>
-            {
-                var key = Agent.SecretStore.Get(Agent.AgentOrchestrator.SecretName);
-                if (string.IsNullOrEmpty(key)) { Pulse(T("Aucune clé API enregistrée")); return; }
-                Pulse(T("Test en cours…"));
-                try
-                {
-                    var client = new Agent.GeminiClient(key, agent?.Model);
-                    var contents = new System.Text.Json.Nodes.JsonArray(new System.Text.Json.Nodes.JsonObject
-                    {
-                        ["role"] = "user",
-                        ["parts"] = new System.Text.Json.Nodes.JsonArray(new System.Text.Json.Nodes.JsonObject { ["text"] = "Réponds uniquement : OK" })
-                    });
-                    var sb = new StringBuilder();
-                    await foreach (var c in client.StreamAsync(contents, "Tu es un test de connexion.", null))
-                        sb.Append(c.Text);
-                    Pulse(T("Connexion réussie") + " (" + client.Model + ")");
-                }
-                catch (Exception e)
-                {
-                    MessageBox.Show(this, e.Message, T("Test de connexion"), MessageBoxButton.OK, MessageBoxImage.Warning);
-                }
-            }));
+        Add("ia", "Agent V-Max", "Discuter maintenant",
+            "Ton compagnon discute avec une IA gratuite et peut agir sur ton PC avec ta permission. Ouvre aussi la discussion par l'anneau (clic droit) ou avec Ctrl+Alt+Espace.",
+            () => ActionButton(T("Ouvrir la discussion"), () => { Close(); mw.Hud?.OpenChat(); }, accent: true));
         Add("ia", "Agent V-Max", "Nouvelle conversation", "Oublie l'échange en cours (l'agent ne garde aucune mémoire après la fermeture de V-Max).",
             () => ActionButton(T("Effacer"), () => { agent?.ResetConversation(); Pulse(T("Conversation effacée")); }));
-        Add("ia", "Modèle", "Modèle Gemini", "« gemini-flash-latest » suit automatiquement le modèle rapide le plus récent.",
-            ModelEditor, advancedOnly: true);
+
+        foreach (var provider in Agent.Providers.ProviderRouter.Catalog)
+        {
+            var p = provider;
+            Add("ia", "IA connectées (bascule automatique)", p.Name, p.Tagline, () => ProviderEditor(p), fullWidth: true);
+        }
+        foreach (var provider in Agent.Providers.ProviderRouter.Catalog)
+        {
+            var p = provider;
+            Add("ia", "Modèles", p.Name, p.Id == "gemini"
+                    ? "« gemini-flash-latest » suit automatiquement le modèle rapide le plus récent."
+                    : "Laisse vide pour un choix automatique (modèle gratuit compatible avec les actions).",
+                () => ModelEditor(p), advancedOnly: true);
+        }
 
         foreach (var tool in Agent.AgentToolRegistry.All)
         {
@@ -689,85 +674,122 @@ public partial class winVMaxSettings : Window
                     System.IO.File.WriteAllText(p, "");
                 Process.Start(new ProcessStartInfo(p) { UseShellExecute = true })?.Dispose();
             }), advancedOnly: true);
+        Add("ia", "Transparence", "L'agent répond aussi aux plugins de discussion",
+            "Utilise l'agent comme module de discussion de VPet (sinon, réponses intégrées ou plugin tiers).",
+            () => Toggle(() => Agent.VMaxAgentPlugin.IsActive(mw), v => Agent.VMaxAgentPlugin.Activate(mw, v)), advancedOnly: true);
         Add("ia", "Transparence", "Module de discussion classique", "Réponses intégrées de VPet ou plugin de discussion tiers.",
             () => ActionButton(T("Configurer"), () => mw.ShowLegacySetting(1)), advancedOnly: true);
     }
 
-    private FrameworkElement ApiKeyEditor()
+    /// <summary>
+    /// Ligne d'un fournisseur : état, clé (vérifiée avant enregistrement) ou détection de l'IA locale
+    /// </summary>
+    private FrameworkElement ProviderEditor(Agent.Providers.ProviderInfo p)
     {
         var root = new StackPanel();
         var line = new StackPanel { Orientation = Orientation.Horizontal };
-        var box = new PasswordBox
-        {
-            Width = 340, MinHeight = 32, Padding = new Thickness(8, 5, 8, 5), VerticalContentAlignment = VerticalAlignment.Center,
-            Background = (Brush)FindResource("VMaxControlFill"), BorderBrush = (Brush)FindResource("VMaxControlStroke"),
-            Foreground = (Brush)FindResource("PrimaryText"), CaretBrush = (Brush)FindResource("PrimaryText"),
-        };
         var status = new TextBlock { Margin = new Thickness(0, 6, 0, 0), FontSize = 12, Foreground = (Brush)FindResource("VMaxSubtleText") };
-        void Refresh() => status.Text = Agent.AgentOrchestrator.HasApiKey ? "✓ " + T("Une clé est enregistrée.") : T("Aucune clé enregistrée.");
-        var save = (Button)ActionButton(T("Enregistrer"), () =>
+        void Refresh()
         {
-            if (box.Password.Trim().Length < 10) { Pulse(T("Clé trop courte")); return; }
-            Agent.SecretStore.Set(Agent.AgentOrchestrator.SecretName, box.Password.Trim());
-            box.Clear();
-            Refresh();
-            Pulse(T("Clé enregistrée"));
-        }, accent: true);
-        save.Margin = new Thickness(8, 0, 0, 0);
-        var remove = (Button)ActionButton(T("Supprimer"), () =>
+            var (ok, text) = Agent.Providers.ProviderRouter.StatusOf(p);
+            status.Text = text.Length == 0 ? T(p.IsLocal ? "Non détecté" : "Aucune clé enregistrée.") : (ok ? "✓ " : "") + T(text);
+        }
+        if (p.IsLocal)
         {
-            Agent.SecretStore.Delete(Agent.AgentOrchestrator.SecretName);
-            Refresh();
-        });
-        remove.Margin = new Thickness(8, 0, 0, 0);
-        line.Children.Add(box);
-        line.Children.Add(save);
-        line.Children.Add(remove);
+            var detect = (Button)ActionButton(T("Détecter"), async () =>
+            {
+                await Agent.Providers.ProviderRouter.RefreshLocalAsync();
+                Agent.Providers.ProviderRouter.Reset(p.Id);
+                Refresh();
+            });
+            line.Children.Add(detect);
+        }
+        else
+        {
+            var box = new PasswordBox
+            {
+                Width = 320, MinHeight = 32, Padding = new Thickness(8, 5, 8, 5), VerticalContentAlignment = VerticalAlignment.Center,
+                Background = (Brush)FindResource("VMaxControlFill"), BorderBrush = (Brush)FindResource("VMaxControlStroke"),
+                Foreground = (Brush)FindResource("PrimaryText"), CaretBrush = (Brush)FindResource("PrimaryText"),
+            };
+            System.Windows.Automation.AutomationProperties.SetName(box, T("Clé API") + " " + p.Name);
+            var save = (Button)ActionButton(T("Vérifier et enregistrer"), async () =>
+            {
+                var key = box.Password.Trim();
+                if (key.Length < 10) { Pulse(T("Clé trop courte")); return; }
+                Pulse(T("Vérification de la clé…"));
+                var error = await Agent.Providers.ProviderRouter.ValidateKeyAsync(p, key);
+                if (error != null)
+                {
+                    status.Text = T("Cette clé ne fonctionne pas : ") + error;
+                    return;
+                }
+                Agent.SecretStore.Set(p.SecretName!, key);
+                Agent.Providers.ProviderRouter.Reset(p.Id);
+                box.Clear();
+                Refresh();
+                Pulse(T("Clé enregistrée"));
+            });
+            save.Margin = new Thickness(8, 0, 0, 0);
+            var remove = (Button)ActionButton(T("Supprimer"), () =>
+            {
+                Agent.SecretStore.Delete(p.SecretName!);
+                Agent.Providers.ProviderRouter.Reset(p.Id);
+                Refresh();
+            });
+            remove.Margin = new Thickness(8, 0, 0, 0);
+            line.Children.Add(box);
+            line.Children.Add(save);
+            line.Children.Add(remove);
+        }
         root.Children.Add(line);
         var help = new StackPanel { Orientation = Orientation.Horizontal };
         help.Children.Add(status);
-        var link = Link(T("Obtenir une clé gratuite sur Google AI Studio"), "https://aistudio.google.com/app/apikey");
-        link.Margin = new Thickness(12, 6, 0, 0);
-        help.Children.Add(link);
+        if (p.SignupUrl != null)
+        {
+            var link = Link(T(p.IsLocal ? "Installer" : "Obtenir une clé gratuite"), p.SignupUrl);
+            link.Margin = new Thickness(12, 6, 0, 0);
+            help.Children.Add(link);
+        }
         root.Children.Add(help);
         Refresh();
         return root;
     }
 
-    private FrameworkElement ModelEditor()
+    private FrameworkElement ModelEditor(Agent.Providers.ProviderInfo p)
     {
         var agent = mw.AgentPlugin?.Orchestrator;
         var line = new StackPanel { Orientation = Orientation.Horizontal };
-        var combo = new ComboBox { Width = 240, IsEditable = true, Text = agent?.Model ?? Agent.GeminiClient.DefaultModel };
+        var combo = new ComboBox { Width = 260, IsEditable = true, Text = agent?.ModelOf(p.Id) ?? "" };
         if (TryFindResource("StandardComboBoxStyle") is Style s)
             combo.Style = s;
-        combo.Items.Add(Agent.GeminiClient.DefaultModel);
-        void Apply()
-        {
-            var m = (combo.SelectedItem as string ?? combo.Text ?? "").Trim();
-            if (agent != null && m.Length > 0)
-                agent.Model = m;
-        }
+        if (p.Id == "gemini")
+            combo.Items.Add(Agent.GeminiClient.DefaultModel);
+        void Apply() => agent?.SetModelOf(p.Id, combo.SelectedItem as string ?? combo.Text);
         combo.SelectionChanged += (_, _) => Apply();
         combo.LostFocus += (_, _) => Apply();
         var refresh = (Button)ActionButton(T("Actualiser"), async () =>
         {
-            var key = Agent.SecretStore.Get(Agent.AgentOrchestrator.SecretName);
-            if (string.IsNullOrEmpty(key)) { Pulse(T("Aucune clé API enregistrée")); return; }
+            var key = Agent.Providers.ProviderRouter.KeyFor(p);
+            if (!p.IsLocal && string.IsNullOrEmpty(key)) { Pulse(T("Aucune clé API enregistrée")); return; }
             try
             {
-                var models = await Agent.GeminiClient.ListModelsAsync(key);
-                var current = agent?.Model;
+                List<string> models = p.Id == "gemini"
+                    ? await Agent.GeminiClient.ListModelsAsync(key!)
+                    : (await ((Agent.Providers.OpenAiCompatibleProvider)p.Create(key, null)).ListModelsAsync(default))
+                        .Select(m => m["id"]?.GetValue<string>() ?? "").Where(m => m.Length > 0).OrderBy(m => m).ToList();
+                var current = agent?.ModelOf(p.Id);
                 combo.Items.Clear();
-                combo.Items.Add(Agent.GeminiClient.DefaultModel);
+                if (p.Id == "gemini")
+                    combo.Items.Add(Agent.GeminiClient.DefaultModel);
                 foreach (var m in models)
                     combo.Items.Add(m);
-                combo.Text = current;
+                combo.Text = current ?? "";
                 Pulse(models.Count + " " + T("modèles disponibles"));
             }
             catch (Exception e)
             {
-                MessageBox.Show(this, e.Message, T("Modèles Gemini"), MessageBoxButton.OK, MessageBoxImage.Warning);
+                MessageBox.Show(this, e.Message, p.Name, MessageBoxButton.OK, MessageBoxImage.Warning);
             }
         });
         refresh.Margin = new Thickness(8, 0, 0, 0);

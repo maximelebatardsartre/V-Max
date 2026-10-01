@@ -449,13 +449,14 @@ public sealed class ChatPanel : HudOverlay
     private FrameworkElement ProviderRow(ProviderInfo p)
     {
         bool connected = p.IsLocal ? ProviderRouter.IsLocalReachable(p.Id) : !string.IsNullOrEmpty(ProviderRouter.KeyFor(p));
+        var (ok, statusLabel) = ProviderRouter.StatusOf(p);
         var name = new TextBlock { Text = p.Name, FontFamily = (FontFamily)FindResource("HudDisplay"), FontWeight = FontWeights.SemiBold, FontSize = 15, Foreground = (Brush)FindResource("HudText") };
         var tagline = new TextBlock { Text = p.Tagline, FontSize = 12, Foreground = (Brush)FindResource("HudTextMuted"), TextWrapping = TextWrapping.Wrap };
         var state = new TextBlock
         {
-            Text = connected ? "CONNECTÉ" : p.IsLocal ? "NON DÉTECTÉ" : "",
+            Text = statusLabel.ToUpperInvariant(),
             Style = (Style)FindResource("HudEyebrow"),
-            Foreground = (Brush)FindResource(connected ? "HudSuccess" : "HudTextMuted"),
+            Foreground = (Brush)FindResource(ok ? "HudSuccess" : connected ? "HudAmber" : "HudTextMuted"),
             HorizontalAlignment = HorizontalAlignment.Right,
         };
         var head = new Grid();
@@ -543,11 +544,11 @@ public sealed class ChatPanel : HudOverlay
                 }
                 connect.IsEnabled = false;
                 Feedback(feedback, "Vérification de la clé…", null);
-                var error = await ValidateKey(p, key);
+                var error = await ProviderRouter.ValidateKeyAsync(p, key);
                 connect.IsEnabled = true;
                 if (error != null)
                 {
-                    Feedback(feedback, error, false);
+                    Feedback(feedback, "Cette clé ne fonctionne pas : " + error, false);
                     return;
                 }
                 SecretStore.Set(p.SecretName!, key);
@@ -604,24 +605,6 @@ public sealed class ChatPanel : HudOverlay
         return b;
     }
 
-    /// <summary>
-    /// Vérifie une clé par un appel léger (liste des modèles). Retourne null si elle fonctionne.
-    /// </summary>
-    private static async Task<string?> ValidateKey(ProviderInfo p, string key)
-    {
-        try
-        {
-            if (p.Id == "gemini")
-                await GeminiClient.ListModelsAsync(key);
-            else if (p.Create(key, null) is OpenAiCompatibleProvider oa)
-                await oa.ListModelsAsync(System.Threading.CancellationToken.None);
-            return null;
-        }
-        catch (Exception e)
-        {
-            return "Cette clé ne fonctionne pas : " + e.Message;
-        }
-    }
 
     private void ActivateAgent()
     {
