@@ -99,6 +99,7 @@ namespace VPet_Simulator.Windows
 
 
             LoadVMaxBrushes(ctheme);
+            Hud?.ResetTheme();
 
             c = Function.HEXToColor('#' + ctheme.ThemeColor["DARKPrimary"].info);
             c.A = 204;
@@ -198,6 +199,7 @@ namespace VPet_Simulator.Windows
                 res["HudAccent"] = b(0xFF, hc("#E2455B"));
                 res["HudAccentSoft"] = b(0x33, hc("#E2455B"));
                 res["HudAmber"] = b(0xFF, hc("#F2B04B"));
+                res["HudSuccess"] = b(0xFF, hc("#4CC38A"));
             }
             else
             {
@@ -211,6 +213,7 @@ namespace VPet_Simulator.Windows
                 res["HudAccent"] = b(0xFF, hc("#D2384F"));
                 res["HudAccentSoft"] = b(0x26, hc("#E2455B"));
                 res["HudAmber"] = b(0xFF, hc("#B9781A"));
+                res["HudSuccess"] = b(0xFF, hc("#1F8A5B"));
             }
             if (winVMaxSetting != null)
                 WindowEffects.SetDark(winVMaxSetting, IsDarkTheme);
@@ -2571,6 +2574,25 @@ namespace VPet_Simulator.Windows
                           Dispatcher.Invoke(() => { Hud!.OpenChat(); ((HUD.ChatPanel)Hud.ChatWindow!).Send(qaChat.Info); });
                           await Task.Delay(int.TryParse(qaChat.GetString("wait"), out var w) ? w : 5000);
                           Dispatcher.Invoke(() => QaSnapshot(Hud!.ChatWindow!, System.IO.Path.Combine(System.IO.Path.GetTempPath(), "vmax-qa-settings.png")));
+                      });
+                  }
+                  if (Args.FindLine("vmax-open-panel") is ILine qaPanel)
+                  {// QA : panneau HUD (status, pantry, activities, more) rendu dans %TEMP%max-qa-settings.png
+                      Task.Run(async () =>
+                      {
+                          await Task.Delay(9000);
+                          Dispatcher.Invoke(() =>
+                          {
+                              switch (qaPanel.Info)
+                              {
+                                  case "pantry": Hud!.OpenPantry(); break;
+                                  case "activities": Hud!.OpenActivities(); break;
+                                  case "more": Hud!.OpenMore(); break;
+                                  default: Hud!.OpenStatus(); break;
+                              }
+                          });
+                          await Task.Delay(2000);
+                          Dispatcher.Invoke(() => QaSnapshot(Hud!.PanelWindow ?? (Window)this, System.IO.Path.Combine(System.IO.Path.GetTempPath(), "vmax-qa-settings.png")));
                       });
                   }
                   if (Args.FindLine("vmax-open-chat") != null)

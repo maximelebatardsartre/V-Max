@@ -22,10 +22,37 @@ public sealed class HudController
     private readonly MainWindow mw;
     private OrbitDock? orbit;
     private ChatPanel? chat;
+    private StatusCard? status;
+    private PantryPanel? pantry;
+    private ActivitiesPanel? activities;
+    private MorePanel? more;
+    private HudSidePanel? openPanel;
     /// <summary>QA : fenêtre de l'anneau</summary>
     public Window? OrbitWindow => orbit;
     /// <summary>QA : panneau de discussion</summary>
     public Window? ChatWindow => chat;
+    /// <summary>QA : panneau latéral ouvert</summary>
+    public Window? PanelWindow => openPanel;
+
+    /// <summary>
+    /// Un seul panneau latéral à la fois : ouvrir l'un ferme l'autre
+    /// </summary>
+    private T Panel<T>(ref T? field, Func<T> create) where T : HudSidePanel
+    {
+        if (field == null)
+        {
+            field = create();
+            field.Opening += p =>
+            {
+                if (openPanel != null && openPanel != p && openPanel.IsVisible)
+                    openPanel.HideAnimated();
+                if (chat?.IsVisible == true)
+                    chat.HideAnimated();
+                openPanel = p;
+            };
+        }
+        return field;
+    }
 
     public HudController(MainWindow mw)
     {
@@ -85,21 +112,37 @@ public sealed class HudController
         yield return new OrbitAction("Paramètres", "", () => mw.ShowSetting());
     }
 
-    #region Actions (les panneaux V-Max remplacent progressivement les anciennes fenêtres)
+    /// <summary>
+    /// Thème changé : les surcouches seront reconstruites avec les nouvelles couleurs à la prochaine ouverture
+    /// </summary>
+    public void ResetTheme()
+    {
+        Window?[] all = [orbit, chat, status, pantry, activities, more];
+        foreach (var w in all)
+            w?.Close();
+        orbit = null;
+        chat = null;
+        status = null;
+        pantry = null;
+        activities = null;
+        more = null;
+        openPanel = null;
+    }
+
+    #region Actions
     public void OpenChat()
     {
         if (mw.AgentPlugin == null)
-        {
-            LegacyMenu(mw.Main.ToolBar?.MenuInteract);
             return;
-        }
         chat ??= new ChatPanel(mw, mw.AgentPlugin.Orchestrator);
+        if (!chat.IsVisible && openPanel?.IsVisible == true)
+            openPanel.HideAnimated();
         chat.ToggleOpen();
     }
-    public void OpenPantry() => mw.ShowBetterBuy(Food.FoodType.Meal);
-    public void OpenActivities() => mw.ShowWorkMenu(Work.WorkType.Work);
-    public void OpenStatus() => mw.MWController.ShowPanel();
-    public void OpenMore() => LegacyMenu(mw.Main.ToolBar?.MenuSetting);
+    public void OpenPantry() => Panel(ref pantry, () => new PantryPanel(mw)).Toggle();
+    public void OpenActivities() => Panel(ref activities, () => new ActivitiesPanel(mw)).Toggle();
+    public void OpenStatus() => Panel(ref status, () => new StatusCard(mw)).Toggle();
+    public void OpenMore() => Panel(ref more, () => new MorePanel(mw)).Toggle();
 
     /// <summary>
     /// Dormir / se réveiller (même logique que l'entrée « Dormir » de VPet)
@@ -110,14 +153,5 @@ public sealed class HudController
         sleep?.RaiseEvent(new RoutedEventArgs(MenuItem.ClickEvent));
     }
 
-    private void LegacyMenu(MenuItem? menu)
-    {
-        if (menu == null)
-            return;
-        mw.Main.ToolBar!.ShowOverride = null;
-        mw.Main.ToolBar.Show();
-        mw.Main.ToolBar.ShowOverride = () => { ToggleOrbit(); return true; };
-        menu.IsSubmenuOpen = true;
-    }
     #endregion
 }

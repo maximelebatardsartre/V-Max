@@ -131,15 +131,37 @@ public sealed class ChatPanel : HudOverlay
                 input.Focus();
         };
 
-        agent.MessageAdded += m => Dispatcher.BeginInvoke(() => { if (m.Role == ChatRole.User) AddUser(m.Text ?? ""); });
-        agent.AssistantStarted += () => Dispatcher.BeginInvoke(StartAssistant);
-        agent.AssistantDelta += d => Dispatcher.BeginInvoke(() => AppendAssistant(d));
-        agent.AssistantFinished += _ => Dispatcher.BeginInvoke(() => { streaming = null; RefreshStatus(); });
-        agent.StateChanged += s => Dispatcher.BeginInvoke(() => OnState(s));
-        agent.ToolActivityChanged += t => Dispatcher.BeginInvoke(() => AddTool(t));
-        agent.ErrorRaised += (msg, setup) => Dispatcher.BeginInvoke(() => AddError(msg, setup));
+        Action<ChatMessage> onMessage = m => Dispatcher.BeginInvoke(() => { if (m.Role == ChatRole.User) AddUser(m.Text ?? ""); });
+        Action onStarted = () => Dispatcher.BeginInvoke(StartAssistant);
+        Action<string> onDelta = d => Dispatcher.BeginInvoke(() => AppendAssistant(d));
+        Action<string> onFinished = _ => Dispatcher.BeginInvoke(() => { streaming = null; RefreshStatus(); });
+        Action<AgentState> onState = s => Dispatcher.BeginInvoke(() => OnState(s));
+        Action<ToolActivity> onTool = t => Dispatcher.BeginInvoke(() => AddTool(t));
+        Action<string, bool> onError = (msg, setup) => Dispatcher.BeginInvoke(() => AddError(msg, setup));
+        Action<IChatProvider?> onProvider = _ => Dispatcher.BeginInvoke(RefreshStatus);
+        agent.MessageAdded += onMessage;
+        agent.AssistantStarted += onStarted;
+        agent.AssistantDelta += onDelta;
+        agent.AssistantFinished += onFinished;
+        agent.StateChanged += onState;
+        agent.ToolActivityChanged += onTool;
+        agent.ErrorRaised += onError;
         agent.ConfirmHandler = (tool, description) => Dispatcher.Invoke(() => AskConfirmation(tool, description));
-        ProviderRouter.CurrentChanged += _ => Dispatcher.BeginInvoke(RefreshStatus);
+        ProviderRouter.CurrentChanged += onProvider;
+        // fermeture définitive (changement de thème) : on se désabonne de l'agent
+        Closed += (_, _) =>
+        {
+            agent.MessageAdded -= onMessage;
+            agent.AssistantStarted -= onStarted;
+            agent.AssistantDelta -= onDelta;
+            agent.AssistantFinished -= onFinished;
+            agent.StateChanged -= onState;
+            agent.ToolActivityChanged -= onTool;
+            agent.ErrorRaised -= onError;
+            agent.ConfirmHandler = null;
+            agent.PanelVisible = false;
+            ProviderRouter.CurrentChanged -= onProvider;
+        };
 
         Rebuild();
     }
