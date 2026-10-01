@@ -347,7 +347,7 @@ namespace VPet_Simulator.Core
         /// </summary>
         public void ForceClose()
         {
-            EndTimer.Stop(); ShowTimer.Stop(); CloseTimer.Close();
+            EndTimer.Stop(); ShowTimer.Stop(); CloseTimer.Stop();
             this.Visibility = Visibility.Collapsed;
             MessageBoxContent.Children.Clear();
             if ((m.DisplayType.Name == graphName || m.DisplayType.Type == GraphInfo.GraphType.Say) && m.DisplayType.Animat != GraphInfo.AnimatType.C_End)

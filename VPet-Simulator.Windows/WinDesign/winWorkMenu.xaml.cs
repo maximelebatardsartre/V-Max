@@ -38,6 +38,7 @@ public partial class winWorkMenu : WindowX
             WorkViewImage.Source = mw.ImageSources.FindImage("work_" + mw.Set.PetGraph + "_t_" + type.ToString(), "work_" + type.ToString());
         }, DispatcherPriority.Loaded);
 
+        _schedules.CollectionChanged -= Schedules_CollectionChanged;// V-Max : pas de doublon d'abonnement
         _schedules.CollectionChanged += Schedules_CollectionChanged;
         icSchedule.ItemsSource = _schedules;
     }
@@ -288,6 +289,7 @@ public partial class winWorkMenu : WindowX
 
     private void Window_Closed(object sender, EventArgs e)
     {
+        _schedules.CollectionChanged -= Schedules_CollectionChanged;// V-Max : fuite mémoire
         mw.winWorkMenu = null;
     }
 

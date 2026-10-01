@@ -315,6 +315,7 @@ namespace VPet_Simulator.Core
                 {
                     VoicePlayer.Clock = new MediaTimeline(VoicePath).CreateClock();
                     VoicePlayer.Clock.Completed += Clock_Completed;
+                    VoicePlayer.MediaFailed -= MediaPlayer_MediaFailed;// V-Max : évite l'accumulation de gestionnaires
                     VoicePlayer.MediaFailed += MediaPlayer_MediaFailed;
                     VoicePlayer.Play();
                     //Task.Run(() =>

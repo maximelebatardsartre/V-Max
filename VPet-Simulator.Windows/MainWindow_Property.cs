@@ -130,5 +130,5 @@ public partial class MainWindow
     /// <summary>
     /// 活动日志 不会保存
     /// </summary>
-    public ObservableCollection<ActivityLog> ActivityLogs { get; set; } = new ObservableCollection<ActivityLog>();
+    public ObservableCollection<ActivityLog> ActivityLogs { get; set; } = new BoundedObservableCollection<ActivityLog>(2000);// V-Max : journal borné
 }

@@ -113,7 +113,7 @@ namespace VPet_Simulator.Windows
 
                 Dispatcher.InvokeAsync(new Action(() => LoadingText.Content = "Chargement des traductions")).Wait();
                 //加载语言
-                LocalizeCore.StoreTranslation = true;
+                LocalizeCore.StoreTranslation = Set.DeBug;// V-Max : liste des clés manquantes seulement en mode développeur
                 if (Set.Language == "null")
                 {
                     LocalizeCore.LoadDefaultCulture();

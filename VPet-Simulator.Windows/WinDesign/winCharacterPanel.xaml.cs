@@ -408,6 +408,7 @@ namespace VPet_Simulator.Windows
         private void WindowX_Closed(object sender, EventArgs e)
         {
             mw.GameSavesData.Statistics!.StatisticChanged -= Statistics_StatisticChanged;
+            mw.ActivityLogs.CollectionChanged -= ActivityLogs_CollectionChanged;// V-Max : fuite mémoire
             mw.Windows.Remove(this);
         }
 

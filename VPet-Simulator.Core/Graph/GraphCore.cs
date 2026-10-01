@@ -43,7 +43,7 @@ namespace VPet_Simulator.Core
             {
                 if (GraphsALL == null)
                     return;
-                long cleanTicks = DateTime.Now.Ticks - IdleCacheTimeout;
+                long cleanTicks = DateTime.UtcNow.Ticks - IdleCacheTimeout;// V-Max : UtcNow comme LastUseTimeTicks (Now vidait tout le cache en UTC+)
                 for (int i = 0; i < GraphsALL.Count; i++)
                 {
                     GraphsALL[i].CleanupIdleCache(cleanTicks);

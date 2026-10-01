@@ -972,55 +972,47 @@ namespace VPet_Simulator.Windows
         /// <summary>
         /// 获得当前系统音乐播放音量
         /// </summary>
+        private readonly object audioMeterLock = new();
+        private MMDeviceEnumerator? audioEnumerator;
+        private MMDevice? audioDevice;
+        private long audioDeviceRefreshTick;
+        /// <summary>
+        /// 获得当前系统音乐播放音量
+        /// V-Max : l'énumérateur et le périphérique sont mis en cache (auparavant recréés à chaque appel, jusqu'à 5 fois/s)
+        /// et rafraîchis toutes les 30 s pour suivre un changement de périphérique par défaut.
+        /// </summary>
         public float AudioPlayingVolume()
         {
-            if (AudioPlayingVolumeOK == null)
-            {//第一调用检查是否支持
+            if (AudioPlayingVolumeOK == false)
+                return -1;
+            lock (audioMeterLock)
+            {
                 try
-                {//后续容错可能是偶发性
-                    using (var enumerator = new MMDeviceEnumerator())
+                {
+                    long now = Environment.TickCount64;
+                    if (audioDevice == null || now - audioDeviceRefreshTick > 30000)
                     {
-                        if (enumerator.HasDefaultAudioEndpoint(DataFlow.Render, Role.Console))
+                        audioDevice?.Dispose();
+                        audioDevice = null;
+                        audioEnumerator ??= new MMDeviceEnumerator();
+                        audioDeviceRefreshTick = now;
+                        if (!audioEnumerator.HasDefaultAudioEndpoint(DataFlow.Render, Role.Console))
                         {
-                            var device = enumerator.GetDefaultAudioEndpoint(DataFlow.Render, Role.Console);
-                            AudioPlayingVolumeOK = true;
-                            return device.AudioMeterInformation.MasterPeakValue;
-                        }
-                        else
-                        {
-                            AudioPlayingVolumeOK = false;
+                            AudioPlayingVolumeOK ??= false;
                             return -1;
                         }
+                        audioDevice = audioEnumerator.GetDefaultAudioEndpoint(DataFlow.Render, Role.Console);
                     }
+                    AudioPlayingVolumeOK = true;
+                    return audioDevice.AudioMeterInformation.MasterPeakValue;
                 }
                 catch
-                {
-                    AudioPlayingVolumeOK = false;
+                {//后续容错可能是偶发性
+                    audioDevice?.Dispose();
+                    audioDevice = null;
+                    AudioPlayingVolumeOK ??= false;
                     return -1;
                 }
-            }
-            else if (AudioPlayingVolumeOK == false)
-            {
-                return -1;
-            }
-            try
-            {//后续容错可能是偶发性
-                using (var enumerator = new MMDeviceEnumerator())
-                {
-                    if (enumerator.HasDefaultAudioEndpoint(DataFlow.Render, Role.Console))
-                    {
-                        var device = enumerator.GetDefaultAudioEndpoint(DataFlow.Render, Role.Console);
-                        return device.AudioMeterInformation.MasterPeakValue;
-                    }
-                    else
-                    {
-                        return -1;
-                    }
-                }
-            }
-            catch
-            {
-                return -1;
             }
         }
         /// <summary>
@@ -1028,7 +1020,7 @@ namespace VPet_Simulator.Windows
         /// </summary>
         private void Handle_Music(Main obj)
         {
-            if (MusicTimer.Enabled == false && Core.Graph!.FindGraphs("music", AnimatType.B_Loop, Core.Save!.Mode) != null &&
+            if (MusicTimer.Enabled == false && Core.Graph!.FindGraphs("music", AnimatType.B_Loop, Core.Save!.Mode).Count > 0 &&
                 Main.IsIdel && AudioPlayingVolume() > Set.MusicCatch)
             {
                 catch_MusicVolSum = 0;
@@ -2043,16 +2035,7 @@ namespace VPet_Simulator.Windows
                           SetTransparentHitThrough();
                   }
 
-                  if (Set["SingleTips"].GetDateTime("tutorial") <= new DateTime(2023, 10, 20) && App.MainWindows.Count == 1)
-                  {
-                      Set["SingleTips"].SetDateTime("tutorial", DateTime.Now);
-                      if (LocalizeCore.CurrentCulture == "zh-Hans")
-                          ExtensionFunction.StartURL("https://wiki.exlb.net/vpet/tutorial");
-                      else if (LocalizeCore.CurrentCulture == "zh-Hant")
-                          ExtensionFunction.StartURL("https://wiki.exlb.net/zh-hant/vpet/tutorial");
-                      else
-                          ExtensionFunction.StartURL("https://wiki.exlb.net/en/vpet/tutorial");
-                  }
+                  // V-Max : plus d'ouverture automatique du wiki exLB au premier lancement (vie privée, AUDIT P-01)
                   if (!Set["SingleTips"].GetBool("helloworld"))
                   {
                       Task.Run(() =>

@@ -615,7 +615,6 @@ namespace VPet_Simulator.Core
                 });
             }
             petgridcrlf = !petgridcrlf;
-            GC.Collect();
         }
         /// <summary>
         /// 查找可用与显示的Border (自动多层切换)
@@ -660,7 +659,6 @@ namespace VPet_Simulator.Core
                     //PetGrid2.Tag = graph;
                 });
                 petgridcrlf = !petgridcrlf;
-                GC.Collect();
                 return PetGrid2;
             }
             else
@@ -673,7 +671,6 @@ namespace VPet_Simulator.Core
                     //PetGrid.Tag = graph;
                 });
                 petgridcrlf = !petgridcrlf;
-                GC.Collect();
                 return PetGrid;
             }
 

@@ -68,7 +68,7 @@ Le code de VPet est **fonctionnel et riche** : un moteur d'animation éprouvé, 
 | Projets de test, CI, `Directory.Build.props` | **aucun** |
 | Animations du compagnon | 6 181 PNG 1000×1000 (836 Mo), ~578 animations, ~8 images/s |
 | Réveils de thread au repos (1 compagnon) | **~18 par seconde** (objectif : ≤ 8 visible, ~0 masqué) |
-| CPU au repos (estimation) | ~1 à 3 % d'un cœur (objectif < 0,3 %) |
+| CPU au repos (**mesuré**, 1 compagnon, 60 s, animation par défaut) | **1,35 % d'un cœur** (0,085 % d'une machine 16 cœurs), 275 Mo, 27 threads. Objectif < 0,3 % d'un cœur |
 
 ---
 
@@ -415,8 +415,8 @@ Le détail figure dans [VISION.md](VISION.md).
 
 ## 12. Plan d'action et refonte de l'interface
 
-### 12.1 Correctifs immédiats (début de l'étape 4)
-Ces correctifs tiennent en quelques lignes, pour un gain mesurable :
+### 12.1 Correctifs immédiats (appliqués au début de l'étape 4)
+Ces correctifs tiennent en quelques lignes. **Mesure :** au repos strict (aucun survol, aucun changement d'animation), le CPU est inchangé (1,35 % → 1,38 % d'un cœur, dans la marge de mesure). Le coût dominant est la pompe d'images (P-T2), traitée dans le lot « Performances ». Les gains portent sur d'autres situations : après un survol du panneau d'état (P-T1), lors des changements d'animation (P-A1, P-A2), pendant la musique (P-T4), et sur les fuites dans la durée (M1 à M5).
 1. P-A1 : supprimer `GC.Collect()` ;
 2. P-A2 : temps monotone dans le cache d'animations ;
 3. P-T1 : `closePanelTimer` en un seul tir ;

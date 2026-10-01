@@ -36,7 +36,7 @@ namespace VPet_Simulator.Core
                 Enabled = false
             };
             CloseTimer.Elapsed += Closetimer_Elapsed;
-            closePanelTimer = new Timer();
+            closePanelTimer = new Timer() { Interval = 400, AutoReset = false };// V-Max : un seul tir (tournait à 10 Hz en continu)
             closePanelTimer.Elapsed += ClosePanelTimer_Tick;
             m.TimeUIHandle += M_TimeUIHandle;
             //LoadWork();
