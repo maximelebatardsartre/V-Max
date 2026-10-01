@@ -65,6 +65,7 @@ namespace VPet_Simulator.Windows
             PNGAnimation.MaxLoadMemory += (int)Function.MemoryUsage();
 
             ExtensionValue.BaseDirectory = new FileInfo(System.Reflection.Assembly.GetExecutingAssembly()!.Location)!.DirectoryName!;
+            GraphCore.CachePath = ExtensionValue.CacheDirectory;// V-Max : cache hors du dossier d'installation
 
 
             LocalizeCore.StoreTranslation = true;
@@ -85,18 +86,18 @@ namespace VPet_Simulator.Windows
 
 
             //更新存档系统
-            if (Directory.Exists(ExtensionValue.BaseDirectory + @"\BackUP"))
+            if (Directory.Exists(ExtensionValue.DataDirectory + @"\BackUP"))
             {
-                if (!Directory.Exists(ExtensionValue.BaseDirectory + @"\Saves"))
-                    Directory.Move(ExtensionValue.BaseDirectory + @"\BackUP", ExtensionValue.BaseDirectory + @"\Saves");
+                if (!Directory.Exists(ExtensionValue.DataDirectory + @"\Saves"))
+                    Directory.Move(ExtensionValue.DataDirectory + @"\BackUP", ExtensionValue.DataDirectory + @"\Saves");
                 else
                 {
-                    foreach (var file in new DirectoryInfo(ExtensionValue.BaseDirectory + @"\BackUP").GetFiles())
-                        if (!File.Exists(ExtensionValue.BaseDirectory + @"\Saves\" + file.Name))
-                            file.MoveTo(ExtensionValue.BaseDirectory + @"\Saves\" + file.Name);
+                    foreach (var file in new DirectoryInfo(ExtensionValue.DataDirectory + @"\BackUP").GetFiles())
+                        if (!File.Exists(ExtensionValue.DataDirectory + @"\Saves\" + file.Name))
+                            file.MoveTo(ExtensionValue.DataDirectory + @"\Saves\" + file.Name);
                         else
                             file.Delete();
-                    Directory.Delete(ExtensionValue.BaseDirectory + @"\BackUP", true);
+                    Directory.Delete(ExtensionValue.DataDirectory + @"\BackUP", true);
                 }
             }
 
@@ -380,9 +381,9 @@ namespace VPet_Simulator.Windows
 
         public void LoadLatestSave(string petname)
         {
-            if (Directory.Exists(ExtensionValue.BaseDirectory + @"\Saves"))
+            if (Directory.Exists(ExtensionValue.DataDirectory + @"\Saves"))
             {
-                var ds = new List<string>(Directory.GetFiles(ExtensionValue.BaseDirectory + @"\Saves", $@"Save{PrefixSave}_*.lps"))
+                var ds = new List<string>(Directory.GetFiles(ExtensionValue.DataDirectory + @"\Saves", $@"Save{PrefixSave}_*.lps"))
                     .OrderBy(x =>
                  {
                      if (int.TryParse(x.Split('_').Last().Split('.')[0], out int i))
@@ -452,11 +453,11 @@ namespace VPet_Simulator.Windows
         /// </summary>
         private void CheckBackupConsistency(GameSave_v2 gs, string currentName)
         {
-            if (!Directory.Exists(ExtensionValue.BaseDirectory + @"\Saves_BKP"))
+            if (!Directory.Exists(ExtensionValue.DataDirectory + @"\Saves_BKP"))
                 return;
             try
             {
-                var bks = new DirectoryInfo(ExtensionValue.BaseDirectory + @"\Saves_BKP")
+                var bks = new DirectoryInfo(ExtensionValue.DataDirectory + @"\Saves_BKP")
                     .GetFiles($"Save{PrefixSave}_*.lps").OrderByDescending(x => x.LastWriteTime).FirstOrDefault();
                 if (bks != null)
                 {

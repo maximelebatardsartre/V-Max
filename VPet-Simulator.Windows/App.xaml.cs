@@ -39,11 +39,14 @@ namespace VPet_Simulator.Windows
         {
             Args = e.Args;
 
-            //旧版本多开bug修复
-            if (File.Exists(ExtensionValue.BaseDirectory + @"\Setting-.lps"))
-                File.Delete(ExtensionValue.BaseDirectory + @"\Setting-.lps");
+            // V-Max : données utilisateur dans %APPDATA%\V-Max (copie unique depuis le dossier d'installation)
+            UserDataMigration.Run();
 
-            foreach (var mss in new DirectoryInfo(ExtensionValue.BaseDirectory).GetFiles("Setting*.lps"))
+            //旧版本多开bug修复
+            if (File.Exists(ExtensionValue.DataDirectory + @"\Setting-.lps"))
+                File.Delete(ExtensionValue.DataDirectory + @"\Setting-.lps");
+
+            foreach (var mss in new DirectoryInfo(ExtensionValue.DataDirectory).GetFiles("Setting*.lps"))
             {
                 var n = mss.Name.Substring(7).Trim('-');
                 MutiSaves.Add(n.Substring(0, n.Length - 4));
@@ -55,7 +58,7 @@ namespace VPet_Simulator.Windows
             }
             if (!Args.Any(x => x.Contains("prefix")))
             {
-                var file = new DirectoryInfo(ExtensionValue.BaseDirectory).GetFiles("startup_*").FirstOrDefault();
+                var file = new DirectoryInfo(ExtensionValue.DataDirectory).GetFiles("startup_*").FirstOrDefault();
                 if (file != null)
                 {
                     var su = file.Name.Substring(8);

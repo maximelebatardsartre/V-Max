@@ -54,6 +54,9 @@ namespace VPet_Simulator.Core
         /// <summary>
         /// 缓存路径,用于缓存图像,默认在程序目录下的cache文件夹
         /// </summary>
+        /// <summary>
+        /// Dossier du cache des animations. V-Max : défini par l'application (%LOCALAPPDATA%\V-Max\cache)
+        /// </summary>
         public static string CachePath = new FileInfo(System.Reflection.Assembly.GetExecutingAssembly().Location).DirectoryName + @"\cache";
         /// <summary>
         /// 提供给缓存文件生成的锁,用于防止多线程同时生成同一个缓存文件

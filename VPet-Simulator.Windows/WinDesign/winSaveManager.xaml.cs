@@ -134,8 +134,8 @@ namespace VPet_Simulator.Windows
             var entries = new List<SaveEntry>();
             var saves = new List<FileInfo>();
             var pattern = $"Save{mw.PrefixSave}_*.lps";
-            var saveDir = Path.Combine(ExtensionValue.BaseDirectory, "Saves");
-            var backupDir = Path.Combine(ExtensionValue.BaseDirectory, "Saves_BKP");
+            var saveDir = Path.Combine(ExtensionValue.DataDirectory, "Saves");
+            var backupDir = Path.Combine(ExtensionValue.DataDirectory, "Saves_BKP");
 
             if (Directory.Exists(saveDir))
                 saves.AddRange(new DirectoryInfo(saveDir).GetFiles(pattern));

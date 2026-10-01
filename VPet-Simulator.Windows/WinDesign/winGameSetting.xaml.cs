@@ -1011,7 +1011,7 @@ namespace VPet_Simulator.Windows
                 link.SetPath(System.Reflection.Assembly.GetExecutingAssembly().Location.Replace(".dll", ".exe"));
 
                 link.SetDescription("V-Max");
-                link.SetIconLocation(ExtensionValue.BaseDirectory + @"vpeticon.ico", 0);
+                link.SetIconLocation(System.IO.Path.Combine(ExtensionValue.BaseDirectory, "vpeticon.ico"), 0);
                 try
                 {
                     var file = (IPersistFile)link;
@@ -1106,7 +1106,7 @@ namespace VPet_Simulator.Windows
                         var lps = new LPS(mw.Set.ToString());
                         lps.SetInt("savetimes", 0);
                         lps["gameconfig"].SetString("petgraph", savename);
-                        File.WriteAllText(ExtensionValue.BaseDirectory + @$"\Setting-{savename}.lps", lps.ToString());
+                        File.WriteAllText(ExtensionValue.DataDirectory + @$"\Setting-{savename}.lps", lps.ToString());
                         App.MutiSaves.Add(savename);
                         new MainWindow(savename, mw).Show();
                         LoadMutiUI();
@@ -1541,7 +1541,7 @@ namespace VPet_Simulator.Windows
 
             var lps = new LPS(mw.Set);
             lps.SetInt("savetimes", 0);
-            File.WriteAllText(ExtensionValue.BaseDirectory + @$"\Setting-{savename}.lps", lps.ToString());
+            File.WriteAllText(ExtensionValue.DataDirectory + @$"\Setting-{savename}.lps", lps.ToString());
             App.MutiSaves.Add(savename);
             new MainWindow(savename, mw).Show();
         }
@@ -1568,7 +1568,7 @@ namespace VPet_Simulator.Windows
             }
             if (MessageBoxX.Show("是否删除当前选择({0})的多开存档?".Translate(str), "删除前确认".Translate(), MessageBoxButton.YesNo) == MessageBoxResult.Yes)
             {
-                File.Delete(ExtensionValue.BaseDirectory + @$"\Setting-{str}.lps");
+                File.Delete(ExtensionValue.DataDirectory + @$"\Setting-{str}.lps");
                 App.MutiSaves.Remove(str);
                 LoadMutiUI();
             }
@@ -1579,12 +1579,12 @@ namespace VPet_Simulator.Windows
             if (LBHave.SelectedIndex == -1)
                 return;
             var str = App.MutiSaves[LBHave.SelectedIndex];
-            foreach (var sp in new DirectoryInfo(ExtensionValue.BaseDirectory).GetFiles("startup_*"))
+            foreach (var sp in new DirectoryInfo(ExtensionValue.DataDirectory).GetFiles("startup_*"))
             {
                 sp.Delete();
             }
             if (str != "")
-                File.Create(ExtensionValue.BaseDirectory + @"\startup_" + str).Close();
+                File.Create(ExtensionValue.DataDirectory + @"\startup_" + str).Close();
             MessageBoxX.Show("已将当前选择 {0} 设为默认启动存档".Translate(str.Translate()));
         }
 

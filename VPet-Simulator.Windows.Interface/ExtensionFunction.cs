@@ -256,6 +256,38 @@ namespace VPet_Simulator.Windows.Interface
         /// Projet d'origine (VPet) — lien d'attribution obligatoire pour les animations
         /// </summary>
         public const string UpstreamURL = "https://github.com/LorisYounger/VPet";
+
+        /// <summary>
+        /// V-Max : dossier des données utilisateur (paramètres, sauvegardes, journaux, données des mods).
+        /// %APPDATA%\V-Max par défaut ; dossier d'installation si un fichier « portable.txt » s'y trouve.
+        /// </summary>
+        public static string DataDirectory { get; set; } = ResolveDataDirectory();
+
+        /// <summary>
+        /// V-Max : dossier du cache des animations (%LOCALAPPDATA%\V-Max\cache, ou « cache » en mode portable)
+        /// </summary>
+        public static string CacheDirectory { get; set; } = ResolveCacheDirectory();
+
+        /// <summary>
+        /// Mode portable : toutes les données restent à côté de l'exécutable
+        /// </summary>
+        public static bool IsPortable => File.Exists(Path.Combine(BaseDirectory, "portable.txt"));
+
+        private static string ResolveDataDirectory()
+        {
+            string dir = IsPortable ? BaseDirectory
+                : Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "V-Max");
+            Directory.CreateDirectory(dir);
+            return dir;
+        }
+
+        private static string ResolveCacheDirectory()
+        {
+            string dir = IsPortable ? Path.Combine(BaseDirectory, "cache")
+                : Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "V-Max", "cache");
+            Directory.CreateDirectory(dir);
+            return dir;
+        }
         /// <summary>
         /// 获取MOD存储目录 (会自动创建)
         /// 但是还是建议以LPS形式存在Setting/Save里 不保证完整可靠性(可能会因为切换电脑等导致数据丢失)
@@ -264,7 +296,7 @@ namespace VPet_Simulator.Windows.Interface
         /// <returns>目录地址</returns>
         public static string GetMODStorage(string modName)
         {
-            var path = Path.Combine(BaseDirectory, "ModData");
+            var path = Path.Combine(DataDirectory, "ModData");
             if (!Directory.Exists(path))
                 Directory.CreateDirectory(path);
             path = Path.Combine(path, modName);
