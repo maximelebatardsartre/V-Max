@@ -300,6 +300,8 @@ namespace VPet_Simulator.Windows
                         if (mw.Set.Language == "null")
                         {
                             LocalizeCore.LoadDefaultCulture();
+                            if (LocalizeCore.CurrentCulture == "null")
+                                LocalizeCore.LoadCulture("fr");// V-Max : repli sur le français
                         }
                         else
                             LocalizeCore.LoadCulture(mw.Set.Language);

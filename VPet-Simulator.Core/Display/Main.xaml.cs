@@ -169,7 +169,7 @@ namespace VPet_Simulator.Core
             ig ??= Core.Graph!.FindGraph(Core.Graph!.FindName(GraphType.Default), AnimatType.Single, Core.Save!.Mode);
             if (ig == null)
             {
-                MessageBox.Show("Did not find the Default animation, please check the graph configuration.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show("Animation par défaut introuvable, vérifiez la configuration des animations.".Translate(), "Erreur".Translate(), MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
             }
             Task.Run(() =>

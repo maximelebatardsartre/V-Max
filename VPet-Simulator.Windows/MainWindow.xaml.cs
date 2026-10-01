@@ -111,14 +111,14 @@ namespace VPet_Simulator.Windows
                 List<DirectoryInfo> Path = new(new DirectoryInfo(ModPath).EnumerateDirectories());
 
 
-                Dispatcher.InvokeAsync(new Action(() => LoadingText.Content = "Loading Translate")).Wait();
+                Dispatcher.InvokeAsync(new Action(() => LoadingText.Content = "Chargement des traductions")).Wait();
                 //加载语言
                 LocalizeCore.StoreTranslation = true;
                 if (Set.Language == "null")
                 {
                     LocalizeCore.LoadDefaultCulture();
                     if (LocalizeCore.CurrentCulture == "null")
-                        LocalizeCore.CurrentCulture = "en";
+                        LocalizeCore.CurrentCulture = "fr";// V-Max : repli sur le français
                     Set.Language = LocalizeCore.CurrentCulture;
                 }
                 else
@@ -440,7 +440,7 @@ namespace VPet_Simulator.Windows
             }
             catch (Exception ex)
             {
-                MessageBoxX.Show("存档损毁,无法加载该存档\n可能是数据溢出/超模导致的" + '\n' + ex.Message, "存档损毁".Translate());
+                MessageBoxX.Show("存档损毁,无法加载该存档\n可能是数据溢出/超模导致的".Translate() + '\n' + ex.Message, "存档损毁".Translate());
             }
 #endif
             return false;

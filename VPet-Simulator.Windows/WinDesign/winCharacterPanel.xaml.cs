@@ -883,7 +883,7 @@ namespace VPet_Simulator.Windows
                     }
                 }
                 cb_birthday.ItemsSource = bdpetlist.Select(x => x.name);
-                lb_b_datetime.Content = "Shot on VPet - " + DateTime.Now.ToShortDateString();
+                lb_b_datetime.Content = "Photo V-Max".Translate() + " - " + DateTime.Now.ToShortDateString();
                 cb_birthday.SelectedIndex = sidx;
                 BDay_Load();
                 Width = 800;
@@ -967,7 +967,7 @@ namespace VPet_Simulator.Windows
             {
                 return;
             }
-            lb_b_datetime.Content = "Shot on VPet - " + dtp_bdiy.SelectedDateTime?.ToShortDateString();
+            lb_b_datetime.Content = "Photo V-Max".Translate() + " - " + dtp_bdiy.SelectedDateTime?.ToShortDateString();
         }
 
         private void Load_Log()

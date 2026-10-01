@@ -164,7 +164,7 @@ namespace VPet_Simulator.Windows
         /// </summary>
         public string Language
         {
-            get => GetString("language", "null")!;
+            get => GetString("language", "fr")!;// V-Max : français par défaut
             set => this[(gstr)"language"] = value;
         }
         public string Font

@@ -106,7 +106,7 @@
                                         Unchecked="HitThroughBox_Checked" />
                             </Grid>
 
-                            <TextBlock Grid.Row="2" Grid.ColumnSpan="2" VerticalAlignment="Center" Text="Language" />
+                            <TextBlock Grid.Row="2" Grid.ColumnSpan="2" VerticalAlignment="Center" Text="Langue / Language" />
                             <ComboBox x:Name="LanguageBox" Grid.Row="2" Grid.Column="2" Margin="0,3,0,2" FontSize="16"
                                     SelectionChanged="LanguageBox_SelectionChanged"
                                     Style="{DynamicResource StandardComboBoxStyle}" />

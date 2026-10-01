@@ -201,7 +201,7 @@ namespace VPet_Simulator.Windows
             }
             catch (Exception ex)
             {
-                MessageBoxX.Show("存档损毁,无法加载该存档\n可能是数据溢出/超模导致的" + '\n' + ex.Message, "存档损毁".Translate());
+                MessageBoxX.Show("存档损毁,无法加载该存档\n可能是数据溢出/超模导致的".Translate() + '\n' + ex.Message, "存档损毁".Translate());
             }
         }
 

@@ -1,4 +1,5 @@
-﻿using Panuon.WPF.UI;
+﻿using LinePutScript.Localization.WPF;
+using Panuon.WPF.UI;
 using System;
 using System.Collections.Generic;
 using System.Timers;
@@ -180,7 +181,7 @@ namespace VPet_Simulator.Core
         {
             if (BdrPanel.Visibility == Visibility.Visible)
             {
-                Tlv.Text = "Lv " + m.Core.Save!.Level.ToString();
+                Tlv.Text = "Niv. {0}".Translate(m.Core.Save!.Level);
                 tExp.Text = "x" + m.Core.Save!.ExpBonus.ToString("f2");
                 tMoney.Text = "$ " + m.Core.Save!.Money.ToString("N2");
                 if (m.Core.Controller!.EnableFunction)

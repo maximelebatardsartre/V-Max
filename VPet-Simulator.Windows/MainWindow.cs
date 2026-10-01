@@ -1355,13 +1355,13 @@ namespace VPet_Simulator.Windows
             Path = Path.GroupBy(x => x.FullName, StringComparer.OrdinalIgnoreCase)
                 .Select(group => group.First()).ToList();
             MODPath = Path;
-            await Dispatcher.InvokeAsync(new Action(() => LoadingText.Content = "Loading MOD"));
+            await Dispatcher.InvokeAsync(new Action(() => LoadingText.Content = "Chargement des mods"));
             //加载mod
             foreach (DirectoryInfo di in Path)
             {
                 if (!File.Exists(di.FullName + @"\info.lps"))
                     continue;
-                await Dispatcher.InvokeAsync(new Action(() => LoadingText.Content = $"Loading MOD: {di.Name}"));
+                await Dispatcher.InvokeAsync(new Action(() => LoadingText.Content = $"Chargement du mod : {di.Name}"));
                 CoreMODs.Add(new CoreMOD(di, this));
             }
 
@@ -1418,7 +1418,7 @@ namespace VPet_Simulator.Windows
                 }
                 catch (Exception ex)
                 {
-                    MessageBoxX.Show("存档损毁,无法加载该存档\n可能是数据溢出/超模导致的" + '\n' + ex.Message, "存档损毁".Translate());
+                    MessageBoxX.Show("存档损毁,无法加载该存档\n可能是数据溢出/超模导致的".Translate() + '\n' + ex.Message, "存档损毁".Translate());
                     //如果加载存档失败了,试试加载备份,如果没备份,就新建一个
                     LoadLatestSave(petloader.PetName);
                 }
