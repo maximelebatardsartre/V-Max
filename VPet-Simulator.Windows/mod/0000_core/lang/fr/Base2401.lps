@@ -1,0 +1,7 @@
+由于操作系统的设计，通过我们软件启动的程序可能会在任务管理器中归类为我们软件的子进程，这可能导致CPU/内存占用显示较高#En raison de la conception du système d'exploitation, les programmes lancés par notre logiciel peuvent apparaître comme ses sous-processus dans le Gestionnaire des tâches, ce qui peut gonfler l'utilisation du processeur et de la mémoire affichée.:|
+关于CPU/内存占用显示较高的一次性提示#Avis unique : utilisation du processeur et de la mémoire affichée élevée:|
+尝试加载动画和生成缓存\n该步骤可能会耗时比较长\n请耐心等待#Tentative de chargement des animations et de génération du cache\nCette étape peut prendre un certain temps\nMerci de patienter:|
+检测到经验值超过 9,223,372,036 导致算数溢出\n已经自动回正#Expérience supérieure à 9,223,372,036 détectée, provoquant un dépassement arithmétique\nCorrection automatique effectuée:|
+检测到金钱超过 9,223,372,036 导致算数溢出\n已经自动回正#Argent supérieur à 9,223,372,036 détecté, provoquant un dépassement arithmétique\nCorrection automatique effectuée:|
+数据溢出警告#Avertissement de dépassement de données:|
+缓存清理完成#Cache vidé:|

@@ -1,0 +1,35 @@
+MOD 信息或文件与作者上传的版本不一致#Les informations ou les fichiers du mod ne correspondent pas à la version mise en ligne par l'auteur:|
+检测到已确认的风险样本#Un échantillon à risque confirmé a été détecté:|
+MOD 已通过历史兼容验证#Le mod a passé la vérification de compatibilité héritée:|
+MOD 完整性验证通过#Vérification d'intégrité du mod réussie:|
+该创意工坊作品已绑定其他作者#Cet élément du Workshop est associé à un autre auteur:|
+检测到风险内容#Du contenu à risque a été détecté:|
+MOD 标识不一致#L'identifiant du mod ne correspond pas:|
+MOD 英文名称不一致#Le nom anglais du mod ne correspond pas:|
+MOD 简体中文名称不一致#Le nom en chinois simplifié du mod ne correspond pas:|
+MOD 文件内容不一致#Le contenu des fichiers du mod ne correspond pas:|
+Steam 作者不一致#L'auteur Steam ne correspond pas:|
+创意工坊校验未通过#Échec de la vérification du Workshop:|
+无法完成创意工坊校验：{0}#Impossible d'effectuer la vérification du Workshop : {0}:|
+以下创意工坊 MOD 未通过完整性或风险验证，已阻止加载：\n{0}#Les mods du Workshop suivants n'ont pas passé la vérification d'intégrité ou de risque et leur chargement a été bloqué :\n{0}:|
+创意工坊 MOD 验证失败#Échec de la vérification des mods du Workshop:|
+该 MOD 未通过创意工坊校验，无法启用：\n{0}#Ce mod n'a pas passé la vérification du Workshop et ne peut pas être activé :\n{0}:|
+启用模组失败#Échec de l'activation du mod:|
+该 MOD 未通过创意工坊校验，无法启用代码插件：\n{0}#Ce mod n'a pas passé la vérification du Workshop, son plugin de code ne peut pas être activé :\n{0}:|
+启用代码插件失败#Échec de l'activation du plugin de code:|
+{0} 准备WorkShop上传失败\n请检查网络后重试\n失败原因:{1}#Échec de la préparation de la mise en ligne de {0} sur le Workshop\nVérifiez votre connexion réseau et réessayez\nRaison : {1}:|
+创意工坊校验失败#Échec de la vérification du Workshop:|
+当前 Steam 账号未通过游戏拥有验证#Le compte Steam actuel n'a pas pu être vérifié comme possédant le jeu.:|
+当前游戏版本过旧，无法完成上传验证#La version actuelle du jeu est trop ancienne pour effectuer la vérification de mise en ligne.:|
+非代码插件MOD检测出代码#Du code a été détecté dans un mod qui n'est pas déclaré comme plugin de code.:|
+该 MOD 记录的作者与当前 Steam 账号不一致，无法更新#L'auteur enregistré dans ce mod ne correspond pas au compte Steam actuel, la mise à jour est impossible.:|
+该创意工坊作品已绑定其他作者，不能覆盖上传#Cet élément du Workshop est associé à un autre auteur et ne peut pas être écrasé.:|
+上传验证未通过#Échec de la vérification de mise en ligne.:|
+无法连接创意工坊验证服务，已取消上传。\n{0}#Impossible de se connecter au service de vérification du Workshop. La mise en ligne a été annulée.\n{0}:|
+正在准备上传#Préparation de la mise en ligne:|
+正在验证#Vérification en cours:|
+MOD上传验证失败#Échec de la vérification de mise en ligne du mod:|
+Steam 身份验证失败，请稍后重试#Échec de l'authentification Steam. Veuillez réessayer plus tard.:|
+Steam 验证服务暂时不可用，请稍后重试#Le service de vérification Steam est temporairement indisponible. Veuillez réessayer plus tard.:|
+Steam 游戏时长不足，暂不能上传包含代码的 MOD#Temps de jeu Steam insuffisant pour mettre en ligne un mod contenant du code pour le moment.:|
+重启进行重新校验#Redémarrer pour revérifier:|

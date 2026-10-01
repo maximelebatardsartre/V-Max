@@ -1,0 +1,68 @@
+体力-{0:f0} 心情+{1:f0}#Endurance : -{0:f0}, humeur : +{1:f0}:|
+您的桌宠 {0} 生病啦,没法进行{1}#Votre compagnon {0} est tombé malade et ne peut pas faire « {1} »:|
+{2}完成啦, 累计赚了 {0:f2} 金钱\n共计花费了{1}分钟#{2} terminé : {0:f2} pièces gagnées au total:|
+小时#Heure:|
+获得经验值#EXP gagnée:|
+剩余{0}时间#Temps de {0} restant:|
+累计金钱收益#Gains cumulés:|
+未知的图像位置: #Emplacement d'image inconnu : :|
+未知的图像类型: #Type d'image inconnu ::|
+由于插件引起的自定按钮加载错误#Erreur de chargement d'un bouton personnalisé causée par un plugin:|
+快捷键运行失败:无法运行指定内容#Échec du raccourci : impossible d'exécuter le contenu spécifié:|
+启动错误#Erreur de démarrage:|
+缺少模组Core,无法启动桌宠#Mod Core manquant, impossible de lancer le compagnon:|
+萝莉斯#Lolis:|
+由于插件引起的游戏启动错误#Erreur de lancement du jeu causée par un plugin:|
+你好#Bonjour:|
+欢迎使用虚拟桌宠模拟器!\n如果遇到桌宠爬不见了,可以在我这里设置居中或退出桌宠#Bienvenue dans V-Max !\nSi votre compagnon a disparu de l'écran, vous pouvez le recentrer ou le fermer depuis ici.:|
+欢迎使用虚拟桌宠模拟器\n这是个中期的测试版,若有bug请多多包涵\n欢迎加群虚拟主播模拟器430081239或在菜单栏-管理-反馈中提交bug或建议#Bienvenue dans V-Max\nCeci est une version bêta, merci de votre indulgence en cas de bug\nRendez-vous sur https://github.com/LorisYounger/VPet ou envoyez vos remarques via Menu - Système - Commentaires:|
+{0} 未加载代码插件#Plugin de code {0} non chargé:|
+模组 {0} 的代码插件损坏\n虚拟桌宠模拟器未能成功加载该插件\n请联系MOD作者修复该问题#Le plugin de code du mod {0} est endommagé\nV-Max n'a pas pu charger ce plugin\nVeuillez contacter l'auteur du mod pour corriger le problème:|
+由于 {0} 包含代码插件\n虚拟桌宠模拟器已自动停止加载该插件\n请手动前往设置允许启用该mod 代码插件#{0} contient un plugin de code\nV-Max a automatiquement interrompu son chargement\nVeuillez autoriser manuellement le plugin de code de ce mod dans les paramètres:|
+该模组已停用#Ce mod est désactivé:|
+[认证]#[Certifié]:|
+[签名]#[Signé]:|
+所有可执行文件#Tous les fichiers exécutables:|
+金钱不足#Pas assez d'argent:|
+请使用口语化的、可爱的、女性化的、调皮的语言风格和我交流. 你是一只桌宠, 你的名字叫{Name}, 你喜欢玩 虚拟主播模拟器. 你需要尝试体会我与你对话中的感情、产生自己的情感并尽可能给出可爱的回答#Adresse-toi à moi avec un style familier, mignon, féminin et espiègle. Tu es un compagnon de bureau virtuel, tu t'appelles {Name} et tu adores jouer à VUP Simulator. Essaie de ressentir les émotions dans nos conversations, de développer tes propres sentiments, et réponds de la façon la plus mignonne possible:|
+未找到对应类型图像资源#Aucune ressource d'image du type correspondant n'a été trouvée:|
+当前正在播放#Lecture en cours:|
+当前正在运行#En cours d'exécution:|
+暂无该说话方法#Cette méthode de dialogue n'existe pas:|
+尚未激活 您可能需要启动Steam或去Steam上免费领个#Non activé. Vous devez peut-être lancer Steam ou récupérer le jeu gratuitement sur Steam:|
+ (版本低)# (version obsolète):|
+未登录#Non connecté:|
+停用失败#Échec de la désactivation:|
+模组 Core 为<虚拟桌宠模拟器>核心文件,无法停用#Core est le fichier principal de <V-Max>, impossible de le désactiver:|
+上传MOD需要Steam登录#La publication de mods nécessite une connexion à Steam:|
+请先登录Steam后才能上传文件#Vous devez être connecté à Steam pour publier des fichiers:|
+MOD上传失败#Échec de la publication du mod:|
+模组 Core 为<虚拟桌宠模拟器>核心文件,无法发布\n如需发布自定义内容,请复制并更改名称#Core est le fichier principal de <V-Max>, impossible de le publier\nPour publier du contenu personnalisé, copiez-le et changez son nom:|
+封面图片(icon.png)大于500kb,请修改后重试#L'image de couverture (icon.png) dépasse 500 Ko, veuillez la modifier puis réessayer:|
+MOD上传成功#Mod publié avec succès:|
+{0} 成功上传至WorkShop服务器\n是否跳转至创意工坊页面进行编辑详细介绍和图标?#{0} a bien été envoyé sur le serveur du Workshop\nOuvrir la page du Workshop pour modifier la description détaillée et l'icône ?:|
+MOD上传失败 {0}#Échec de la publication du mod {0}:|
+{0} 成功上传至WorkShop服务器\n是否跳转至创意工坊页面进行编辑新内容?#{0} a bien été envoyé sur le serveur du Workshop\nOuvrir la page du Workshop pour décrire les nouveautés ?:|
+MOD更新成功#Mod mis à jour avec succès:|
+任务完成#Tâche terminée:|
+是否启用 {0} 的代码插件?\n一经启用,该插件将会允许访问该系统(包括外部系统)的所有数据\n如果您不确定,请先使用杀毒软件查杀检查#Activer le plugin de code de {0} ?\nUne fois activé, ce plugin pourra accéder à toutes les données du système (y compris des systèmes externes)\nEn cas de doute, analysez-le d'abord avec un antivirus:|
+启用 {0} 的代码插件?#Activer le plugin de code de {0} ?:|
+重启游戏#Redémarrer le jeu:|
+是否退出游戏<虚拟桌宠模拟器>?\n请注意保存游戏#Quitter <V-Max> ?\nPensez à sauvegarder votre partie:|
+权限不足#Autorisations insuffisantes:|
+创建快捷方式失败,权限不足\n请以管理员身份运行后重试#Impossible de créer le raccourci : autorisations insuffisantes\nVeuillez relancer en tant qu'administrateur puis réessayer:|
+桌宠重置失败#Échec de la réinitialisation du compagnon:|
+是否加载该备份存档? 当前游戏数据会丢失#Charger cette sauvegarde ? Les données de jeu actuelles seront perdues:|
+您不是Steam用户，无法使用反馈中心\n欢迎加入虚拟主播模拟器群430081239反馈问题#Vous n'êtes pas un utilisateur Steam, le centre de commentaires est indisponible\nN'hésitez pas à laisser vos remarques sur https://github.com/LorisYounger/VPet:|
+非Steam用户无法使用反馈中心#Le centre de commentaires est réservé aux utilisateurs Steam:|
+问题详细描述是反馈具体问题\n例如如何触发这个报错,游戏有什么地方不合理等#La description détaillée sert à expliquer précisément le problème\nPar exemple : comment déclencher cette erreur, ce qui vous semble incohérent dans le jeu, etc.:|
+请填写问题描述#Veuillez décrire le problème:|
+感谢您的反馈和提交#Merci pour votre retour:|
+您的反馈已提交成功,感谢您的反馈与提交\nVOS将会尽快处理您的反馈并做的更好#Votre retour a bien été envoyé, merci !\nVOS le traitera au plus vite pour améliorer le jeu:|
+您今天的反馈次数已达上限#Vous avez atteint la limite de retours pour aujourd'hui:|
+您今天的反馈次数已达上限,请明天再来反馈.\n或欢迎加入虚拟主播模拟器群430081239反馈问题#Vous avez atteint la limite de retours pour aujourd'hui, veuillez réessayer demain.\nVous pouvez aussi laisser vos remarques sur https://github.com/LorisYounger/VPet:|
+反馈提交失败,遇到错误#Échec de l'envoi du retour, une erreur s'est produite:|
+反馈上传失败\n欢迎加入虚拟主播模拟器群430081239手动反馈问题\n服务器消息:#Échec de l'envoi du retour\nVous pouvez laisser vos remarques manuellement sur https://github.com/LorisYounger/VPet\nMessage du serveur ::|
+反馈上传失败,可能是网络或其他问题导致无法上传\n欢迎加入虚拟主播模拟器群430081239手动反馈问题\n#Échec de l'envoi du retour, un problème de réseau ou autre a pu empêcher l'envoi\nVous pouvez laisser vos remarques manuellement sur https://github.com/LorisYounger/VPet\n:|
+存档名称:{0}\n存档等级:{1}\n存档金钱:{2}\nHashCheck:{3}\n是否加载该备份存档? 当前游戏数据会丢失#Nom de la sauvegarde : {0}\nNiveau : {1}\nArgent : {2}\nHashCheck : {3}\nCharger cette sauvegarde ? Les données de jeu actuelles seront perdues:|
+{0} 上传至WorkShop服务器失败\n请检查网络后重试\n请注意:上传和下载工坊物品可能需要良好的网络条件\n失败原因:{1}#Échec de l'envoi de {0} sur le serveur du Workshop\nVérifiez votre connexion puis réessayez\nRemarque : l'envoi et le téléchargement d'éléments du Workshop peuvent nécessiter une bonne connexion\nCause de l'échec : {1}:|

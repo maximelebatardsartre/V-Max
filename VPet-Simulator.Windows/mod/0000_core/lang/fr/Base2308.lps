@@ -1,0 +1,41 @@
+关闭聊天框#Fermer la fenêtre de discussion:|
+当前存档Hash验证信息#Vérification Hash de la sauvegarde actuelle ::|
+操作#Actions:|
+虚拟桌宠模拟器 规格#Caractéristiques de V-Max:|
+吉娜#Gina:|
+通过#Réussi:|
+失败#Échec:|
+自定义聊天接口#Interface de discussion personnalisée:|
+聊天框已关闭#Fenêtre de discussion fermée:|
+尝试加载游戏存档#Chargement de la sauvegarde…:|
+尝试加载Steam内容#Chargement du contenu Steam…:|
+尝试加载游戏动画#Chargement des animations…:|
+有效度#Efficacité:|
+喜好度#Préférence:|
+桌宠图形渲染的分辨率,越高图形越清晰\r但是高分辨率会占用更多内存\r重启后生效#Résolution utilisée pour le rendu graphique du compagnon : plus elle est élevée, plus l'image est nette\rMais une résolution élevée consomme davantage de mémoire\rPrend effet après redémarrage:|
+渲染分辨率#Résolution de rendu:|
+清理缓存#Vider le cache:|
+清理缓存的动画,声音文件#Vide le cache des fichiers d'animation et de son:|
+音乐识别设置#Paramètres de détection de la musique:|
+设置识别音乐播放特殊动作阈值#Définit le seuil de détection de la musique pour déclencher des actions spéciales:|
+当前播放音量大小#Volume de lecture actuel:|
+触发音量#Volume de déclenchement:|
+当实时播放音量达到该值时运行音乐动作#Lance une action musicale lorsque le volume de lecture atteint cette valeur:|
+当实时播放音量达到该值时运行特殊音乐动作#Lance une action musicale spéciale lorsque le volume de lecture atteint cette valeur:|
+高潮音量#Volume d'apogée:|
+Happyly#Joyeusement:|
+Nomally#Normalement:|
+PoorConditionly#Tristement:|
+Illly#Maladivement:|
+plugin#Plugin:|
+MOD加载错误,是MOD({0})导致的\n如有可能请发送 错误信息截图和引发错误之前的操作 给开发者:service@exlb.net\n感谢您对游戏开发的支持\n#Erreur de chargement de mod, causée par le mod ({0})\nSi possible, envoyez une capture d'écran du message d'erreur et décrivez ce que vous faisiez avant l'erreur sur https://github.com/maximelebatardsartre/V-Max/issues\nMerci de soutenir le développement du jeu\n:|
+游戏发生错误,可能是#Une erreur est survenue dans le jeu, probablement causée par :|
+游戏致命性错误#Erreur fatale du jeu:|
+游戏或者MOD#le jeu ou un mod:|
+导致的\n如有可能请发送 错误信息截图和引发错误之前的操作 给开发者:service@exlb.net\n感谢您对游戏开发的支持\n#. Si possible, envoyez une capture d'écran du message d'erreur et décrivez ce que vous faisiez avant l'erreur sur https://github.com/maximelebatardsartre/V-Max/issues\nMerci de soutenir le développement du jeu\n:|
+清理指令已下达,下次启动桌宠时生效#Le nettoyage a été programmé et prendra effet au prochain lancement de V-Max:|
+服务器超载,请稍后重试#Serveur surchargé, veuillez réessayer plus tard:|
+存档损毁,无法加载该备份\n请更换备份重试#Sauvegarde corrompue, impossible de charger cette copie de secours\nVeuillez choisir une autre copie de secours et réessayer:|
+存档损毁#Sauvegarde corrompue:|
+存档损毁,无法加载该存档\n可能是数据溢出/超模导致的#Sauvegarde corrompue, impossible de la charger\nCela peut être dû à un dépassement de données ou à des données déséquilibrées:|
+存档损毁,无法加载该存档\n可能是上次储存出错或Steam云同步导致的\n请在设置中加载备份还原存档#Sauvegarde corrompue, impossible de la charger\nCela peut être dû à une erreur lors du dernier enregistrement ou à la synchronisation Steam Cloud\nVeuillez charger une copie de secours depuis les paramètres pour restaurer la sauvegarde:|

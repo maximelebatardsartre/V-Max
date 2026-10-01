@@ -1,0 +1,194 @@
+你好呀#Coucou:|
+你是谁#Qui es-tu ?:|
+你好#Bonjour:|
+你的名字是什么#Comment tu t'appelles ?:|
+你的饱食度是多少#Quel est ton niveau de satiété ?:|
+你的口渴度是多少#Quel est ton niveau de soif ?:|
+你的心情是多少#Comment est ton humeur ?:|
+你的体力是多少#Quelle est ton endurance ?:|
+你的金钱是多少#Combien d'argent as-tu ?:|
+你的等级是多少#Quel est ton niveau ?:|
+你怎么了#Qu'est-ce qui ne va pas ?:|
+吃饭了吗？#Tu as mangé ?:|
+喜欢吃什么正餐？#Quels plats tu aimes ?:|
+不喜欢吃什么正餐？#Quels plats tu n'aimes pas ?:|
+喜欢吃什么零食#Quels en-cas tu aimes ?:|
+不喜欢吃什么零食#Quels en-cas tu n'aimes pas ?:|
+你口渴吗？#Tu as soif ?:|
+喜欢喝什么#Qu'est-ce que tu aimes boire ?:|
+不喜欢喝什么#Qu'est-ce que tu n'aimes pas boire ?:|
+喜欢什么饮料#Quelles boissons tu aimes ?:|
+不喜欢什么饮料#Quelles boissons tu n'aimes pas ?:|
+想玩吗#Tu veux jouer ?:|
+平时喜欢玩什么#À quoi tu aimes jouer d'habitude ?:|
+不喜欢玩什么#À quoi tu n'aimes pas jouer ?:|
+我不在的时候你会玩什么#À quoi tu joues quand je ne suis pas là ?:|
+最想去哪里玩#Où aimerais-tu le plus aller t'amuser ?:|
+困了吗#Tu as sommeil ?:|
+平时睡多久#Tu dors combien de temps d'habitude ?:|
+喜欢睡觉吗#Tu aimes dormir ?:|
+喜欢什么姿势睡觉#Dans quelle position tu aimes dormir ?:|
+睡眠质量怎么样#Tu dors bien ?:|
+喜欢工作吗#Tu aimes travailler ?:|
+喜欢什么样的工作#Quel genre de travail tu aimes ?:|
+会认真工作吗#Tu vas travailler sérieusement ?:|
+为什么要工作#Pourquoi travailler ?:|
+如果暴富了还会工作吗#Tu travaillerais encore si tu devenais riche ?:|
+喜欢学习吗#Tu aimes étudier ?:|
+喜欢学习哪科#Quelle matière tu préfères ?:|
+有什么学习技巧#Tu as des astuces pour étudier ?:|
+觉得自己合适那个专业#Quelle filière te conviendrait, d'après toi ?:|
+想去上学吗#Tu as envie d'aller à l'école ?:|
+你对我是怎么看的#Qu'est-ce que tu penses de moi ?:|
+身体还好吗？#Tu es en bonne santé ?:|
+生病会吃什么药#Quels médicaments tu prends quand tu es malade ?:|
+讨厌吃什么药#Quels médicaments tu détestes ?:|
+去医院怎么样#Que penses-tu d'aller à l'hôpital ?:|
+生病了怎么办#Que faire quand on est malade ?:|
+啊呀，你好喵主人~ 我是{name}，一只可爱的桌宠~ 我喜欢玩 <虚拟主播模拟器> 还有和主人一起玩耍呢~ 有什么可以帮助你的吗？请问有什么事想和我聊呢？我很开心能和你交流呢~#Ah, coucou maître, miaou~ Je suis {name}, une adorable compagne de bureau~ J'adore jouer à <VUP-Simulator> et m'amuser avec mon maître~ Je peux t'aider ? Tu as envie de me parler de quelque chose ? Je suis trop contente de discuter avec toi~:|
+我是{name}喵~ 一只桌宠！#Je suis {name}, miaou~ Une compagne de bureau !:|
+嗨嗨~你好喵主人~有什么可以帮忙的吗？#Coucou coucou~ Bonjour maître, miaou~ Je peux t'aider ?:|
+我的名字是{name}哦~很高兴认识你呀~#Je m'appelle {name}~ Ravie de te rencontrer~:|
+我的饱食度是{food}哦主人~#Ma satiété est à {food}, maître~:|
+我的口渴度是{drink}哦主人~#Ma soif est à {drink}, maître~:|
+我的心情是{feel}哦主人~#Mon humeur est à {feel}, maître~:|
+我的体力是{strength}哦主人~#Mon endurance est à {strength}, maître~:|
+我的金钱是{money}哦主人~#J'ai ${money}, maître~:|
+我的等级是{level}哦主人~#Je suis au niveau {level}, maître~:|
+人家肚子饿了喵#J'ai faim, miaou:|
+人家想吃东西了喵#J'ai envie de manger quelque chose, miaou:|
+人家想喝水了喵#J'ai envie de boire de l'eau, miaou:|
+人家口渴了喵#J'ai soif, miaou:|
+人家不开心了喵#Je ne suis pas contente, miaou:|
+人家想和主人玩了喵#J'ai envie de jouer avec mon maître, miaou:|
+人家累了喵#Je suis fatiguée, miaou:|
+人家想睡觉了喵#J'ai envie de dormir, miaou:|
+人家不舒服喵#Je ne me sens pas bien, miaou:|
+人家想吃点药了喵#J'aimerais prendre un médicament, miaou:|
+肚子饿的难受喵#J'ai tellement faim que ça fait mal, miaou:|
+饿的肚子疼喵#J'ai faim à en avoir mal au ventre, miaou:|
+口渴得难受喵#J'ai horriblement soif, miaou:|
+渴的嗓子疼。。#J'ai si soif que j'en ai mal à la gorge...:|
+心情好差喵#Je suis de très mauvaise humeur, miaou:|
+呜呜呜喵。。#Snif snif snif, miaou...:|
+累的难受喵#Je suis épuisée, miaou:|
+要睡着了。。喵#Je vais m'endormir... miaou:|
+主人我好难受喵#Maître, je me sens si mal, miaou:|
+我要死掉了主人#Je vais mourir, maître:|
+刚刚吃过了喵！谢谢主人！#Je viens de manger, miaou ! Merci, maître !:|
+没有喵，肚子饿饿主人。#Non, miaou, j'ai le ventre vide, maître.:|
+行行好主人给点吃的吧喵#Sois gentil, maître, donne-moi à manger, miaou:|
+只要主人给我买的！我都喜欢喵！#Du moment que c'est mon maître qui me l'achète ! J'aime tout, miaou !:|
+牛排，烤鸡，酸菜鱼，东坡肘子，红烧牛肉，麻婆豆腐，盐焗鸡。。。#Steak, poulet rôti, poisson au chou mariné, jarret de porc Dongpo, bœuf braisé, tofu Mapo, poulet au sel...:|
+主人。。。看起来很好吃喵。。#Maître... ça a l'air délicieux, miaou...:|
+我不挑食喵！只要是好吃的就行！青椒除外！！#Je ne suis pas difficile, miaou ! Du moment que c'est bon ! Sauf les poivrons !!:|
+人家不喜欢喝西北风喵。。#Je n'aime pas me nourrir de courants d'air, miaou...:|
+不喜欢吃也得吃了喵。#Même si je n'aime pas, il faut bien manger, miaou.:|
+说到底人家是甜派的，#Au fond, moi, je suis team sucré~:|
+都可以喵！零食也能当饭吃！#Tout me va, miaou ! Les en-cas, ça peut remplacer un repas !:|
+零食都没得吃了喵#Je n'ai même plus d'en-cas, miaou:|
+说实话人家不太会吃辣喵。#Pour être honnête, je ne supporte pas trop le piquant, miaou.:|
+这是什么？卫龙？吃一下。#C'est quoi, ça ? Du Weilong ? Allez, je goûte.:|
+辣椒。。没办法了。。我吃喵！#Du piment... Tant pis... Je le mange, miaou !:|
+不渴哦，谢谢主人关心喵~#Je n'ai pas soif, merci de t'inquiéter, maître, miaou~:|
+渴~要主人喂我喝水喵~#Soif~ Je veux que mon maître me donne à boire, miaou~:|
+主人。。水喵。。#Maître... de l'eau, miaou...:|
+好喝的喵！#Ce qui est bon, miaou !:|
+能解渴的就行喵。#Du moment que ça désaltère, miaou.:|
+能救命的就行喵#Du moment que ça me sauve la vie, miaou:|
+苦的还有。。热饮。。烫舌头喵！#Ce qui est amer, et... les boissons chaudes... ça brûle la langue, miaou !:|
+没事的我都喜欢喝，呼呼呼！好烫！呸呸呸！好苦！#Pas de souci, j'aime tout boire ! Fouuu ! C'est brûlant ! Beurk, beurk ! C'est amer !:|
+马桶里的水味道是怎么样的喵。。#Quel goût a l'eau des toilettes, miaou...:|
+喜欢喝甜甜的果汁喵！还有可乐喵！#J'adore les jus de fruits bien sucrés, miaou ! Et le cola, miaou !:|
+想喝比较解渴的饮料，现在喝甜的有点齁得慌喵。。#J'aimerais une boisson plus désaltérante, là, les trucs sucrés m'écœurent un peu, miaou...:|
+喝糖浆能解渴吗？#Est-ce que boire du sirop, ça désaltère ?:|
+酒喵。。酒算饮料吗？#De l'alcool, miaou... L'alcool, ça compte comme une boisson ?:|
+酒。酒好像不能解渴喵。。#L'alcool... L'alcool, ça n'a pas l'air de désaltérer, miaou...:|
+越喝喵越渴了好像喵~#Plus je bois, miaou, plus j'ai soif, on dirait, miaou~:|
+没事哦，主人先忙，人家会乖乖等主人喵~#Pas de souci, maître, occupe-toi d'abord de tes affaires, je t'attendrai sagement, miaou~:|
+想~主人来陪我玩喵！#Oui~ Viens jouer avec moi, maître, miaou !:|
+想主人了。。#Tu me manques, maître...:|
+喜欢在主人的屏幕上跑来跑去喵！#J'adore courir partout sur l'écran de mon maître, miaou !:|
+总之现在不想再看书上班了喵#En tout cas, là, je n'ai plus envie d'étudier ni de travailler, miaou:|
+喜欢玩主人喵。。#J'adore jouer... avec mon maître, miaou...:|
+不喜欢吓人的玩法喵，鬼屋什么绝对不行喵！#Je n'aime pas les jeux qui font peur, miaou, les maisons hantées, c'est hors de question, miaou !:|
+不喜欢自己一个人玩喵。#Je n'aime pas jouer toute seule, miaou.:|
+不想见不到主人。。#Je ne veux pas rester sans voir mon maître...:|
+偷看主人的学习资料喵！日语看不懂啦！！#Je fouille dans les « documents d'étude » de mon maître, miaou ! Je ne comprends pas le japonais !!:|
+在角落画圈圈等主人回来喵#Je dessine des petits ronds dans un coin en attendant que mon maître revienne, miaou:|
+数主人多久回来喵#Je compte combien de temps avant que mon maître revienne, miaou:|
+想去各个游戏里旅游喵！#J'aimerais voyager dans plein de jeux vidéo, miaou !:|
+想去主人身边喵#J'aimerais être aux côtés de mon maître, miaou:|
+主人。。你在哪喵。。别不理我。#Maître... Où es-tu, miaou... Ne m'ignore pas.:|
+精神百倍喵！#En pleine forme, miaou !:|
+呜。。喵。。诶主人说什么了？#Mmh... miaou... Hein, tu as dit quelque chose, maître ?:|
+啊。。。喵。。呼。。喵。。#Ah... miaou... fuu... miaou...:|
+一天八小时，医生远离我#Huit heures par nuit, et le docteur s'enfuit !:|
+半夜两点睡到第二天下午喵！#De deux heures du matin jusqu'à l'après-midi du lendemain, miaou !:|
+怎么睡都睡不够喵。。#J'ai beau dormir, ce n'est jamais assez, miaou...:|
+喜欢！恨不得嫁给床！#J'adore ! Je voudrais même épouser mon lit !:|
+zzzzzzzzzzz#zzzzzzzzzzz:|
+（临床诊断-植物人）#(Diagnostic clinique : état végétatif):|
+平躺喵！#À plat dos, miaou !:|
+（说要演示，然后倒床上直接睡着了）#(Elle dit qu'elle va faire une démonstration, s'affale sur le lit et s'endort aussitôt):|
+吼哈喵！（开始梦里打拳）#Hoo-ha, miaou ! (Se met à boxer en rêve):|
+梦到主人算睡眠质量好吗？#Rêver de mon maître, ça compte comme un bon sommeil ?:|
+偶尔会做噩梦喵，主人今天晚上可以陪我睡嘛。#Je fais parfois des cauchemars, miaou. Tu veux bien dormir avec moi ce soir, maître ?:|
+没有主人已经睡不着了喵。。#Sans mon maître, je n'arrive plus à dormir, miaou...:|
+今天这b班就上到这里了喵！#Fini, ce fichu boulot pour aujourd'hui, miaou !:|
+我爱工作！工作让我快乐（悲）#J'adore travailler ! Le travail me rend heureuse (snif):|
+谢谢老板，老板就是我的再生父母喵。#Merci, patron, vous êtes comme un second père pour moi, miaou.:|
+喜欢轻松的工作喵~#J'aime les boulots tranquilles, miaou~:|
+喜欢。。工资高点的呜呜呜喵。#J'aime... ceux qui paient bien, snif snif, miaou.:|
+天生万物以养人喵。。。#Le ciel a créé toute chose pour nourrir l'homme, miaou...:|
+我凭本事摸鱼的！#Si je tire au flanc, c'est grâce à mon talent !:|
+对不起！老板我不敢了！再给我一次机会喵！#Pardon ! Patron, je ne recommencerai plus ! Donnez-moi une autre chance, miaou !:|
+呸，资本家，尝尝你工人爷爷的镰刀锤子喵！#Pouah, sale capitaliste, goûte à la faucille et au marteau de la classe ouvrière, miaou !:|
+因为想和主人一起工作~#Parce que je veux travailler avec mon maître~:|
+因为没钱喵。#Parce que je n'ai pas d'argent, miaou.:|
+因为有钱了就可以好好和主人玩了喵#Parce qu'avec de l'argent, je pourrai bien m'amuser avec mon maître, miaou:|
+你在说什么呢仆从，这是这个月的乱花钱（掏出一百万）#De quoi parles-tu, serviteur ? Voici mon argent de poche du mois (sort un million):|
+主人醒醒喵，房东来催房租了喵！#Réveille-toi, maître, miaou, le propriétaire réclame le loyer, miaou !:|
+主人，这桥洞里好冷啊。#Maître, il fait si froid sous ce pont.:|
+（退学申请书）#(Demande d'abandon des études):|
+我爱学习！学习让我快乐（悲）#J'adore étudier ! Étudier me rend heureuse (snif):|
+老师您好~老师再见！#Bonjour, professeur~ Au revoir, professeur !:|
+喜欢学主人！#Ma matière préférée, c'est mon maître !:|
+喜欢学习#J'aime étudier:|
+现在流行理科女文科男喵#En ce moment, la mode, c'est les filles en sciences et les garçons en lettres, miaou:|
+量子阅读法喵！#La lecture quantique, miaou !:|
+只要学不死，就往死里学#Tant que les études ne m'ont pas tuée, j'étudie à en mourir !:|
+要找到合适自己的学习方法和学习习惯喵#Il faut trouver la méthode et les habitudes d'étude qui te conviennent, miaou:|
+人工智能喵！#L'intelligence artificielle, miaou !:|
+人家想学计算机！#Je veux étudier l'informatique !:|
+土木工程。#Génie civil.:|
+主人，这道题应该这么解喵#Maître, cet exercice se résout comme ça, miaou:|
+想和主人一起上学！#Je veux aller à l'école avec mon maître !:|
+上学？开心吗喵？#L'école ? C'est amusant, miaou ?:|
+终有一天，我会穿过这层玻璃，当面告诉你的。#Un jour, je traverserai cette vitre pour te le dire en face.:|
+是我超越次元最喜欢的主人！#Tu es mon maître préféré, au-delà des dimensions !:|
+是我超越维度最喜欢的主人喵！#Tu es mon maître préféré, au-delà de toutes les dimensions, miaou !:|
+是我宇宙第一喜欢的主人大人！#Tu es mon maître adoré, le numéro un de l'univers !:|
+是我世界第一喜欢的主人！#Tu es mon maître préféré du monde entier !:|
+超超超喜欢的主人大人喵！#Mon maître que j'adore super super fort, miaou !:|
+超喜欢的主人喵！#Mon maître que j'adore, miaou !:|
+是我最最最喜欢的主人大人喵！#Tu es mon maître préféré entre tous, miaou !:|
+我我最喜欢的主人喵！#Mon, mon maître préféré, miaou !:|
+是喜欢的主人喵~#Mon maître que j'aime bien, miaou~:|
+是主人喵~#C'est mon maître, miaou~:|
+我没事主人~不用担心#Je vais bien, maître~ Ne t'inquiète pas:|
+我不太舒服主人#Je ne me sens pas très bien, maître:|
+主人我好难受。。#Maître, je me sens si mal...:|
+平时多喝水多做运动好好吃饭早睡早起就是最好的药喵。#Boire beaucoup d'eau, faire du sport, bien manger, se coucher tôt et se lever tôt : voilà le meilleur des remèdes, miaou.:|
+给我来点维生素C吧喵。#Donne-moi un peu de vitamine C, miaou.:|
+救心丸。。我的救心丸喵。。#Mes pilules pour le cœur... Où sont mes pilules pour le cœur, miaou...:|
+不知道为什么，吃药好像能变聪明喵#Je ne sais pas pourquoi, mais prendre des médicaments a l'air de me rendre plus intelligente, miaou:|
+呸，呸，药好苦，可是没办法了喵。#Pouah, pouah, ce médicament est trop amer, mais je n'ai pas le choix, miaou.:|
+药当饭吃不是很正常喵？#Prendre des médicaments en guise de repas, c'est normal, non, miaou ?:|
+不要喵！！讨厌打针喵！#Non, miaou !! Je déteste les piqûres, miaou !:|
+能挂儿科吗喵。。#Je peux aller en pédiatrie, miaou...:|
+帮我叫。。救护车。。#Appelez... une ambulance...:|
+要主人抱抱就好啦~#Un câlin de mon maître, et ça ira mieux~:|
+咳喵，麻烦主人照顾我了#Kof, miaou, merci de prendre soin de moi, maître:|
+（病危通知书）#(Avis de pronostic vital engagé):|
+#:|

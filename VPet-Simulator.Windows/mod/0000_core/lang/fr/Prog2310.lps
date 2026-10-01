@@ -1,0 +1,69 @@
+统计面板#Panneau de statistiques:|
+搜索统计#Rechercher dans les statistiques:|
+数量#Quantité:|
+详情面板#Panneau de détails:|
+购买次数#Nombre d'achats:|
+统计#Statistiques:|
+0_feel#Humeur à 0:|
+0_f_sd#Humeur et soif à 0 en même temps:|
+autogift#Nombre de cadeaux achetés automatiquement:|
+bb_food#Dépenses totales en articles spéciaux:|
+0_sd_sf#Faim et soif à 0 en même temps:|
+0_strengthdrink#Soif à 0:|
+0_strengthfood#Faim à 0:|
+100_all#Nombre de fois où toutes les jauges étaient au maximum:|
+ill_nomoney#Malade sans argent:|
+sleep_time#Temps de sommeil:|
+autobuy#Nombre d'achats automatiques:|
+bb_drink#Dépenses totales en boissons:|
+bb_drug_exp#EXP totale gagnée par les médicaments:|
+bb_drug#Dépenses totales en médicaments:|
+bb_functional#Dépenses totales en articles fonctionnels:|
+bb_gift#Dépenses totales en cadeaux:|
+bb_gift_like#Affection totale gagnée par les cadeaux:|
+bb_meal#Dépenses totales en repas:|
+bb_snack#Dépenses totales en en-cas:|
+betterbuy#Dépenses totales chez BetterBuy:|
+buytimes#Nombre d'achats chez BetterBuy:|
+level#Niveau:|
+level_g_money#Niveau supérieur à l'argent:|
+likability#Affection:|
+menu_pop#Nombre d'ouvertures du menu:|
+money#Argent:|
+move_length#Distance parcourue (px):|
+music#Nombre de danses en musique:|
+open_times#Nombre de lancements du jeu:|
+say_exp_p#EXP gagnée en discutant:|
+say_exp_d#EXP perdue en discutant:|
+say_like_p#Affection gagnée en discutant:|
+say_like_d#Affection perdue en discutant:|
+say_money_p#Argent gagné en discutant:|
+say_money_d#Argent perdu en discutant:|
+say_times#Nombre de discussions:|
+single_profit_exp#EXP gagnée par session de travail:|
+single_profit_money#Argent gagné par session de travail:|
+sleep_time#Temps de sommeil:|
+study_time#Temps d'étude (s):|
+total_time#Temps total (s):|
+touch_body#Nombre de caresses sur le corps:|
+touch_head#Nombre de caresses sur la tête:|
+work_time#Temps de travail (s):|
+eval_active_days#Jours actifs:|
+eval_active_streak#Série de jours actifs en cours (jours):|
+eval_longest_active_streak#Plus longue série de jours actifs (jours):|
+eval_last_active_day#Dernier jour actif:|
+eval_longest_session_seconds#Plus longue session (s):|
+eval_recent_7_days_seconds#Temps passé ensemble sur les 7 derniers jours (s):|
+eval_recent_30_days_seconds#Temps passé ensemble sur les 30 derniers jours (s):|
+eval_work_started#Sessions de travail commencées:|
+eval_work_completed#Sessions de travail terminées:|
+eval_work_completion_rate#Taux d'achèvement du travail (0-1):|
+eval_work_total_money#Gains totaux du travail:|
+eval_study_started#Sessions d'étude commencées:|
+eval_study_completed#Sessions d'étude terminées:|
+eval_study_completion_rate#Taux d'achèvement des études (0-1):|
+eval_study_total_exp#EXP totale gagnée en étudiant:|
+eval_day#Temps passé ensemble par jour (s):|
+eval_month#Temps passé ensemble par mois (s):|
+eval_work_project#Nombre de projets de travail:|
+eval_study_project#Nombre de projets d'étude:|

@@ -1,0 +1,456 @@
+尝试加载游戏MOD#Tentative de chargement des mods du jeu:|
+你知道吗? 鼠标右键可以打开菜单栏#Astuce : un clic droit ouvre la barre de menu:|
+如果你觉得目前功能太少,那就多挂会机. 宠物会自己动的#Trop peu de fonctionnalités pour l'instant ? Il suffit de laisser tourner le jeu plus longtemps : le compagnon bouge tout seul:|
+你知道吗? 你可以在设置里面修改游戏的缩放比例#Astuce : l'échelle d'affichage du jeu peut être modifiée dans les paramètres:|
+想要宠物不乱动? 设置里可以设置智能移动或者关闭移动#Envie que le compagnon reste tranquille ? Le déplacement intelligent ou la désactivation du déplacement se règlent dans les paramètres:|
+有建议/游玩反馈? 来 菜单-系统-反馈中心 反馈吧#Des suggestions ou des retours sur le jeu ? Direction Menu - Système - Centre de commentaires:|
+你现在乱点说话是说话系统的一部分,不过还没做,在做了在做了ing#Cliquer au hasard sur le compagnon pour le faire parler fait partie du système de dialogue, mais il n'est pas encore terminé. On y travaille, promis !:|
+你添加了虚拟主播模拟器和虚拟桌宠模拟器到愿望单了吗? 快去加吧#VUP-Simulator et VPet-Simulator sont-ils déjà dans ta liste de souhaits ? Vite, ajoute-les !:|
+这游戏开发这么慢,都怪画师太咕了#Si le développement avance si lentement, c'est la faute de l'artiste qui procrastine:|
+长按脑袋拖动桌宠到你喜欢的任意位置#Un appui long sur la tête permet de déplacer le compagnon où bon te semble:|
+欢迎加入 虚拟主播模拟器群 430081239#Ce projet open source est disponible sur https://github.com/LorisYounger/VPet:|
+关注 {0} 谢谢喵#Abonne-toi à {0}, merci miaou !:|
+尝试加载动画和生成缓存#Tentative de chargement des animations et de génération du cache:|
+正在加载CGPT#Chargement de CGPT:|
+设置#Paramètres:|
+图形#Graphismes:|
+快速切换#Bascule rapide:|
+置于顶层#Toujours au premier plan:|
+将桌宠置于顶层#Activer:|
+鼠标将会穿过桌宠到下方内容,不打扰操作\r该选项#La souris traverse le compagnon pour atteindre le contenu situé en dessous, sans gêner l'utilisation:|
+鼠标穿透#Clic traversant:|
+添加快速切换小标,切换顶层或穿透#Bascule:|
+添加小标,快速切换顶层或穿透#Ajouter un bouton pour basculer le premier plan ou le clic traversant:|
+更高缩放#Zoom étendu:|
+支持更大缩放倍率#Autoriser des niveaux de zoom plus élevés:|
+解锁缩放限制#Lever la limite de zoom:|
+缩放等级#Niveau de zoom:|
+主题#Thème:|
+字体#Police:|
+启动位置#Position de démarrage:|
+退出位置#Position de sortie:|
+游戏退出位置为下次桌宠启动出现的位置#Faire réapparaître le compagnon là où il se trouvait à la fermeture du jeu:|
+X轴#Axe X:|
+Y轴#Axe Y:|
+当前位置#Position actuelle:|
+消息框#Boîte de message:|
+将消息框置于外部#Placer la boîte de message à l'extérieur:|
+开机启动#Lancement au démarrage:|
+该游戏随着开机启动该程序\r如需卸载游戏\r请关闭该选项#Lancer le jeu à l'ouverture de session\rDésactiver cette option avant de désinstaller le jeu:|
+从Steam启动#Lancer depuis Steam:|
+从Steam启动该游戏, 统计时长不能停#Lancer le jeu via Steam : le temps de jeu continue d'être comptabilisé:|
+宠物动画#Animation du compagnon:|
+动画描述动画描述动画描述动画描述动画描述#Description de l'animation Description de l'animation Description de l'animation Description de l'animation Description de l'animation:|
+加载的宠物动画,重启后生效#Animation du compagnon chargée, les modifications prendront effet après le redémarrage:|
+重启软件以应用更改#Redémarrer le logiciel pour appliquer les modifications:|
+系统#Système:|
+自动保存频率#Fréquence de sauvegarde automatique:|
+在指定时间后自动保存游戏数据#Sauvegarder automatiquement les données du jeu après un délai défini:|
+关闭自动保存#Désactiver la sauvegarde automatique:|
+每5分钟一次#Toutes les 5 minutes:|
+每10分钟一次#Toutes les 10 minutes:|
+每20分钟一次#Toutes les 20 minutes:|
+每半小时一次#Toutes les demi-heures:|
+每小时一次#Toutes les heures:|
+从备份中还原#Restaurer depuis une copie de secours:|
+虚拟桌宠模拟器在每次保存的时候都会备份上次储存的存档, 当原始存档丢失,受损或误操作时, 就可以还原他们#À chaque enregistrement, V-Max conserve une copie de secours de la sauvegarde précédente. En cas de perte, de corruption ou de fausse manipulation, elle peut être restaurée ici:|
+备份数量#Nombre de copies de secours:|
+加载存档#Charger une sauvegarde:|
+加载#Charger:|
+加载上次保存的存档#Charger la dernière sauvegarde:|
+聊天设置#Paramètres de discussion:|
+使用ChatGPT进行聊天等相关设置#Paramètres de discussion avec ChatGPT et fonctions associées:|
+使用模式#Mode d'utilisation:|
+相关功能#Fonctions associées:|
+使用从ChatGPT\r申请的的API#Utiliser une clé API obtenue\rauprès d'OpenAI:|
+需要去OpenAI官网申请#Demande à effectuer sur le site officiel d'OpenAI:|
+使用桌宠开发者\r提供的免费API#Utiliser l'API gratuite fournie\rpar les développeurs de VPet:|
+需遵循相关协议法律法规并有聊天字数限制#Soumis aux accords, lois et réglementations en vigueur, avec une limite de mots par discussion:|
+初始化桌宠聊天程序#Initialiser le programme de discussion du compagnon:|
+互动#Interaction:|
+互动设置#Paramètres d'interaction:|
+游戏互动相关设置#Paramètres liés aux interactions en jeu:|
+启用后桌宠会有状态变化,需要按时投喂等#L'état du compagnon évolue : il faut le nourrir régulièrement, etc.:|
+启用数据计算,桌宠会有状态变化,需要按时投喂等.\r如果嫌麻烦可以关掉#Activer le calcul des données : l'état du compagnon évolue, il faut le nourrir régulièrement, etc.\rDésactivable si c'est trop contraignant:|
+当玩家在指定时间未对桌宠进行交互的时候,智能禁用移动功能\r将在下次交互时解除#Si le joueur n'interagit pas avec le compagnon pendant une durée définie, le déplacement est automatiquement désactivé\rIl est réactivé à la prochaine interaction:|
+当关闭数据计算时\r桌宠显示的状态#État affiché lorsque\rle calcul des données est désactivé:|
+启用桌宠移动#Activé:|
+启用移动互动,桌宠会在屏幕上乱动,移动互动概率为普通互动的一半.\r如果嫌麻烦可以关掉#Activer les déplacements : le compagnon se promène librement à l'écran, avec une probabilité moitié moindre que les interactions normales.\rDésactivable si c'est trop contraignant:|
+智能移动#Déplacement intelligent:|
+智能移动判断时间间隔#Intervalle de vérification du déplacement intelligent:|
+30 秒#30 secondes:|
+1 分钟#1 minute:|
+2 分钟#2 minutes:|
+5 分钟#5 minutes:|
+10 分钟#10 minutes:|
+20 分钟#20 minutes:|
+30 分钟#30 minutes:|
+40 分钟#40 minutes:|
+50 分钟#50 minutes:|
+60 分钟#60 minutes:|
+数据计算#Calcul des données:|
+显示状态#État affiché:|
+桌宠移动#Déplacement du compagnon:|
+计算间隔#Intervalle de calcul:|
+数据计算和互动计算时间间隔,间隔越短需要互动的频率可能会增加.\r间隔越大越不容易打扰到当前工作#Intervalle entre les calculs de données et d'interaction. Plus il est court, plus les interactions\rpeuvent être fréquentes ; plus il est long, moins le compagnon dérange pendant le travail:|
+互动周期#Cycle d'interaction:|
+每分钟计算#Valeurs recalculées:|
+次数值变化#fois par minute:|
+大约#Interaction spontanée environ toutes les:|
+分钟左右主动进行一次互动(走路发呆爬墙等)#minutes (marcher, rêvasser, grimper aux murs, etc.):|
+互动周期决定在交互结束后大约经历多少计算间隔后再次进行自主行动#Détermine combien d'intervalles de calcul s'écoulent environ après la fin d'une interaction avant que le compagnon n'agisse de nouveau de lui-même:|
+操作设置#Paramètres des commandes:|
+游戏操作相关设置#Paramètres liés aux commandes du jeu:|
+长按间隔#Durée de l'appui long:|
+桌宠名字#Nom du compagnon:|
+数据计算和互动计算时间间隔,间隔越短需要互动的频率可能会增加\r间隔越大越不容易打扰到当前工作#Intervalle entre les calculs de données et d'interaction.\rPlus il est court, plus les interactions peuvent être\rfréquentes. Plus il est long, moins le compagnon\rrisque de déranger pendant le travail:|
+{0:F2} 秒#{0:F2} s:|
+自定#Personnalisé:|
+自定义链接#Liens personnalisés:|
+在自定栏添加快捷方式/网页/快捷键, 可以便携启动想要的功能#Ajouter des raccourcis, pages web ou raccourcis clavier à la barre personnalisée pour lancer facilement les fonctions souhaitées:|
+键盘快捷键编写方法请参考#Pour écrire un raccourci clavier, consulter:|
+键盘快捷键 通用注解#Notation générale des raccourcis clavier:|
+右键进行排序/删除等操作#Clic droit pour trier, supprimer, etc.:|
+添加新链接#Ajouter un lien:|
+保存设置#Enregistrer les paramètres:|
+诊断#Diagnostic:|
+诊断与反馈#Diagnostic et commentaires:|
+选择要发送给 LBGame 的诊断数据,诊断数据用于保护和及时更新 虚拟桌宠模拟器, 解决问题并改进产品.#Choisir les données de diagnostic à envoyer à LBGame. Elles servent à protéger et à mettre à jour V-Max rapidement, à résoudre les problèmes et à améliorer le produit.:|
+无论选择哪个选项,游戏都可以安全正常地运行.#Quelle que soit l'option choisie, le jeu fonctionnera normalement et en toute sécurité.:|
+获取有关这些设置的更多信息#En savoir plus sur ces paramètres:|
+发送诊断数据: 发送游戏存档, 包括饱腹,状态等各种游戏内\r数据. 可能会包括该游戏内存和CPU使用情况#Envoyer les données de diagnostic : envoie la sauvegarde, dont la satiété, l'état et d'autres données\rde jeu. Peut inclure l'utilisation de la mémoire et du processeur par le jeu:|
+不发送诊断数据: 适用于启用修改器,修改过游戏数据等不\r符合分析数据条件. 或不希望提供游戏数据的玩家#Ne pas envoyer de données de diagnostic : pour les joueurs utilisant un trainer ou ayant modifié les données du jeu,\rou ne souhaitant pas fournir leurs données de jeu.:|
+反馈频率#Fréquence des commentaires:|
+VOS 应寻求我反馈按以下频率#VOS doit me demander mon avis à la fréquence suivante:|
+每 两百 周期一次#Tous les 200 cycles:|
+每 五百 周期一次#Tous les 500 cycles:|
+每 一千 周期一次#Tous les 1000 cycles:|
+每 两千 周期一次#Tous les 2000 cycles:|
+每 五千 周期一次#Tous les 5000 cycles:|
+每 一万 周期一次#Tous les 10000 cycles:|
+每 两万 周期一次#Tous les 20000 cycles:|
+MOD管理#Gestion des mods:|
+模组作者: #Auteur du mod : :|
+模组版本: #Version du mod : :|
+游戏版本: #Version du jeu : :|
+MOD介绍#Description du mod:|
+内容#Contenu:|
+所在文件夹#Dossier:|
+启用该模组#Activer:|
+停用该模组#Désactiver:|
+更新至Steam#Mettre à jour sur Steam:|
+创意工坊页面#Page Workshop:|
+MOD设置#Paramètres du mod:|
+启用代码插件#Activer le plugin de code:|
+启用该模组的代码内容,不能保证系统安全性#Activer le code de ce mod : la sécurité du système ne peut pas être garantie:|
+关于#À propos:|
+虚拟桌宠模拟器 规格#Caractéristiques de V-Max:|
+游戏策划#Conception du jeu:|
+UI&程序#UI et programmation:|
+动画绘制#Dessin des animations:|
+开源项目#Projets open source:|
+项目页面#Page du projet:|
+相关链接#Liens utiles:|
+虚拟主播模拟器#VUP-Simulator:|
+相关群#Github:|
+用户名#Nom d'utilisateur:|
+版本#Version:|
+激活#Activation:|
+制作组名单#Équipe de développement:|
+杨远洛里斯#YoungerLoris:|
+广大MOD作者#Auteurs de mods:|
+洛里斯杨远#LorisYounger:|
+Git贡献名单#Contributeurs Github:|
+叶书天#Ye Shutian:|
+查看引用名单#Liste des références:|
+访问Steam页面#Page Steam:|
+访问Github页面#Page Github:|
+由于游戏暂未开发完毕,该名单并非完整名单.将在正式版完成前修改#Le jeu étant encore en développement, cette liste n'est pas complète. Elle sera mise à jour avant la version finale:|
+默认虚拟桌宠#Compagnon par défaut:|
+vup#Compagnon par défaut:|
+P猫#Chat P:|
+虚拟主播模拟器默认人物形象#Personnage par défaut de VUP-Simulator:|
+置于底层#Placer en arrière-plan:|
+快捷方式: 选择文件位置#Raccourci : choisir l'emplacement du fichier:|
+快捷键: 捕获按键#Raccourci clavier : capturer les touches:|
+删除#Supprimer:|
+显示名称#Nom affiché:|
+快捷键或文件位置或网站链接#Raccourci clavier, emplacement de fichier ou lien web:|
+游戏版本#Version du jeu :|
+已通过Steam[{0}]激活服务注册#Enregistré via le service d'activation Steam [{0}]:|
+ (兼容)# (compatible):|
+系统自带#Intégré au système:|
+food#Nourriture:|
+image#Image:|
+lang#Pack de langue:|
+pet#Animation du compagnon:|
+text#Textes:|
+更好买#BetterBuy:|
+商品分类#Catégorie de produits:|
+全部#Tout:|
+收藏#Favoris:|
+正餐#Plats:|
+零食#En-cas:|
+饮料#Boissons:|
+功能性#Fonctionnel:|
+药品#Médicaments:|
+排序方式#Trier par:|
+按名字#Nom:|
+按价格#Prix:|
+按饱腹度#Satiété:|
+按口渴度#Soif:|
+按体力#Endurance:|
+按心情#Humeur:|
+按健康#Santé:|
+升序#Croissant:|
+降序#Décroissant:|
+停止工作#Arrêter le travail:|
+详细#Détails:|
+宠物已经生病, 通过服用药物可以恢复#Le compagnon est malade, il peut guérir en prenant des médicaments:|
+已关闭数据计算, 可放心挂机#Le calcul des données est désactivé : le jeu peut tourner sans surveillance en toute tranquillité:|
+金钱#Argent:|
+经验#XP:|
+体力#Endurance:|
+心情#Humeur:|
+饱腹度#Satiété:|
+口渴度#Soif:|
+投喂#Nourrir:|
+面板#État:|
+睡觉#Dormir:|
+学习#Étudier:|
+工作#Travailler:|
+文案#Rédiger:|
+直播#Streamer:|
+睡觉中#Dort:|
+学习中#Étudie:|
+工作中#Travaille:|
+文案中#Rédige:|
+直播中#En live:|
+和桌宠说#Parler au compagnon:|
+按 Ctrl+Enter 发送#Ctrl+Entrée pour envoyer:|
+正在加载游戏\n该步骤可能会耗时比较长\n请耐心等待#Chargement du jeu\nCette étape peut prendre un certain temps\nMerci de patienter:|
+退出桌宠#Quitter:|
+开发控制台#Console:|
+反馈中心#Commentaires:|
+设置面板#Paramètres:|
+吃饭#Manger:|
+喝水#Boire:|
+吃饭中#Mange:|
+喝水中#Boit:|
+虚拟桌宠模拟器#V-Max:|
+点击此处开关鼠标穿透\n右键开关置于顶层\n长按挪动位置\n可在设置中关闭#Cliquer ici pour activer ou désactiver le clic traversant\nClic droit pour activer ou désactiver le premier plan\nAppui long pour déplacer\nDésactivable dans les paramètres:|
+操作教程#Tutoriels:|
+重置位置与状态#Réinitialiser la position et l'état:|
+桌宠重置成功#Compagnon réinitialisé avec succès:|
+上传至Steam#Publier sur Steam:|
+ (版本高)# (version plus récente):|
+plugin#Plugin:|
+感谢以下MOD开发人员#Merci aux développeurs de mods suivants:|
+DLL引用名单#Liste des références DLL:|
+桌宠管理开发控制台#Console de développement et de gestion du compagnon:|
+动画列表#Liste des animations:|
+双击查看动画效果#Double-cliquer pour voir l'animation:|
+选择状态模式:#État ::|
+动画播放#Lecture des animations:|
+双击添加/移除播放列表内容#Double-cliquer pour ajouter ou retirer de la liste de lecture:|
+显示逻辑#Logique d'affichage:|
+双击运行显示效果#Double-cliquer pour exécuter l'affichage:|
+说话#Parler:|
+输入要说的话,按说话键发送#Saisir le texte puis cliquer sur le bouton pour le faire parler:|
+选择说话类型:#Type de parole ::|
+在这里输入要说话的内容#Saisir ici ce que le compagnon doit dire:|
+距离查看器#Visualiseur de distance:|
+启动距离查看器#Lancer le visualiseur de distance:|
+屏幕边缘距离#Distance aux bords de l'écran:|
+左侧#Gauche:|
+右侧#Droite:|
+上侧#Haut:|
+下侧#Bas:|
+未翻译文档#Textes non traduits:|
+导出未翻译文档#Exporter les textes non traduits:|
+反馈与错误提交#Commentaires et signalement de bugs:|
+类型:#Type ::|
+需要反馈的类型#Type de commentaire:|
+游戏内报错#Erreur signalée en jeu:|
+逻辑计算错误#Erreur de calcul logique:|
+数值设计不合理#Valeurs mal équilibrées:|
+玩法与功能建议#Suggestions de gameplay et de fonctionnalités:|
+游玩心得分享#Partage d'expérience de jeu:|
+描述:#Description ::|
+对于反馈的详细描述#Description détaillée du commentaire:|
+详细描述\reg:如何触发这个报错#Description détaillée\rex. : comment déclencher cette erreur:|
+内容:#Contenu ::|
+提交:#Envoi ::|
+上传游戏存档#Envoyer la sauvegarde du jeu:|
+联系:#Contact ::|
+提供联系方式以获得反馈,可不填#Coordonnées pour recevoir une réponse (facultatif):|
+提供联系方式以获得反馈,可不填\reg:QQ430081239#Coordonnées pour recevoir une réponse (facultatif)\rex. : vous@exemple.fr:|
+提交#Envoyer:|
+玩家取消上传存档#Le joueur a annulé l'envoi de la sauvegarde:|
+秒#s:|
+停止#Arrêter :|
+当前已{0}#En cours : {0}:|
+您的桌宠等级不足{0}/{2}\n无法进行{1}#Niveau du compagnon insuffisant ({0}/{2})\nImpossible de lancer : {1}:|
+{0}取消#{0} : annulation:|
+搜索商品#Rechercher un produit:|
+购买后不自动关闭窗口#Ne pas fermer la fenêtre après l'achat:|
+凉茶#Tisane fraîche:|
+购买#Acheter:|
+经验值#Expérience:|
+健康#Santé:|
+怕上火，喝广东咖啡！#Peur d'avoir le sang trop chaud ? Bois du café cantonais !:|
+收藏食物#Ajouter aux favoris:|
+物品详情#Détails de l'objet:|
+椰汁#Jus de coco:|
+白白胖胖，曲线圆润，要喝不加香油的椰O牌椰汁#Tout blanc, tout dodu, aux courbes généreuses : il faut boire le jus de coco Coc-O, sans huile de sésame ajoutée:|
+果汁#Jus de fruits:|
+那个那个那个那个果汁分你一半#Ce, ce, ce, ce jus de fruits, je t'en donne la moitié:|
+可乐#Cola:|
+蓝色那个在日用品区谢谢#Le bleu, c'est au rayon produits ménagers, merci:|
+盐汽水#Soda salé:|
+我一口盐汽水！#Une gorgée de soda salé pour moi !:|
+维他奶#Vitasoy:|
+点止汽水咁简单#Bien plus qu'un simple soda:|
+雷碧#Faery:|
+透心扬，心飞凉#Fraîcheur qui s'envole, envolée de fraîcheur:|
+ab钙奶#Lait au calcium AB:|
+健康美味，经济实惠#Sain, délicieux et économique:|
+速效救心丸#Pilules cardiaques express:|
+急急急，等下有得你急的。#T'es pressé, hein ? Attends un peu, tu vas vraiment avoir de quoi t'affoler.:|
+阿司匹林#Aspirine:|
+发烧去医院经常见的药，从小到大都不懂为什么长得和螺丝头一样#Le médicament qu'on voit souvent à l'hôpital quand on a de la fièvre. Depuis tout petit, je ne comprends pas pourquoi il ressemble à une tête de vis:|
+香煎牛仔骨#Travers de bœuf poêlés:|
+好感度#Affection:|
+开瓶红酒吧，上流#Ouvrons une bouteille de vin rouge, la classe:|
+布洛芬缓释胶囊#Gélules d'ibuprofène à libération prolongée:|
+在以前的大瘟疫时代，曾经作为货币使用，最高的时候价值连城#À l'époque de la grande épidémie, elles servaient de monnaie et valaient, au plus fort, une véritable fortune:|
+大力丸#Pilules d'Hercule:|
+加入千年老山参，野生蜂王浆，人形何首乌，极品燕窝，九天贡胶，御用藏红花，天山雪莲，七彩灵芝，古墓牛黄，深海龙涎香，全部融于一炉。不止这些，更加入1米长的虫草，5米长的象拔蚌，剑齿虎骨，爱新觉罗紫河车，火星朝露水，黑玉断续膏，女娲的唾液，亚当的肋骨！#Contient du ginseng sauvage millénaire, de la gelée royale sauvage, de la renouée multiflore à forme humaine, du nid d'hirondelle de premier choix, de la colle impériale des neuf cieux, du safran de la cour, du lotus des neiges du Tianshan, du lingzhi aux sept couleurs, du bézoard de tombeau antique et de l'ambre gris des grands fonds, le tout fondu dans un même chaudron. Et ce n'est pas tout : on y ajoute aussi un cordyceps d'un mètre de long, une panope de cinq mètres, de l'os de tigre à dents de sabre, du placenta de la lignée Aisin Gioro, de la rosée matinale martienne, de l'onguent de jade noir, de la salive de Nüwa et la côte d'Adam !:|
+西冷牛排#Faux-filet:|
+开瓶拉菲吧，上流#Ouvrons une bouteille de Lafite, la classe:|
+煎西冷牛排#Faux-filet poêlé:|
+开瓶可乐吧，上流#Ouvrons une bouteille de cola, la classe:|
+脑黑金#Cervo-Noir:|
+过年过节不收礼！__________！(3分)#Pour les fêtes, je n'accepte aucun cadeau ! __________ ! (3 points):|
+红烧牛肉#Bœuf braisé:|
+不是4块钱的，请放心#Pas la version à 4 balles, rassure-toi:|
+辣子鸡#Poulet épicé:|
+当红辣子鸡哟#Le poulet épicé qui fait fureur:|
+酸菜鱼#Poisson au chou fermenté:|
+人人皆是酸菜鱼#Au fond, on est tous des poissons au chou fermenté:|
+健胃整肠丸#Pilules digestives:|
+这是什么？肚子疼？来两粒。这是什么？拉肚子？来两粒#C'est quoi ? Mal au ventre ? Deux pilules. Et ça ? La diarrhée ? Deux pilules:|
+烧鹅#Oie rôtie:|
+官方特意调整成鹅的，这让我文案不好做啊，我就要在这里写上烧鸡两个大字！#Les développeurs l'ont exprès transformé en oie, ça me complique la rédaction ! Je vais quand même écrire ici en gros : POULET RÔTI !:|
+红烧狮子头#Boulettes de porc braisées « tête de lion »:|
+芋头西米露#Soupe sucrée de taro au tapioca:|
+沙拉#Salade:|
+沙拉沙拉啦啦啦#Salade, salade, la la la:|
+东坡肘子#Jarret de porc Dongpo:|
+小知识：东坡肘子其实并非苏东坡之功，而是其妻子王弗的妙作#Anecdote : le jarret Dongpo n'est pas l'œuvre de Su Dongpo, mais une création de sa femme, Wang Fu:|
+罗宋汤#Bortsch:|
+咲夜！“给我吃!”#Sakuya ! "Mange ça !":|
+披萨#Pizza:|
+不要放菠萝！！！#Pas d'ananas !!!:|
+盐焗鸡#Poulet cuit au sel:|
+谁说的腌鸡！站出来！#Qui a dit poulet mariné ? Qu'il se dénonce !:|
+番茄意面#Pâtes à la tomate:|
+只要不是巧克力酱什么都好说。。#Tant que ce n'est pas de la sauce au chocolat, tout me va...:|
+梅菜扣肉#Porc aux légumes confits:|
+不会咬人的谢谢#Ça ne mord pas, merci:|
+麻婆豆腐#Tofu mapo:|
+麻婆豆腐之所以叫麻婆豆腐是因为麻婆喜欢吃#Le tofu mapo s'appelle ainsi parce que Mapo adore en manger:|
+666感冒灵颗粒#Granulés antirhume 666:|
+老牌子，值得信任，有妈妈的味道。#Une marque de toujours, digne de confiance, qui a le goût de maman.:|
+芝士焗虾#Crevettes gratinées au fromage:|
+焗虾闭嘴#Votre Excellence la Crevette, silence !:|
+华夫饼#Gaufre:|
+蜜饼！小刻最爱！#Un gâteau au miel ! Le préféré de Ceobe !:|
+纸包鸡#Poulet en papillote:|
+纸包鸡包纸包鸡包鸡包纸#Papillote de poulet, poulet en papillote, papier poulet, poulet papier, papillote de papier:|
+南瓜吐司#Toast à la citrouille:|
+加了南瓜！是的！我加了南瓜！#Avec de la citrouille ! Oui ! J'ai mis de la citrouille !:|
+酿豆腐#Tofu farci:|
+你中有我，我中有你#Toi en moi, moi en toi:|
+三明治#Sandwich:|
+两面包夹芝士#Deux tranches de pain avec du fromage:|
+鸡翅#Ailes de poulet:|
+红烧翅膀~我喜欢吃~#Des ailes braisées~ J'adore ça~:|
+面包#Pain:|
+你还记得你吃过多少块面包吗#Te souviens-tu du nombre de pains que tu as mangés ?:|
+汉堡#Hamburger:|
+还想要汉O王？这价格不是华O士已经对你很好了。#Tu voulais du Burger K*ng ? À ce prix-là, estime-toi déjà heureux d'avoir du Wall*ce.:|
+臭豆腐#Tofu puant:|
+闻起来臭，吃起来也臭，就是越吃越香。#Ça sent mauvais, ça a mauvais goût, et pourtant plus on en mange, plus on l'apprécie.:|
+压缩饼干#Biscuit compressé:|
+饼干.rar#Biscuits.rar:|
+钙片#Comprimés de calcium:|
+郑重声明，本产品与同名影视产品没有一点关系。#Nous déclarons solennellement que ce produit n'a strictement rien à voir avec l'œuvre audiovisuelle du même nom.:|
+土力架#Soickers:|
+横扫自己，做回饥饿#Tu n'es toi-même que quand tu as faim:|
+炸鸡腿#Pilon de poulet frit:|
+你每吃一个炸鸡腿，就有0.5只鸡受到伤害。保护鸡鸡，从一次吃两个炸鸡腿做起！#Chaque pilon de poulet frit que tu manges blesse 0,5 poulet. Protège les poulets : mange tes pilons deux par deux !:|
+黄牛#Taureau Jaune:|
+放心，喝他的饮料不是他出钱你出命#Rassure-toi, avec sa boisson, ce n'est pas lui qui paie et toi qui y laisses ta peau:|
+猪肉脯#Viande de porc séchée:|
+你感觉在吃牛皮。。#On a l'impression de mâcher du cuir...:|
+能量饮料#Boisson énergisante:|
+能量饮料能够瞬间给予角色40点能量加成。使用时执行某些动作将会取消使用，有4秒使用时间。（以上都没有）#La boisson énergisante confère instantanément 40 points d'énergie au personnage. Certaines actions pendant l'utilisation l'annulent ; durée d'utilisation : 4 secondes. (Rien de tout cela n'est vrai):|
+维生素C含片#Pastilles de vitamine C:|
+本产品为保健品不能代替药品#Ce produit est un complément alimentaire et ne remplace pas un médicament:|
+大鹏特饮#Boisson spéciale Dapeng:|
+困了累了，大鹏特饮#Fatigué ? Épuisé ? Boisson spéciale Dapeng !:|
+巧克力#Chocolat:|
+纵享丝滑#Un plaisir tout en douceur:|
+冰激凌#Glace:|
+中国人免费领#Offerte gratuitement à tous les Chinois:|
+咖啡饮料#Boisson au café:|
+不小心倒在键盘上效果更好哦！#Encore meilleur renversé par accident sur le clavier !:|
+核桃仁#Cerneaux de noix:|
+这次不用自己带锤子了#Plus besoin d'apporter son propre marteau cette fois:|
+瓜子#Graines de tournesol:|
+嘎吱嘎吱嘎吱嘎吱嘎吱嘎吱嘎吱嘎吱嘎吱嘎吱嘎吱嘎吱嘎吱嘎吱嘎吱嘎吱嘎吱嘎吱嘎吱嘎吱嘎吱嘎吱嘎吱嘎吱嘎吱嘎吱嘎吱#Crac crac crac crac crac crac crac crac crac crac crac crac crac crac crac crac crac crac crac crac crac crac crac crac crac crac crac:|
+火腿肠#Saucisse:|
+肉做的棒子#Un bâton fait de viande:|
+爆米花#Pop-corn:|
+电影必备，吃不完也要买#Indispensable au cinéma : on en achète même si on ne le finit jamais:|
+散射雪糕#Glace à dispersion:|
+三倍的快乐#Triple bonheur:|
+奶糖#Bonbon au lait:|
+小白兔牌#Marque Petit Lapin Blanc:|
+薯片#Chips:|
+开趴必备#Indispensable pour faire la fête:|
+雪饼#Galettes de riz:|
+小时候的一口吃不下#Enfant, impossible d'en avaler une d'une seule bouchée:|
+娃仔小馒头#Mini-biscuits Wazai:|
+这是我们的宝贝~~#C'est notre trésor~~:|
+牛扎糖#Nougat:|
+好甜，像你一样#Si doux, comme toi:|
+泡泡糖#Chewing-gum:|
+就吹吧你#Arrête de te faire mousser:|
+花生米#Cacahuètes:|
+但凡有一粒花生米。。。#Avec ne serait-ce qu'une cacahuète...:|
+老冰棍#Bâtonnet glacé à l'ancienne:|
+厂家正在考虑与辐射4联动中#Le fabricant envisage une collaboration avec Fallout 4:|
+小布丁#Mini Pudding:|
+没关系，小小的也很好吃#Ce n'est pas grave, les petits aussi sont délicieux:|
+软糖#Bonbons gélifiés:|
+come on baby~#come on baby~:|
+绿色心情#Humeur verte:|
+几年前还是一块钱的呜呜呜#Il y a quelques années, ça ne coûtait encore qu'un yuan, snif snif:|
+奶片#Pastilles de lait:|
+希望你们永远不会知道这个药。。。#J'espère que tu ne sauras jamais ce qu'est ce médicament...:|
+牛板筋#Tendons de bœuf:|
+只要来一根，大家都是好兄弟#Une seule brochette, et on est tous potes:|
+戒指糖#Bague en sucre:|
+这不比那个不能吃的破石头有用多了#C'est quand même bien plus utile que ce caillou qu'on ne peut pas manger:|
+太阳系#Système solaire:|
+没钱也能吃,可以用来拯救存档(生病), 没事别吃这个#Se mange même sans argent. Permet de sauver une partie (maladie). À ne pas manger sans raison:|
+地球#Terre:|
+没钱也能吃,可以用来拯救存档(饥饿/口渴不足), 没事别吃这个#Se mange même sans argent. Permet de sauver une partie (faim ou soif). À ne pas manger sans raison:|
+分钟#min:|
+钱#$:|
+未翻译文档提交#Envoi des textes non traduits:|
+{0:f1} 秒#{0:f1} s:|
+SettingWidth#920:|
+SettingMenuWidth#220:|

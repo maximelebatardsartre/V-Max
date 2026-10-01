@@ -1,0 +1,89 @@
+可加入#Ouvert:|
+访客表#Liste d'invités:|
+创建#Créer:|
+已经有加入了一个访客表,无法再创建更多#Vous avez déjà rejoint une liste d'invités, impossible d'en créer une autre.:|
+加入#Rejoindre:|
+加入访客表#Rejoindre une liste d'invités:|
+请输入访客表ID#Veuillez saisir l'ID d'une liste d'invités.:|
+收到来自{0}的访客邀请,是否加入?#{0} vous invite à rejoindre sa liste d'invités. Voulez-vous la rejoindre ?:|
+{0}在摸{1}的头#{0} caresse la tête de {1}.:|
+{0}花费${3}给{1}买了{2}#{0} a offert {2} à {1} pour ${3}.:|
+{0}给{1}买了{2}#{0} a offert {2} à {1}.:|
+摸头#Caresser la tête:|
+摸身体#Caresser le corps:|
+捏脸#Pincer la joue:|
+退出访客表#Quitter la liste d'invités:|
+私聊#Message privé:|
+公聊#Discussion publique:|
+大家#Tout le monde:|
+{0}的{1}#{1} de {0}:|
+{0}在捏{1}的脸#{0} pince la joue de {1}.:|
+{0} 悄悄地对你说: {1}#{0} vous chuchote : {1}:|
+{0} 对 {2} 说: {1}#{0} dit à {2} : {1}:|
+{0} 对大家说: {1}#{0} dit à tout le monde : {1}:|
+和{0}悄悄说#Chuchoter à {0}:|
+和{0}说#Parler à {0}:|
+给更好的{0}买#Acheter pour {0}:|
+{0}的访客表#Liste d'invités de {0}:|
+访客表已被房主{0}关闭#La liste d'invités a été fermée par l'hôte {0}:|
+确定要关闭访客表吗?#Voulez-vous vraiment fermer la liste d'invités ?:|
+默认存档无法删除,请使用重新开始功能重新开始游戏#La sauvegarde par défaut ne peut pas être supprimée. Utilisez la fonction Recommencer pour reprendre la partie depuis le début:|
+当前多开已经加载,请先关闭改多开后重试#Cette instance est déjà chargée. Fermez-la d'abord, puis réessayez:|
+删除前确认#Confirmer avant de supprimer:|
+是否删除当前选择({0})的多开存档?#Supprimer la sauvegarde multi-instance sélectionnée ({0}) ?:|
+开始工作#Commencer à travailler:|
+开始学习#Commencer à étudier:|
+开始玩耍#Commencer à jouer:|
+复制全文#Copier tout le texte:|
+关闭#Fermer:|
+theme#Thème:|
+的访客表# - liste d'invités:|
+主持人#Hôte:|
+访客表ID#ID de la liste:|
+访客列表#Liste des visiteurs:|
+消息日志#Journal des messages:|
+允许好友加入#Autoriser les amis à rejoindre:|
+选择说话对象#Choisir à qui parler:|
+访客#Visiteurs:|
+来自#De:|
+重置位置#Réinit. position:|
+送客#Raccompagner:|
+已成功连接到访客表#Connecté à la liste d'invités:|
+好友{0}已退出访客表#Votre ami {0} a quitté la liste d'invités:|
+好友{0}已加入访客表#Votre ami {0} a rejoint la liste d'invités:|
+您以前遭遇过数据溢出, 已根据游戏时长自动添加进当前数值#Vous avez déjà subi un dépassement de données. La valeur actuelle a été automatiquement complétée en fonction de votre temps de jeu:|
+数据溢出恢复#Récupération après dépassement de données:|
+如果比较重要或需要反馈,请联系:\rB站: 虚拟桌宠模拟器 \r邮箱: service@exlb.net \rGithub: https://github.com/LorisYounger/VPet#Si c'est important ou si vous souhaitez nous faire un retour, ouvrez un ticket :\rhttps://github.com/maximelebatardsartre/V-Max/issues:|
+工作面板#Panneau de travail:|
+获得效率#Efficacité:|
+饱腹消耗#Faim consommée:|
+口渴消耗#Soif consommée:|
+心情消耗#Humeur consommée:|
+等级限制#Niveau requis:|
+花费时间#Durée:|
+奖励倍率#Multiplicateur de gains:|
+倍率调整#Ajuster le multiplicateur:|
+允许好友交互#Autoriser les interactions des amis:|
+详细内容信息#Détails:|
+详细描述\reg:报错详细信息#Description détaillée\rex. : détails de l'erreur:|
+是否上传当前游戏存档#Voulez-vous envoyer la sauvegarde actuelle ?:|
+Alibaba PuHuiTi Regular#Alibaba PuHuiTi Regular:|
+HarmonyOS Sans#HarmonyOS Sans:|
+MiSans Regular#MiSans Regular:|
+OPPOSans R#OPPOSans R:|
+凤凰点阵体 12px#Phoenix 12px:|
+得意黑#DeYi Black:|
+原版默认#Défaut d'origine:|
+混色紫#Violet mélangé:|
+当前工作数据属性超模,已自动取消#Les attributs du travail actuel sont déséquilibrés, il a été annulé automatiquement:|
+{0}生病了,已自动退出访客表#{0} est malade et a automatiquement quitté la liste d'invités:|
+{0}生病了,无法创建或者加入访客表#{0} est malade et ne peut ni créer ni rejoindre de liste d'invités:|
+{0}花费${3}给{4}的{1}买了{2}#{0} a offert {2} à {1} de {4} pour ${3}.:|
+{0}给{3}的{1}买了{2}#{0} a offert {2} à {1} de {3}.:|
+已将当前选择 {0} 设为默认启动存档#La sélection actuelle {0} a été définie comme sauvegarde de démarrage par défaut:|
+默认#Par défaut:|
+设置当前多开存档为默认启动项#Définir la sauvegarde multi-instance actuelle comme démarrage par défaut:|
+检测到游戏库中包含使命召唤,建议不要在运行COD时运行桌宠\n根据社区反馈, COD可能会误报桌宠为作弊软件#Call of Duty a été détecté dans votre bibliothèque. Il est conseillé de ne pas lancer V-Max en même temps que COD\nD'après les retours de la communauté, COD peut détecter à tort V-Max comme un logiciel de triche:|
+好的#OK:|
+是#Oui:|
+否#Non:|

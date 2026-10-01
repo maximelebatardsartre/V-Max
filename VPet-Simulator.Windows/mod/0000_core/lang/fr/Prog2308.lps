@@ -1,0 +1,34 @@
+创意工坊物品无法进行上传,请移动到mod文件夹后重试#Les éléments du Workshop ne peuvent pas être mis en ligne. Déplacez-les dans le dossier mod puis réessayez.:|
+由于修改游戏数据导致数据溢出,存档可能会出错\n开发者提醒您请不要使用过于超模的MOD#Les données du jeu ont été modifiées et ont provoqué un dépassement de données : la sauvegarde risque d'être corrompue\nLe développeur vous recommande de ne pas utiliser de mods trop déséquilibrés:|
+玩耍#Jouer:|
+研究#Recherche:|
+玩游戏#Jeux vidéo:|
+保存游戏#Enregistrer la partie:|
+手动保存桌宠存档,就算不手动保存,桌宠也会在退出的时候自动保存#Enregistre manuellement la sauvegarde du compagnon. Même sans sauvegarde manuelle, la partie est enregistrée automatiquement à la fermeture.:|
+保存成功#Sauvegarde réussie:|
+模组 {0} 插件损坏\n虚拟桌宠模拟器未能成功加载该插件\n请联系MOD作者修复该问题#Le plugin du mod {0} est endommagé\nV-Max n'a pas réussi à charger ce plugin\nVeuillez contacter l'auteur du mod pour corriger le problème:|
+缓存被其他软件删除,游戏无法继续运行\n请重启游戏重新生成缓存#Le cache a été supprimé par un autre logiciel, le jeu ne peut pas continuer\nVeuillez redémarrer le jeu pour régénérer le cache:|
+游戏内存不足,请修改设置中渲染分辨率以便降低内存使用#Mémoire insuffisante. Réduisez la résolution de rendu dans les paramètres pour diminuer l'utilisation de la mémoire.:|
+没有可以说的话#Rien à dire pour le moment:|
+下次刷新剩余时间: {0:f1}分钟#Prochaine actualisation dans : {0:f1} minutes:|
+使用桌宠选项式\r聊天功能#Utiliser la discussion\rà choix du compagnon:|
+支持MOD与创意工坊添加聊天内容#Permet d'ajouter du contenu de discussion via les mods et le Workshop:|
+按经验值#Par expérience:|
+删错误#Chasse aux bugs:|
+余额不足100，无法开启自动购买#Solde inférieur à 100, impossible d'activer l'achat automatique:|
+让宠物自己买东西吃#Laisser le compagnon acheter à manger:|
+当宠物口渴或者饥饿的时候会自己买东西吃\r请注意,宠物可能会乱花钱和吃错误的东西\r额外加收20%外卖运送费用#Quand il a soif ou faim, le compagnon achète lui-même à manger\rAttention : il risque de dépenser à tort et à travers ou de manger n'importe quoi\rFrais de livraison supplémentaires de 20 %:|
+清屏#Nettoyage d'écran:|
+游戏操作#Commandes du jeu:|
+自动超模MOD优化#Optimisation automatique des mods déséquilibrés:|
+对于超模内容,游戏会自动计算合理价格\r如果未使用任何超模数据,数据菜单栏将会显示图标方便您进行炫耀数据#Pour le contenu déséquilibré, le jeu calcule automatiquement un prix raisonnable\rSi aucune donnée déséquilibrée n'est utilisée, une icône s'affiche dans le menu Données pour que vous puissiez vous en vanter:|
+自动计算合理价格#Calculer automatiquement un prix raisonnable:|
+该选项重启后生效#Cette option prend effet après redémarrage:|
+当前食物/物品属性超模,是否继续使用?\n使用超模食物可能会导致游戏发生不可预料的错误\n使用超模食物不影响大部分成就解锁\n本物品推荐价格为{0:f0}#Les attributs de cet aliment ou objet sont déséquilibrés. Continuer à l'utiliser ?\nUtiliser des aliments déséquilibrés peut provoquer des erreurs imprévues dans le jeu\nUtiliser des aliments déséquilibrés n'empêche pas de débloquer la plupart des succès\nPrix recommandé pour cet objet : {0:f0}:|
+超模食物/物品使用提醒#Avertissement : aliment ou objet déséquilibré:|
+当前工作数据属性超模,是否继续工作?\n超模工作可能会导致游戏发生不可预料的错误\n超模工作不影响大部分成就解锁\n当前数据比率 {0:f2} 推荐=0.5<0.75\n盈利速度:{1:f0} 推荐<{2}#Les attributs de ce travail sont déséquilibrés. Continuer à travailler ?\nUn travail déséquilibré peut provoquer des erreurs imprévues dans le jeu\nUn travail déséquilibré n'empêche pas de débloquer la plupart des succès\nRatio actuel {0:f2}, recommandé : 0,5 < 0,75\nVitesse de gain : {1:f0}, recommandé : < {2}:|
+是没有修改过存档/使用超模MOD的玩家专属标志#Badge exclusif des joueurs n'ayant jamais modifié leur sauvegarde ni utilisé de mod déséquilibré:|
+重新开始#Recommencer:|
+重新开始新游戏,重置统计等信息\r对于想要获得脱离超模从而获得成就非常有帮助#Commence une nouvelle partie et réinitialise les statistiques et autres données\rTrès utile pour se débarrasser des données déséquilibrées et pouvoir obtenir les succès:|
+是否重置游戏数据重新开始?#Réinitialiser les données de jeu et recommencer ?:|
+重置成功#Réinitialisation réussie:|

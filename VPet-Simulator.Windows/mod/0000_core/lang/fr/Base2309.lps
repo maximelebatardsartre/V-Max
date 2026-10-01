@@ -1,0 +1,40 @@
+聊天框等相关设置#Paramètres de la fenêtre de discussion et autres:|
+暂无聊天API, 您可以通过订阅MOD添加#Aucune API de discussion pour le moment. Vous pouvez en ajouter une en vous abonnant à un mod.:|
+打开 {0} 设置#Ouvrir les paramètres de {0}:|
+恢复#Restaurer:|
+Mod制作器#Créateur de mods:|
+当前移动区域：#Zone de déplacement actuelle ::|
+主屏幕#Écran principal:|
+重置为主屏#Rétablir l'écran principal:|
+设置桌宠只在主屏幕进行移动#Le compagnon ne se déplace que sur l'écran principal:|
+设为当前屏幕#Utiliser l'écran actuel:|
+设置桌宠只在当前桌宠所在的屏幕范围进行移动#Le compagnon ne se déplace que sur l'écran où il se trouve actuellement:|
+自定移动范围#Zone personnalisée:|
+手动设置桌宠可移动范围#Définir manuellement la zone de déplacement du compagnon:|
+work#Travail:|
+桌宠移动范围#Zone de déplacement du compagnon:|
+鼠标左键拖动范围\r调整边框调整大小#Faites glisser la zone avec le bouton gauche de la souris\rAjustez les bords pour la redimensionner:|
+设置当前范围为移动范围#Utiliser la zone actuelle comme zone de déplacement:|
+未找到可播放动画, 已停止运行桌宠模块#Aucune animation jouable trouvée, le module du compagnon a été arrêté:|
+工作取消#Travail annulé:|
+{2}完成啦, 累计获得 {0:f2} 经验\n共计花费了{1}分钟#{2} terminé ! {0:f2} points d'expérience gagnés au total\nTemps passé : {1} minutes:|
+EXP#EXP:|
+检测到您开启了开机启动, 以下是开机启动相关提示信息: (仅显示一次)#Le lancement au démarrage est activé. Voici quelques informations importantes à ce sujet (affiché une seule fois) ::|
+游戏开机启动的实现方式是创建快捷方式,不是注册表,更健康,所以游戏卸了也不知道\n如果游戏打不开,可以去这里手动删除游戏开机启动快捷方式:\n%appdata%\Microsoft\Windows\Start Menu\Programs\Startup\#Le lancement au démarrage utilise un raccourci et non le registre, ce qui est plus propre, mais le désinstallateur du jeu ne le détecte pas\nSi le jeu ne s'ouvre plus, vous pouvez supprimer manuellement le raccourci de démarrage ici :\n%appdata%\Microsoft\Windows\Start Menu\Programs\Startup\:|
+关于卸载不掉的问题是因为开启了开机启动#Les problèmes de désinstallation viennent du lancement au démarrage activé:|
+该模组已损坏#Ce mod est endommagé.:|
+开机启动重要消息#Information importante sur le lancement au démarrage:|
+我已确认,并在卸载游戏前会关闭该功能#J'ai compris et je désactiverai cette option avant de désinstaller le jeu:|
+没有需要提交的翻译的内容#Aucune traduction à soumettre:|
+当宠物不开心的时候会自己给自己买礼物\r请注意,宠物可能会乱花钱,而且礼物一般都非常贵\r额外加收20%运送费用#Quand il est malheureux, le compagnon s'achète lui-même des cadeaux\rAttention : il risque de dépenser à tort et à travers, et les cadeaux coûtent généralement très cher\rFrais de livraison supplémentaires de 20 %:|
+让宠物自己买礼物#Laisser le compagnon s'acheter des cadeaux:|
+按好感度#Par affection:|
+更好买老顾客大优惠!桌宠的食物钱我来出!\n更好买提示您:$1000以下的食物/药品等随便赊账\n(不包括大于1000经验值的食物或礼品)#Grosse promo BetterBuy pour les clients fidèles ! La nourriture du compagnon, c'est moi qui paie !\nBetterBuy vous informe : la nourriture, les médicaments, etc. à moins de 1000 $ peuvent être achetés à crédit sans limite\n(hors nourriture et cadeaux rapportant plus de 1000 points d'expérience):|
+隐藏窗口#Masquer la fenêtre:|
+在任务切换器中隐藏窗口#Masquer la fenêtre du sélecteur de tâches:|
+在Alt+Tab中隐藏#Masquer dans Alt+Tab:|
+音频播放失败,已尝试自动切换到备用播放器. 如果问题持续,请检查是否已安装WindowsMediaPlayer#Échec de la lecture audio, basculement automatique vers le lecteur de secours. Si le problème persiste, vérifiez que Windows Media Player est installé.:|
+音频错误#Erreur audio:|
+闲逛#Flâner:|
+乱爬#Grimper:|
+发呆#Rêvasser:|

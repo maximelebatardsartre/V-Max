@@ -1,0 +1,107 @@
+MOD移动设计错误#Erreur de déplacement du mod:|
+当前动画移动设计错误: 已到达边界 左侧\n动画名称: {0}\n距离: {1}#Erreur de conception du déplacement de l'animation : bord gauche atteint\nNom de l'animation : {0}\nDistance : {1}:|
+当前动画移动设计错误: 已到达边界 右侧\n动画名称: {0}\n距离: {1}#Erreur de conception du déplacement de l'animation : bord droit atteint\nNom de l'animation : {0}\nDistance : {1}:|
+当前动画移动设计错误: 已到达边界 上侧\n动画名称: {0}\n距离: {1}#Erreur de conception du déplacement de l'animation : bord supérieur atteint\nNom de l'animation : {0}\nDistance : {1}:|
+当前动画移动设计错误: 已到达边界 下侧\n动画名称: {0}\n距离: {1}#Erreur de conception du déplacement de l'animation : bord inférieur atteint\nNom de l'animation : {0}\nDistance : {1}:|
+取消#Annuler:|
+{0}花费${3}{4}的给{1}买了{2}#{0} a dépensé ${3}{4} pour offrir {2} à {1}:|
+抽成#Commission:|
+请选择# Choisir :|
+套餐#Forfait:|
+工作时间过长#Temps de travail trop long:|
+工作时间过长,请添加更多的休息时间#Le temps de travail est trop long, veuillez ajouter plus de pauses:|
+暂无签署套餐#Aucun forfait souscrit:|
+效率#Efficacité:|
+签署失败#Échec de la souscription:|
+套餐已激活#Forfait activé:|
+工作套餐已激活,是否替换?#Un forfait de travail est déjà actif. Voulez-vous le remplacer ?:|
+学习套餐已激活,是否替换?#Un forfait d'étude est déjà actif. Voulez-vous le remplacer ?:|
+签署成功#Souscription réussie:|
+套餐 {0} 签署成功#Forfait {0} souscrit avec succès:|
+套餐未激活#Forfait non activé:|
+工作套餐未激活,请前往日程表签署工作中介套餐#Aucun forfait de travail actif. Rendez-vous dans le planning pour souscrire un forfait auprès d'une agence d'intérim:|
+工作套餐等级不足({0}/{1}),\n请选择更低等级要求/倍率的工作或前往日程表签署新的工作中介套餐#Niveau du forfait de travail insuffisant ({0}/{1}),\nchoisissez un travail avec un niveau requis ou un multiplicateur plus bas, ou souscrivez un nouveau forfait d'agence d'intérim dans le planning:|
+套餐等级不足#Niveau du forfait insuffisant:|
+学习套餐未激活,请前往日程表签署培训机构套餐#Aucun forfait d'étude actif. Rendez-vous dans le planning pour souscrire un forfait auprès d'un organisme de formation:|
+学习套餐等级不足({0}/{1}),\n请选择更低等级要求/倍率的学习或前往日程表签署新的培训机构套餐#Niveau du forfait d'étude insuffisant ({0}/{1}),\nchoisissez une étude avec un niveau requis ou un multiplicateur plus bas, ou souscrivez un nouveau forfait d'organisme de formation dans le planning:|
+等级不足#Niveau insuffisant:|
+等级不足15级,无法使用日程表#Le planning n'est pas disponible avant le niveau 15:|
+已启用#Activé:|
+已禁用#Désactivé:|
+已损坏#Endommagé:|
+未知, 可能是{0}#Inconnu, peut-être {0}:|
+模组载入错误\n路径:{0}\n异常:{1}#Erreur de chargement du mod\nChemin : {0}\nException : {1}:|
+确定清空吗#Voulez-vous vraiment tout effacer ?:|
+未在路径\n{0}\n中找到模组#Aucun mod trouvé dans le chemin\n{0}\n:|
+当前设置未保存 确定要保存吗#Les paramètres actuels ne sont pas enregistrés. Voulez-vous les enregistrer ?:|
+确定全部重置吗#Voulez-vous vraiment tout réinitialiser ?:|
+确定全部保存吗#Voulez-vous vraiment tout enregistrer ?:|
+确定重置设置吗\n名称: {0}\n路径: {1}#Voulez-vous vraiment réinitialiser les paramètres ?\nNom : {0}\nChemin : {1}:|
+设置载入失败, 是否强制载入并重置\n[是]: 载入并重置\t[否]: 取消载入\n名称: {0}\n路径: {1}\n异常: {2}#Échec du chargement des paramètres. Forcer le chargement et réinitialiser ?\n[Oui] : charger et réinitialiser\t[Non] : annuler le chargement\nNom : {0}\nChemin : {1}\nException : {2}:|
+载入设置出错#Erreur lors du chargement des paramètres:|
+日程表#Planning:|
+添加至日程表#Ajouter au planning:|
+机构签署#Souscription:|
+工作中介#Intérim:|
+培训机构#Formation:|
+当前套餐#Forfait actuel:|
+选择等级#Choisir le niveau:|
+可用等级#Niveaux disponibles:|
+持续时间#Durée:|
+天#jours:|
+办理费用#Frais de dossier:|
+签署#Souscrire:|
+剩余时间#Temps restant:|
+截止日期#Échéance:|
+日程安排#Programme:|
+添加休息#Ajouter une pause:|
+合计#Total:|
+工作时间#Temps de travail:|
+休息时间#Temps de repos:|
+停止日程#Arrêter le planning:|
+开始日程#Lancer le planning:|
+日程表将在15级开放#Planning disponible au niveau 15:|
+大佬套餐#Forfait Boss:|
+基础套餐#Forfait de base:|
+补习班#Cours de soutien:|
+琪露诺的算术教室#La classe de maths de Cirno:|
+休息#Repos:|
+当前日程进度#Progression du planning:|
+上移#Monter:|
+下移#Descendre:|
+学习内容#Contenu de l'étude:|
+玩耍内容#Contenu du jeu:|
+萌新套餐#Forfait Débutant:|
+实习#Stage:|
+交学费#Payer pour apprendre:|
+桌宠会员专属#Exclusivité membres V-Max:|
+入职体验#Découverte du poste:|
+从入门到入土#De débutant à six pieds sous terre:|
+老兵夏令营#Colo des vétérans:|
+速成班#Formation accélérée:|
+暑假班#Stage d'été:|
+体验课#Cours d'essai:|
+基础套餐，给你们看标准的，反正也没人用。#Le forfait de base, pour vous montrer la norme. De toute façon, personne ne le prend.:|
+要求低，萌新很友好，但是抽成多了，欺负新来的。#Peu exigeant et accueillant pour les débutants, mais la commission est plus élevée : on profite des nouveaux.:|
+哇，等级好高！是大佬！#Waouh, quel niveau ! Un vrai boss !:|
+记得实习证明叫单位盖章#N'oublie pas de faire tamponner ton attestation de stage par l'entreprise.:|
+上学交学费，工作也交学费#On paie pour aller à l'école, et on paie aussi pour travailler.:|
+《虚拟桌宠模拟器》会员专享权益，多达11项功能，首次开通连续包月只要4块.#Avantages exclusifs membres V-Max : jusqu'à 11 fonctionnalités, et seulement 4 balles le premier mois avec l'abonnement mensuel reconductible.:|
+无要求体验一天，还是老板赚钱#Une journée d'essai sans conditions… c'est quand même le patron qui s'enrichit.:|
+非常普通的补习班，数据也很普通，让你怀疑怎么会出现在这里。#Un cours de soutien tout ce qu'il y a de plus banal, aux stats tout aussi banales. On se demande ce qu'il fait là.:|
+报名就送《从入门到跑路》，《从入门到放弃》。#Inscris-toi et reçois en cadeau « Du débutant à la fuite » et « Du débutant à l'abandon ».:|
+报名就送老兵烧烤5块代金券#Inscris-toi et reçois un bon de 5 balles au Barbecue des Vétérans.:|
+当你打了个喷嚏，老师已经开始讲下一本书了。#Le temps d'éternuer, et le prof est déjà passé au livre suivant.:|
+如果暑假就是用来补课的那不如取消算了。#Si les vacances d'été servent à rattraper les cours, autant les supprimer.:|
+帅哥，美女，游泳健身了解一下。#Monsieur, madame, un abonnement natation et fitness, ça vous dit ?:|
+效率低很正常，你能听懂50%已经是⑨级别了。#C'est normal que l'efficacité soit faible : si tu comprends 50 %, tu as déjà le niveau ⑨.:|
+开始活动#Lancer l'activité:|
+您没有足够金钱来购买 {0}\n您需要 {1:f2} 金钱来购买\n您当前 {2:f2} 拥有金钱#Vous n'avez pas assez d'argent pour acheter {0}\nIl vous faut {1:f2} pour l'acheter\nVous possédez actuellement {2:f2}:|
+当前食物/物品属性超模,是否继续使用?\n使用超模食物可能会导致游戏发生不可预料的错误\n使用超模食物不影响大部分成就解锁\n本物品推荐价格为{0:f0}#Les attributs de cet aliment ou objet sont déséquilibrés. Continuer à l'utiliser ?\nUtiliser des aliments déséquilibrés peut provoquer des erreurs imprévues dans le jeu\nUtiliser des aliments déséquilibrés n'empêche pas de débloquer la plupart des succès\nPrix recommandé pour cet objet : {0:f0}:|
+数据修复#Réparation des données:|
+校准玩家游玩时间数据\r为失去超模计算(Hash检查)小标玩家重新获得小标#Recalibre les données de temps de jeu\rPermet aux joueurs ayant perdu leur badge à cause du calcul des données déséquilibrées (vérification Hash) de le récupérer:|
+获取玩家游戏时间失败,请检查网络连接或稍后再试#Impossible de récupérer votre temps de jeu. Vérifiez votre connexion réseau ou réessayez plus tard:|
+陪伴时长已更新#Temps de compagnie mis à jour:|
+修复成功#Réparation réussie:|
+当前游戏时间已经大于Steam服务器记录时间,无需修复#Votre temps de jeu actuel est déjà supérieur à celui enregistré sur les serveurs Steam, aucune réparation nécessaire:|
+数据修复成功#Données réparées avec succès:|

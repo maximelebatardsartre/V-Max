@@ -1,0 +1,29 @@
+看到您囊中羞涩,{0}拿出了1000块私房钱出来给你#Voyant que vous étiez à court d'argent, {0} a sorti $1000 de ses économies secrètes pour vous les donner:|
+{0}偷偷藏了1000块私房钱#{0} a caché $1000 d'économies en douce:|
+发送#Envoyer:|
+桌宠多开#Multi-instances:|
+支持多开多个桌宠, 这些桌宠将会有独立的设置与存档\r如果画师能够足够勤奋,未来可以看到这些多开的桌宠之间的互动#Permet d'ouvrir plusieurs compagnons à la fois, chacun avec ses propres paramètres et sa propre sauvegarde \r Si l'illustrateur est assez assidu, vous pourrez peut-être un jour voir ces compagnons interagir entre eux:|
+新建多开#Nouvelle instance:|
+新建#Créer:|
+新建一个多开#Créer une nouvelle instance:|
+新开的存档名称,一旦新建,则无法修改#Nom de la nouvelle sauvegarde ; il ne pourra plus être modifié une fois créé.:|
+打开#Ouvrir:|
+打开当前选择的多开存档#Ouvre la sauvegarde multi-instance sélectionnée.:|
+删除当前选择的多开存档#Supprimer la sauvegarde multi-instance sélectionnée:|
+当前存档#Sauvegarde actuelle:|
+默认存档#Sauvegarde par défaut:|
+clicktext#Texte au clic:|
+lowtext#Texte d'état faible:|
+selecttext#Texte des choix de dialogue:|
+存档名不能包括特殊符号#Le nom de la sauvegarde ne peut pas contenir de caractères spéciaux:|
+存档名重复#Ce nom de sauvegarde existe déjà:|
+当前多开已经加载#Cette instance est déjà chargée:|
+导致的\n如有可能请发送 错误信息截图和引发错误之前的操作给相应MOD作者\n感谢您对MOD开发的支持\n# en est la cause.\nSi possible, envoyez une capture d'écran du message d'erreur et décrivez les actions effectuées juste avant à l'auteur du MOD concerné\nMerci de soutenir le développement des MOD\n:|
+搜索设置#Rechercher dans les paramètres:|
+是否多开一个新的桌宠使用 {0} 皮肤\n各自存档独立保存,互不影响\n支持同时显示多个宠物#Ouvrir un nouveau compagnon avec l'apparence {0} ?\nChaque sauvegarde est enregistrée séparément, sans affecter les autres\nPlusieurs compagnons peuvent être affichés en même temps:|
+是否多开#Ouvrir une nouvelle instance ?:|
+默认存档无法删除,请使用重新开始功能重新开始游戏#La sauvegarde par défaut ne peut pas être supprimée. Utilisez la fonction Recommencer pour reprendre la partie depuis le début:|
+是否删除当前选择({0})的多开存档?#Supprimer la sauvegarde multi-instance sélectionnée ({0}) ?:|
+删除前确认#Confirmer avant de supprimer:|
+当前多开已经加载,请先关闭改多开后重试#Cette instance est déjà chargée. Fermez-la d'abord, puis réessayez:|
+游戏权限不足,无法写入游戏存档和设置,请检查设置文件是否被其他软件占用#Droits insuffisants : impossible d'enregistrer la sauvegarde et les paramètres du jeu. Vérifiez que le fichier de paramètres n'est pas utilisé par un autre logiciel:|

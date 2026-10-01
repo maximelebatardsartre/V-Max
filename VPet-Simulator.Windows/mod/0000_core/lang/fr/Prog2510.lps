@@ -1,0 +1,15 @@
+al_stream_invite_other#Ton ami {0} a invité {hostname} à jouer.:|
+al_stream_invite_vpet#Invitation reçue de {0} pour rejoindre sa partie en tant qu'invité.:|
+al_take_autofood#{name} s'est acheté à manger : {0} x {1}:|
+al_take_autodrink#{name} s'est acheté à boire : {0} x {1}:|
+al_take_autofeel#{name} s'est offert un cadeau : {0} x {1}:|
+al_take_friend#Un ami a acheté {0} x {1} pour {name}.:|
+al_take_betterbuy#{hostname} a acheté {0} x {1} pour {name}.:|
+al_work_start#{name} a commencé : {0}.:|
+al_work_end#{name} a terminé : {0}. Durée totale : {2} min:|
+al_photo_unlock#Photo débloquée : {0}:|
+i_schedulenote#Après avoir signé l'emploi du temps avec l'établissement de travail ou d'études correspondant, il est possible de choisir librement l'emploi du temps à suivre dans le panneau Travail et études.\nUne fois les horaires organisés et après un clic sur Démarrer, Loris effectuera son travail ou ses études à l'heure, sur rappel de l'établissement:|
+al_petsay#{name} dit : {0}:|
+al_hostsay#{hostname} dit : {0}:|
+al_take_item#{hostname} a utilisé {0} sur {name}.:|
+al_console#Console : {0}:|
