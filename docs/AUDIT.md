@@ -430,13 +430,15 @@ Ces correctifs tiennent en quelques lignes. **Mesure :** au repos strict (aucun 
 
 ### 12.2 Feuille de route de la v1.0
 
-| Lot | Contenu | Constats traités |
-|---|---|---|
-| **Performances** | `ActivityGate` (pause écran verrouillé, plein écran, masqué), horloge d'animation unique, cache LRU d'images Pbgra32, manifeste de cache, déplacement avec un seul `SetWindowPos`, démarrage découpé | P-T2, P-T3, P-T11, P-A3 à P-A6, P-S1, P-S3 |
-| **Sécurité et données** | Données dans `%APPDATA%`, approbation des plugins par empreinte, suppression de la confiance automatique, confirmation des DIY, rapport de bug masqué | S-01 à S-07, P-03 |
-| **Socle** | `Directory.Build.props`, tout en .NET 10, hôte avec injection de dépendances, bus d'événements, `SafeInvoke`, journalisation, CI et premiers tests | A-08, B-02 à B-04, M-01 |
-| **Interface 2026** | Voir 12.3 | §9 |
-| **Agent** | `PetStateController`, `IChatProvider` Gemini, 5 outils à faible risque, stockage des secrets | VISION §4, §5 |
+| Lot | Contenu | Constats traités | État (branche `vmax/etape4`) |
+|---|---|---|---|
+| **Performances** | `ActivityGate` (pause écran verrouillé, plein écran, masqué), horloge d'animation unique, cache LRU d'images Pbgra32, manifeste de cache, déplacement avec un seul `SetWindowPos`, démarrage découpé | P-T2, P-T3, P-T11, P-A3 à P-A6, P-S1, P-S3 | ✅ boucle asynchrone, images matérialisées, pause de rendu (session verrouillée, écran éteint, plein écran sur l'écran du compagnon, masqué), taille lue dans l'en-tête PNG, construction du cache à mémoire bornée. ⏳ déplacement (P-T3), LRU limité en octets, démarrage découpé |
+| **Sécurité et données** | Données dans `%APPDATA%`, approbation des plugins par empreinte, suppression de la confiance automatique, confirmation des DIY, rapport de bug masqué | S-01 à S-07, P-03 | ✅ sauf la confirmation des DIY (S-06) |
+| **Socle** | `Directory.Build.props`, tout en .NET 10, hôte avec injection de dépendances, bus d'événements, `SafeInvoke`, journalisation, CI et premiers tests | A-08, B-02 à B-04, M-01 | ⏳ non commencé |
+| **Interface 2026** | Voir 12.3 | §9 | ✅ thèmes clair/sombre suivant Windows, nouvelle fenêtre de paramètres (Essentiel/Avancé, recherche, Mica), menu de la zone de notification en surcouche acrylique, bulle et barre modernisées, micro-animations, garde multi-écran. ⏳ menu radial du compagnon, notifications Windows à la place des boîtes modales, discussion permanente (Ctrl+Alt+Espace) |
+| **Agent** | `PetStateController`, `IChatProvider` Gemini, 5 outils à faible risque, stockage des secrets | VISION §4, §5 | ✅ client Gemini en streaming, 8 outils (dont 1 avec confirmation), confirmations dans la bulle, journal d'audit, clé dans le Gestionnaire d'identification, états d'animation de base. ⏳ contrôleur d'états complet, voix |
+
+**Mesures (1 compagnon, repos, 60 s) :** 1,35 % d'un cœur au départ → **0,42 %** en régime établi après le lot Performances (les bulles et animations de démarrage provoquent des pics ponctuels). Mémoire stabilisée ~320 Mo. Reconstruction complète du cache : ~27 s, pic de 263 Mo.
 
 ### 12.3 Refonte de l'interface : principes
 - **Une seule couche de surcouches au lieu de fenêtres modales.** Les menus, la discussion, les confirmations et les notifications deviennent des **surcouches ancrées au compagnon** :

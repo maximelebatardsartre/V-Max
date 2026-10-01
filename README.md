@@ -17,7 +17,7 @@ C'est un fork de [VPet](https://github.com/LorisYounger/VPet) (C# / WPF), remani
 | Étape 1 | Fork, compilation .NET 10, retrait de Steam, francisation | ✅ |
 | Étape 2 | Rapport d'audit (dette technique, performances, UX) | ✅ [docs/AUDIT.md](docs/AUDIT.md) |
 | Étape 3 | Vision et architecture « agent IA » | ✅ [docs/VISION.md](docs/VISION.md) |
-| Étape 4 | v1.0 : interface 2026, performances, socle agent IA | 🚧 |
+| Étape 4 | v1.0 : interface 2026, performances, socle agent IA | 🚧 bien avancée (voir [AUDIT §12.2](docs/AUDIT.md#122-feuille-de-route-de-la-v10)) |
 
 ## Compiler et lancer
 
@@ -36,6 +36,24 @@ cmd /c mklink /J VPet-Simulator.Windows\bin\x64\Debug\net10.0-windows7.0\mod VPe
 Lancez ensuite `VPet-Simulator.Windows\bin\x64\Debug\net10.0-windows7.0\VPet-Simulator.Windows.exe`.
 
 > L'éditeur de paramètres `VPet.Solution` ne compile pas pour l'instant : le tisseur Fody `HKW.MVVM.SourceGenerator` est incompatible avec .NET 10. Ce problème vient du projet d'origine et il est suivi dans l'audit.
+
+## Agent IA (Gemini)
+
+1. Crée une clé gratuite sur [Google AI Studio](https://aistudio.google.com/app/apikey).
+2. Dans **Paramètres › Intelligence artificielle**, colle la clé (elle est stockée dans le Gestionnaire d'identification Windows) puis active l'agent.
+3. Écris à ton compagnon dans la zone « Écris-moi… » (clic droit sur le compagnon, `Ctrl+Entrée` pour envoyer).
+
+L'agent peut lire l'état du PC, contrôler la musique et le volume, ouvrir une page web, une application ou un dossier, lancer un minuteur et verrouiller la session (avec ta confirmation). Chaque action est inscrite dans `%APPDATA%\V-Max\agent-audit.log`, et chaque outil peut être désactivé dans les paramètres avancés.
+
+## Données
+
+| Emplacement | Contenu |
+|---|---|
+| `%APPDATA%\V-Max` | Paramètres, sauvegardes, copies de secours, journaux, journal de l'agent |
+| `%LOCALAPPDATA%\V-Max` | Cache des animations, approbations des plugins (empreintes SHA-256) |
+| Gestionnaire d'identification Windows | Clé API Gemini (`V-Max/GeminiApiKey`) |
+
+Mode portable : un fichier `portable.txt` à côté de l'exécutable garde toutes les données dans le dossier d'installation.
 
 ## Structure
 
