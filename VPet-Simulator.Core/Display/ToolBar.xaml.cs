@@ -284,8 +284,15 @@ namespace VPet_Simulator.Core
         /// ToolBar显示事件
         /// </summary>
         public event Action? EventShow;
+        /// <summary>
+        /// V-Max : remplace l'affichage de la barre (ex. anneau orbital). Retourner true pour ne pas afficher la barre.
+        /// La barre reste le modèle des menus (entrées ajoutées par les plugins).
+        /// </summary>
+        public Func<bool>? ShowOverride { get; set; }
         public void Show()
         {
+            if (ShowOverride?.Invoke() == true)
+                return;
             EventShow?.Invoke();
             if (m.UIGrid.Children.IndexOf(this) != m.UIGrid.Children.Count - 1)
             {

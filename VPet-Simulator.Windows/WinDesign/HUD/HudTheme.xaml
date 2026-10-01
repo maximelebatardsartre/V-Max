@@ -1,0 +1,238 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <!--
+        V-Max HUD — système de design de l'interface autour du compagnon.
+        Palette tirée du personnage : Encre fumée (fond), Argent (cheveux), Ruban (nœud, seule couleur d'action),
+        Ambre (yeux : énergie, alertes), Lait (texte). Variante claire « Nacre » appliquée par MainWindow.LoadVMaxBrushes.
+        Typo : Bahnschrift (titres, chiffres, instrument de bord) · Segoe UI Variable (texte) · Cascadia Mono (données).
+    -->
+    <SolidColorBrush x:Key="HudSurface" Color="#EB14151D" />
+    <SolidColorBrush x:Key="HudSurfaceRaised" Color="#F21C1E28" />
+    <SolidColorBrush x:Key="HudSurfaceHover" Color="#1FF3F1F6" />
+    <SolidColorBrush x:Key="HudStroke" Color="#33C9CFDA" />
+    <SolidColorBrush x:Key="HudText" Color="#FFF3F1F6" />
+    <SolidColorBrush x:Key="HudTextMuted" Color="#A6C9CFDA" />
+    <SolidColorBrush x:Key="HudSilver" Color="#FFC9CFDA" />
+    <SolidColorBrush x:Key="HudAccent" Color="#FFE2455B" />
+    <SolidColorBrush x:Key="HudAccentSoft" Color="#33E2455B" />
+    <SolidColorBrush x:Key="HudAmber" Color="#FFF2B04B" />
+    <SolidColorBrush x:Key="HudOnAccent" Color="#FFFFFFFF" />
+    <SolidColorBrush x:Key="HudSuccess" Color="#FF4CC38A" />
+    <Color x:Key="HudShadowColor">#FF000000</Color>
+
+    <FontFamily x:Key="HudDisplay">Bahnschrift</FontFamily>
+    <FontFamily x:Key="HudDisplayCondensed">Bahnschrift SemiCondensed, Bahnschrift</FontFamily>
+    <FontFamily x:Key="HudBody">Segoe UI Variable Text, Segoe UI</FontFamily>
+    <FontFamily x:Key="HudMono">Cascadia Mono, Consolas</FontFamily>
+    <FontFamily x:Key="HudIcons">Segoe Fluent Icons, Segoe MDL2 Assets</FontFamily>
+
+    <CubicEase x:Key="HudEase" EasingMode="EaseOut" />
+
+    <!-- Panneau de verre fumé -->
+    <Style x:Key="HudPanel" TargetType="Border">
+        <Setter Property="Background" Value="{DynamicResource HudSurface}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource HudStroke}" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="CornerRadius" Value="20" />
+        <Setter Property="Effect">
+            <Setter.Value>
+                <DropShadowEffect BlurRadius="28" ShadowDepth="6" Direction="270" Opacity="0.35" Color="Black" />
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- Petite étiquette en capitales (Bahnschrift) -->
+    <Style x:Key="HudEyebrow" TargetType="TextBlock">
+        <Setter Property="FontFamily" Value="{DynamicResource HudDisplay}" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+        <Setter Property="FontSize" Value="11" />
+        <Setter Property="Foreground" Value="{DynamicResource HudTextMuted}" />
+    </Style>
+    <Style x:Key="HudTitle" TargetType="TextBlock">
+        <Setter Property="FontFamily" Value="{DynamicResource HudDisplay}" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+        <Setter Property="FontSize" Value="20" />
+        <Setter Property="Foreground" Value="{DynamicResource HudText}" />
+    </Style>
+    <Style x:Key="HudBodyText" TargetType="TextBlock">
+        <Setter Property="FontFamily" Value="{DynamicResource HudBody}" />
+        <Setter Property="FontSize" Value="14" />
+        <Setter Property="Foreground" Value="{DynamicResource HudText}" />
+        <Setter Property="TextWrapping" Value="Wrap" />
+        <Setter Property="LineHeight" Value="20" />
+    </Style>
+
+    <!-- Bouton d'action principal (Ruban) -->
+    <Style x:Key="HudPrimaryButton" TargetType="Button">
+        <Setter Property="Foreground" Value="{DynamicResource HudOnAccent}" />
+        <Setter Property="Background" Value="{DynamicResource HudAccent}" />
+        <Setter Property="FontFamily" Value="{DynamicResource HudDisplay}" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+        <Setter Property="FontSize" Value="13" />
+        <Setter Property="Padding" Value="16,8" />
+        <Setter Property="Cursor" Value="Hand" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Grid x:Name="G" RenderTransformOrigin="0.5,0.5">
+                        <Border CornerRadius="12" Background="{TemplateBinding Background}" />
+                        <Border x:Name="Shine" CornerRadius="12" Background="White" Opacity="0" />
+                        <ContentPresenter Margin="{TemplateBinding Padding}" HorizontalAlignment="Center" VerticalAlignment="Center"
+                                TextElement.Foreground="{TemplateBinding Foreground}" />
+                    </Grid>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Shine" Property="Opacity" Value="0.12" />
+                        </Trigger>
+                        <Trigger Property="IsPressed" Value="True">
+                            <Setter TargetName="G" Property="RenderTransform">
+                                <Setter.Value>
+                                    <ScaleTransform ScaleX="0.97" ScaleY="0.97" />
+                                </Setter.Value>
+                            </Setter>
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter Property="Opacity" Value="0.4" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- Bouton discret -->
+    <Style x:Key="HudGhostButton" TargetType="Button">
+        <Setter Property="Foreground" Value="{DynamicResource HudText}" />
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="FontFamily" Value="{DynamicResource HudBody}" />
+        <Setter Property="FontSize" Value="13" />
+        <Setter Property="Padding" Value="12,7" />
+        <Setter Property="Cursor" Value="Hand" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Border x:Name="Bd" CornerRadius="10" Background="{TemplateBinding Background}" BorderBrush="{DynamicResource HudStroke}" BorderThickness="1">
+                        <ContentPresenter Margin="{TemplateBinding Padding}" HorizontalAlignment="Center" VerticalAlignment="Center"
+                                TextElement.Foreground="{TemplateBinding Foreground}" />
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Bd" Property="Background" Value="{DynamicResource HudSurfaceHover}" />
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter Property="Opacity" Value="0.4" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- Bouton-icône rond -->
+    <Style x:Key="HudIconButton" TargetType="Button">
+        <Setter Property="Foreground" Value="{DynamicResource HudTextMuted}" />
+        <Setter Property="FontFamily" Value="{DynamicResource HudIcons}" />
+        <Setter Property="FontSize" Value="14" />
+        <Setter Property="Width" Value="32" />
+        <Setter Property="Height" Value="32" />
+        <Setter Property="Cursor" Value="Hand" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Border x:Name="Bd" CornerRadius="16" Background="Transparent">
+                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" TextElement.Foreground="{TemplateBinding Foreground}" />
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Bd" Property="Background" Value="{DynamicResource HudSurfaceHover}" />
+                            <Setter Property="Foreground" Value="{DynamicResource HudText}" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- Puce (onglet, filtre, suggestion) -->
+    <Style x:Key="HudChip" TargetType="RadioButton">
+        <Setter Property="Foreground" Value="{DynamicResource HudTextMuted}" />
+        <Setter Property="FontFamily" Value="{DynamicResource HudDisplay}" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+        <Setter Property="FontSize" Value="12" />
+        <Setter Property="Cursor" Value="Hand" />
+        <Setter Property="Margin" Value="0,0,6,0" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="RadioButton">
+                    <Border x:Name="Bd" CornerRadius="14" Padding="12,5" Background="Transparent" BorderBrush="{DynamicResource HudStroke}" BorderThickness="1">
+                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Bd" Property="Background" Value="{DynamicResource HudSurfaceHover}" />
+                        </Trigger>
+                        <Trigger Property="IsChecked" Value="True">
+                            <Setter TargetName="Bd" Property="Background" Value="{DynamicResource HudAccentSoft}" />
+                            <Setter TargetName="Bd" Property="BorderBrush" Value="{DynamicResource HudAccent}" />
+                            <Setter Property="Foreground" Value="{DynamicResource HudText}" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- Champ de saisie -->
+    <Style x:Key="HudInput" TargetType="TextBox">
+        <Setter Property="Foreground" Value="{DynamicResource HudText}" />
+        <Setter Property="CaretBrush" Value="{DynamicResource HudAccent}" />
+        <Setter Property="SelectionBrush" Value="{DynamicResource HudAccent}" />
+        <Setter Property="FontFamily" Value="{DynamicResource HudBody}" />
+        <Setter Property="FontSize" Value="14" />
+        <Setter Property="VerticalContentAlignment" Value="Center" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="TextBox">
+                    <Grid>
+                        <ScrollViewer x:Name="PART_ContentHost" VerticalAlignment="Center" />
+                        <TextBlock x:Name="Ph" Text="{TemplateBinding Tag}" Foreground="{DynamicResource HudTextMuted}" IsHitTestVisible="False"
+                                VerticalAlignment="Center" Margin="2,0" Visibility="Collapsed" FontFamily="{DynamicResource HudBody}" />
+                    </Grid>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="Text" Value="">
+                            <Setter TargetName="Ph" Property="Visibility" Value="Visible" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- Barre de défilement fine -->
+    <Style x:Key="HudScrollBar" TargetType="ScrollBar">
+        <Setter Property="Width" Value="8" />
+        <Setter Property="MinWidth" Value="8" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ScrollBar">
+                    <Track x:Name="PART_Track" IsDirectionReversed="True" Margin="2">
+                        <Track.Thumb>
+                            <Thumb>
+                                <Thumb.Template>
+                                    <ControlTemplate TargetType="Thumb">
+                                        <Border CornerRadius="2" Background="{DynamicResource HudStroke}" />
+                                    </ControlTemplate>
+                                </Thumb.Template>
+                            </Thumb>
+                        </Track.Thumb>
+                    </Track>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+        <Style.Triggers>
+            <Trigger Property="Orientation" Value="Horizontal">
+                <Setter Property="Visibility" Value="Collapsed" />
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+</ResourceDictionary>

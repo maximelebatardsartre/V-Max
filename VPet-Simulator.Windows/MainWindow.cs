@@ -184,6 +184,34 @@ namespace VPet_Simulator.Windows
                 res["VMaxControlFill"] = b(0xB3, Colors.White);
                 res["VMaxControlStroke"] = b(0x29, Colors.Black);
             }
+            // V-Max HUD : « Encre fumée » (sombre) ou « Nacre » (clair) ; Ruban et Ambre restent les accents du personnage
+            Color hc(string hex) => (Color)ColorConverter.ConvertFromString(hex);
+            if (IsDarkTheme)
+            {
+                res["HudSurface"] = b(0xEB, hc("#14151D"));
+                res["HudSurfaceRaised"] = b(0xF2, hc("#1C1E28"));
+                res["HudSurfaceHover"] = b(0x1F, hc("#F3F1F6"));
+                res["HudStroke"] = b(0x33, hc("#C9CFDA"));
+                res["HudText"] = b(0xFF, hc("#F3F1F6"));
+                res["HudTextMuted"] = b(0xA6, hc("#C9CFDA"));
+                res["HudSilver"] = b(0xFF, hc("#C9CFDA"));
+                res["HudAccent"] = b(0xFF, hc("#E2455B"));
+                res["HudAccentSoft"] = b(0x33, hc("#E2455B"));
+                res["HudAmber"] = b(0xFF, hc("#F2B04B"));
+            }
+            else
+            {
+                res["HudSurface"] = b(0xF2, hc("#F7F5F9"));
+                res["HudSurfaceRaised"] = b(0xFA, hc("#FFFFFF"));
+                res["HudSurfaceHover"] = b(0x14, hc("#14151D"));
+                res["HudStroke"] = b(0x1F, hc("#14151D"));
+                res["HudText"] = b(0xFF, hc("#14151D"));
+                res["HudTextMuted"] = b(0x99, hc("#14151D"));
+                res["HudSilver"] = b(0xFF, hc("#6B7280"));
+                res["HudAccent"] = b(0xFF, hc("#D2384F"));
+                res["HudAccentSoft"] = b(0x26, hc("#E2455B"));
+                res["HudAmber"] = b(0xFF, hc("#B9781A"));
+            }
             if (winVMaxSetting != null)
                 WindowEffects.SetDark(winVMaxSetting, IsDarkTheme);
         }
@@ -1674,8 +1702,15 @@ namespace VPet_Simulator.Windows
               {
                   //清空资源
                   Main.Resources = Application.Current.Resources;
-                  if (Main.MsgBar != null)
-                      Main.MsgBar.This.Resources = Application.Current.Resources;
+                  // V-Max HUD : anneau orbital, panneaux et bulle flottante remplacent la barre et la bulle de VPet
+                  Hud = new HUD.HudController(this);
+                  // V-Max HUD : la bulle de VPet est remplacée par la bulle flottante (même interface IMassageBar)
+                  if (Main.MsgBar is MessageBar oldBar)
+                  {
+                      Main.UIGrid.Children.Remove(oldBar);
+                      oldBar.Dispose();
+                      Main.MsgBar = new HUD.HudBubble(this);
+                  }
                   if (Main.ToolBar != null)
                       Main.ToolBar.Resources = Application.Current.Resources;
                   Main.ToolBar?.LoadClean();
@@ -2483,7 +2518,7 @@ namespace VPet_Simulator.Windows
                           for (int qi = 1; qi <= 24; qi++)
                           {
                               await Task.Delay(500);
-                              Dispatcher.Invoke(() => trace.AppendLine($"{qi * 500}ms graph={Main.DisplayType.Name}/{Main.DisplayType.Animat} bulle={Main.MsgBar?.Visibility} « {(Main.MsgBar as MessageBar)?.TText.Text} »"));
+                              Dispatcher.Invoke(() => trace.AppendLine($"{qi * 500}ms graph={Main.DisplayType.Name}/{Main.DisplayType.Animat} bulle={Main.MsgBar?.Visibility} « {(Main.MsgBar as HUD.HudBubble)?.Text} »"));
                           }
                           System.IO.File.WriteAllText(System.IO.Path.Combine(System.IO.Path.GetTempPath(), "vmax-qa-trace.txt"), trace.ToString());
                           Dispatcher.Invoke(() => QaSnapshot(this, System.IO.Path.Combine(System.IO.Path.GetTempPath(), "vmax-qa-settings.png")));
@@ -2513,9 +2548,39 @@ namespace VPet_Simulator.Windows
                           Dispatcher.Invoke(() =>
                           {
                               System.IO.File.WriteAllText(System.IO.Path.Combine(System.IO.Path.GetTempPath(), "vmax-qa-debug.txt"),
-                                  $"msgbar={Main.MsgBar?.Visibility} op={(Main.MsgBar as UIElement)?.Opacity} toolbar={Main.ToolBar?.Visibility} state={Main.State} size={ActualWidth}x{ActualHeight}");
-                              QaSnapshot(this, System.IO.Path.Combine(System.IO.Path.GetTempPath(), "vmax-qa-settings.png"));
+                                  $"msgbar={Main.MsgBar?.Visibility} toolbar={Main.ToolBar?.Visibility} state={Main.State} size={ActualWidth}x{ActualHeight}");
+                              QaSnapshot(Main.MsgBar is Window bw && bw.IsVisible ? bw : this, System.IO.Path.Combine(System.IO.Path.GetTempPath(), "vmax-qa-settings.png"));
                           });
+                      });
+                  }
+                  if (Args.FindLine("vmax-open-orbit") != null)
+                  {// QA : anneau orbital rendu dans %TEMP%max-qa-settings.png
+                      Task.Run(async () =>
+                      {
+                          await Task.Delay(9000);
+                          Dispatcher.Invoke(() => Hud!.ToggleOrbit());
+                          await Task.Delay(1500);
+                          Dispatcher.Invoke(() => QaSnapshot(Hud!.OrbitWindow!, System.IO.Path.Combine(System.IO.Path.GetTempPath(), "vmax-qa-settings.png")));
+                      });
+                  }
+                  if (Args.FindLine("vmax-chat-ask") is ILine qaChat)
+                  {// QA : message envoyé depuis le panneau de discussion, rendu dans %TEMP%max-qa-settings.png
+                      Task.Run(async () =>
+                      {
+                          await Task.Delay(9000);
+                          Dispatcher.Invoke(() => { Hud!.OpenChat(); ((HUD.ChatPanel)Hud.ChatWindow!).Send(qaChat.Info); });
+                          await Task.Delay(int.TryParse(qaChat.GetString("wait"), out var w) ? w : 5000);
+                          Dispatcher.Invoke(() => QaSnapshot(Hud!.ChatWindow!, System.IO.Path.Combine(System.IO.Path.GetTempPath(), "vmax-qa-settings.png")));
+                      });
+                  }
+                  if (Args.FindLine("vmax-open-chat") != null)
+                  {// QA : panneau de discussion rendu dans %TEMP%max-qa-settings.png
+                      Task.Run(async () =>
+                      {
+                          await Task.Delay(9000);
+                          Dispatcher.Invoke(() => Hud!.OpenChat());
+                          await Task.Delay(2500);
+                          Dispatcher.Invoke(() => QaSnapshot(Hud!.ChatWindow!, System.IO.Path.Combine(System.IO.Path.GetTempPath(), "vmax-qa-settings.png")));
                       });
                   }
                   if (Args.FindLine("vmax-open-traymenu") != null)

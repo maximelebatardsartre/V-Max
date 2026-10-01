@@ -88,6 +88,10 @@ public partial class MainWindow
     /// V-Max : plugin intégré de l'agent IA
     /// </summary>
     public Agent.VMaxAgentPlugin? AgentPlugin { get; private set; }
+    /// <summary>
+    /// V-Max HUD : interface autour du compagnon
+    /// </summary>
+    public HUD.HudController? Hud { get; private set; }
     public winBetterBuy? winBetterBuy { get; set; }
     public winGallery? winGallery { get; set; } 
     public winInventory? winInventory { get; set; }
