@@ -587,6 +587,7 @@ namespace VPet_Simulator.Windows
         private void RegisterActivityGate()
         {
             ActivityGateService.EnsureStarted(Dispatcher);
+            ScreenGuard.Watch(Dispatcher);
             IsVisibleChanged += (_, _) => ActivityGateService.SetWindowHidden(PrefixSave, !IsVisible);
             StateChanged += (_, _) => ActivityGateService.SetWindowHidden(PrefixSave, WindowState == WindowState.Minimized || !IsVisible);
             Closed += (_, _) => ActivityGateService.SetWindowHidden(PrefixSave, false);

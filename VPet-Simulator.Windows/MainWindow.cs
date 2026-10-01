@@ -2465,6 +2465,9 @@ namespace VPet_Simulator.Windows
                       }
 
                   // V-Max (QA) : ouvre directement une page des paramètres, ex. argument « vmax-open-settings#0:| »
+                  // V-Max : si la position enregistrée est sur un écran absent, revenir sur l'écran principal
+                  ScreenGuard.EnsureOnScreen(this);
+
                   if (Args.FindLine("vmax-agent-ask") is ILine qaAsk)
                   {// QA : envoie un message à l'agent et trace le texte de la bulle dans %TEMP%\vmax-qa-trace.txt
                       Task.Run(async () =>
