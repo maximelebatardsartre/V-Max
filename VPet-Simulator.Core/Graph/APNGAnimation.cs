@@ -513,11 +513,22 @@ namespace VPet_Simulator.Core
             return c ^ 0xFFFFFFFFu;
         }
 
-        private void Play(FrameworkElement element, TaskControl control)
+        /// <summary>
+        /// Lecture bloquante (compatibilité) : voir <see cref="PlayAsync"/>
+        /// </summary>
+        private void Play(FrameworkElement element, TaskControl control) => PlayAsync(element, control).GetAwaiter().GetResult();
+
+        /// <summary>
+        /// V-Max : boucle de lecture asynchrone (aucun thread bloqué entre deux images), respecte <see cref="AnimationGate"/>
+        /// </summary>
+        private async Task PlayAsync(FrameworkElement element, TaskControl control)
         {
             Touch();
             while (true)
             {
+                var gate = AnimationGate.WaitAsync();
+                if (!gate.IsCompleted)
+                    await gate.ConfigureAwait(false);
                 int frameIndex;
                 int duration;
                 BitmapSource? frameSource;
@@ -534,16 +545,20 @@ namespace VPet_Simulator.Core
                 }
                 frameSource = GetFrameSource(frameIndex);
 
-                element.Dispatcher.Invoke(() =>
+                void show()
                 {
                     if (element is System.Windows.Controls.Image image)
                     {
                         image.Source = frameSource;
                     }
                     element.Margin = new Thickness(0, 0, 0, 0);
-                });
+                }
+                if (element.Dispatcher.CheckAccess())
+                    show();
+                else
+                    _ = element.Dispatcher.InvokeAsync(show, System.Windows.Threading.DispatcherPriority.Render);
 
-                Thread.Sleep(duration);
+                await Task.Delay(duration).ConfigureAwait(false);
 
                 switch (control.Type)
                 {
@@ -628,7 +643,7 @@ namespace VPet_Simulator.Core
             {
                 if (parant.Tag == this)
                 {
-                    Task.Run(() => Play((System.Windows.Controls.Image)parant.Child, newControl));
+                    _ = PlayAsync((System.Windows.Controls.Image)parant.Child, newControl);
                     return;
                 }
 
@@ -663,7 +678,7 @@ namespace VPet_Simulator.Core
                 parant.Tag = this;
                 img.Source = GetFrameSource(0);
                 img.Width = 500;
-                Task.Run(() => Play((System.Windows.Controls.Image)parant.Child, newControl));
+                _ = PlayAsync((System.Windows.Controls.Image)parant.Child, newControl);
             });
         }
 

@@ -102,6 +102,7 @@ namespace VPet_Simulator.Windows
 
             _dwmEnabled = Win32.Dwmapi.DwmIsCompositionEnabled();
             _hwnd = new WindowInteropHelper(this).EnsureHandle();
+            RegisterActivityGate();
 
             GameInitialization();
 
@@ -578,6 +579,17 @@ namespace VPet_Simulator.Windows
         }
         private readonly bool _dwmEnabled;
         private readonly IntPtr _hwnd;
+
+        /// <summary>
+        /// V-Max : pause des animations quand ce compagnon est masqué (et surveillance globale écran / session / plein écran)
+        /// </summary>
+        private void RegisterActivityGate()
+        {
+            ActivityGateService.EnsureStarted(Dispatcher);
+            IsVisibleChanged += (_, _) => ActivityGateService.SetWindowHidden(PrefixSave, !IsVisible);
+            StateChanged += (_, _) => ActivityGateService.SetWindowHidden(PrefixSave, WindowState == WindowState.Minimized || !IsVisible);
+            Closed += (_, _) => ActivityGateService.SetWindowHidden(PrefixSave, false);
+        }
         public bool HitThrough { get; private set; } = false;
         public bool MouseHitThrough
         {

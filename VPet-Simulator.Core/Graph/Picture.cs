@@ -143,19 +143,27 @@ namespace VPet_Simulator.Core
                         }
                     }
                     img.Width = 500;
-                    img.Source = new BitmapImage(new Uri(Path));
+                    img.Source = GetImage();
                     parant.Tag = this;
                 }
-                Task.Run(() => Run(NEWControl));
+                _ = RunAsync(NEWControl);
             });
         }
         /// <summary>
         /// 通过控制器运行
         /// </summary>
         /// <param name="Control"></param>
-        public void Run(TaskControl Control)
+        public void Run(TaskControl Control) => RunAsync(Control).GetAwaiter().GetResult();
+
+        /// <summary>
+        /// V-Max : attente asynchrone (aucun thread bloqué), respecte <see cref="AnimationGate"/>
+        /// </summary>
+        public async Task RunAsync(TaskControl Control)
         {
-            Thread.Sleep(Length);
+            var gate = AnimationGate.WaitAsync();
+            if (!gate.IsCompleted)
+                await gate.ConfigureAwait(false);
+            await Task.Delay(Length).ConfigureAwait(false);
             //判断是否要下一步
             switch (Control.Type)
             {
@@ -166,12 +174,12 @@ namespace VPet_Simulator.Core
                     return;
                 case TaskControl.ControlType.Continue:
                     Control.Type = TaskControl.ControlType.Status_Quo;
-                    Run(Control);
+                    await RunAsync(Control).ConfigureAwait(false);
                     return;
                 case TaskControl.ControlType.Status_Quo:
                     if (IsLoop)
                     {
-                        Task.Run(() => Run(Control));
+                        _ = RunAsync(Control);
                     }
                     else
                     {
@@ -180,6 +188,28 @@ namespace VPet_Simulator.Core
                     }
                     return;
             }
+        }
+
+        private BitmapSource? cachedImage;
+        /// <summary>
+        /// V-Max : image décodée une seule fois, figée, à la résolution du cache
+        /// </summary>
+        private BitmapSource GetImage()
+        {
+            var image = cachedImage;
+            if (image != null)
+                return image;
+            var bi = new BitmapImage();
+            bi.BeginInit();
+            bi.CacheOption = BitmapCacheOption.OnLoad;
+            bi.CreateOptions = BitmapCreateOptions.IgnoreColorProfile;
+            if (GraphCore?.Resolution > 0)
+                bi.DecodePixelWidth = GraphCore.Resolution;
+            bi.UriSource = new Uri(Path);
+            bi.EndInit();
+            bi.Freeze();
+            cachedImage = bi;
+            return bi;
         }
 
         public Task Run(Image img, Action? EndAction = null)
@@ -197,7 +227,7 @@ namespace VPet_Simulator.Core
                     return new Task(() => Run(Control));
                 }
                 img.Tag = this;
-                img.Source = new BitmapImage(new Uri(Path));
+                img.Source = GetImage();
                 img.Width = 500;
                 return new Task(() => Run(Control));
             });

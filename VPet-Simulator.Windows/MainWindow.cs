@@ -1314,6 +1314,7 @@ namespace VPet_Simulator.Windows
             }
             _dwmEnabled = Win32.Dwmapi.DwmIsCompositionEnabled();
             _hwnd = new WindowInteropHelper(this).EnsureHandle();
+            RegisterActivityGate();
 
             GameInitialization();
 
