@@ -5,8 +5,8 @@ C'est un fork de [VPet](https://github.com/LorisYounger/VPet) (C# / WPF), remani
 
 - une interface **100 % en français** ;
 - une application **autonome**, sans Steam, sans télémétrie et sans serveur tiers ;
-- une interface moderne (2026) : surcouches en verre dépoli, mode clair/sombre de Windows, micro-animations *(en cours)* ;
-- l'intégration d'un **agent IA** (Gemini) capable d'agir sur le système *(en préparation)*.
+- une **interface repensée autour du compagnon** : anneau d'actions, bulle flottante, panneaux ancrés, notifications ;
+- un **agent IA** branché sur des IA gratuites (Gemini, Groq, Mistral, Cerebras, OpenRouter, ou une IA locale Ollama / LM Studio), avec bascule automatique quand un quota est atteint.
 
 ![Aperçu](docs/upstream/README.assets/ss0.gif)
 
@@ -37,11 +37,25 @@ Lancez ensuite `VPet-Simulator.Windows\bin\x64\Debug\net10.0-windows7.0\VPet-Sim
 
 > L'éditeur de paramètres `VPet.Solution` ne compile pas pour l'instant : le tisseur Fody `HKW.MVVM.SourceGenerator` est incompatible avec .NET 10. Ce problème vient du projet d'origine et il est suivi dans l'audit.
 
-## Agent IA (Gemini)
+## Interface
 
-1. Crée une clé gratuite sur [Google AI Studio](https://aistudio.google.com/app/apikey).
-2. Dans **Paramètres › Intelligence artificielle**, colle la clé (elle est stockée dans le Gestionnaire d'identification Windows) puis active l'agent.
-3. Écris à ton compagnon dans la zone « Écris-moi… » (clic droit sur le compagnon, `Ctrl+Entrée` pour envoyer).
+Tout part du compagnon :
+
+| Geste | Effet |
+|---|---|
+| Clic droit sur le compagnon | Anneau d'actions : Discuter, Nourrir, Occupations, Dormir, État, Plus, Paramètres |
+| `Ctrl+Alt+Espace` (n'importe où) | Ouvre la discussion |
+| Échap | Ferme le panneau ouvert |
+
+Les panneaux (discussion, garde-manger, occupations, état, « Plus ») s'ouvrent à côté du compagnon, du côté où l'écran a de la place, et le suivent quand il se déplace. Le panneau « Plus » est construit depuis les menus de VPet : les entrées ajoutées par les plugins y apparaissent automatiquement.
+
+## Agent IA
+
+1. Ouvre la discussion (anneau › **Discuter** ou `Ctrl+Alt+Espace`).
+2. Au premier lancement, la discussion propose les IA gratuites : clique sur **Obtenir une clé**, colle-la, **Connecter**. La clé est vérifiée puis stockée dans le Gestionnaire d'identification Windows. Une IA locale (Ollama, LM Studio) est détectée sans configuration.
+3. Connecte plusieurs fournisseurs : quand l'un atteint son quota, le suivant prend le relais sans interrompre la conversation.
+
+Les fournisseurs se gèrent aussi dans **Paramètres › Intelligence artificielle** (état en direct, modèle par fournisseur en mode avancé).
 
 L'agent peut lire l'état du PC, contrôler la musique et le volume, ouvrir une page web, une application ou un dossier, lancer un minuteur et verrouiller la session (avec ta confirmation). Chaque action est inscrite dans `%APPDATA%\V-Max\agent-audit.log`, et chaque outil peut être désactivé dans les paramètres avancés.
 
@@ -51,7 +65,7 @@ L'agent peut lire l'état du PC, contrôler la musique et le volume, ouvrir une 
 |---|---|
 | `%APPDATA%\V-Max` | Paramètres, sauvegardes, copies de secours, journaux, journal de l'agent |
 | `%LOCALAPPDATA%\V-Max` | Cache des animations, approbations des plugins (empreintes SHA-256) |
-| Gestionnaire d'identification Windows | Clé API Gemini (`V-Max/GeminiApiKey`) |
+| Gestionnaire d'identification Windows | Clés API (`V-Max/GeminiApiKey`, `V-Max/GroqApiKey`, `V-Max/MistralApiKey`, `V-Max/CerebrasApiKey`, `V-Max/OpenRouterApiKey`) |
 
 Mode portable : un fichier `portable.txt` à côté de l'exécutable garde toutes les données dans le dossier d'installation.
 
