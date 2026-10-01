@@ -37,7 +37,7 @@
             </pu:FormGroup>
             <pu:FormGroup Header="{ll:Str '提交:'}" HeaderPadding="10,0,10,0" HeaderHeight="20" Orientation="Horizontal"
                     Margin="0,2,0,0" Padding="1" FontSize="16" ToolTip="{ll:Str 是否上传当前游戏存档}">
-                <CheckBox x:Name="tUpload" Content="{ll:Str '上传游戏存档'}" Margin="5,0,0,0" IsChecked="True"
+                <CheckBox x:Name="tUpload" Content="{ll:Str '上传游戏存档'}" Margin="5,0,0,0" IsChecked="False"
                         Click="tUpload_Click" />
             </pu:FormGroup>
             <pu:FormGroup Header="{ll:Str '联系:'}" HeaderPadding="10,0,10,0" HeaderHeight="20" Orientation="Horizontal"

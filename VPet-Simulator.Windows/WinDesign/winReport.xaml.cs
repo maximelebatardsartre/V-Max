@@ -29,7 +29,7 @@ namespace VPet_Simulator.Windows
             InitializeComponent();
             mw = mainw;
             Title = "反馈中心".Translate() + ' ' + mw.PrefixSave;
-            save = mw!.Core?.Save?.ToLine().ToString() + mw!.Set?.ToString();
+            save = "玩家取消上传存档".Translate();// V-Max (AUDIT P-03) : rien n'est joint par défaut
             if (errmsg != null)
             {
                 tType.SelectedIndex = 0;
@@ -44,10 +44,37 @@ namespace VPet_Simulator.Windows
             throw new NotImplementedException();
         }
 
+        /// <summary>
+        /// V-Max (AUDIT P-03) : masque les secrets (clés API, jetons, mots de passe) et le nom d'utilisateur
+        /// avant que la sauvegarde et les paramètres ne soient copiés dans un ticket public.
+        /// </summary>
+        private static string Redact(string text)
+        {
+            var sensitive = new System.Text.RegularExpressions.Regex(@"(?i)(api_?key|apikey|token|secret|password|passwd|pwd|auth|bearer|cookie|session)");
+            var sb = new StringBuilder();
+            foreach (var rawLine in text.Split('\n'))
+            {
+                var line = rawLine;
+                // format LPS : nom#valeur:|nom#valeur:|
+                var subs = line.Split(":|");
+                for (int i = 0; i < subs.Length; i++)
+                {
+                    int sep = subs[i].IndexOf('#');
+                    if (sep > 0 && sensitive.IsMatch(subs[i][..sep]))
+                        subs[i] = subs[i][..sep] + "#***";
+                }
+                line = string.Join(":|", subs);
+                if (!string.IsNullOrEmpty(Environment.UserName))
+                    line = line.Replace(Environment.UserName, "<utilisateur>");
+                sb.Append(line).Append('\n');
+            }
+            return sb.ToString();
+        }
+
         private void tUpload_Click(object sender, RoutedEventArgs e)
         {//游戏设置比存档更重要,桌宠大部分内容存设置里了,所以一起上传
             if (tUpload.IsChecked == true)
-                save = mw.Core.Save!.ToLine().ToString() + mw.Set.ToString();
+                save = Redact(mw.Core.Save!.ToLine().ToString() + mw.Set.ToString());
             else
                 save = "玩家取消上传存档".Translate();
         }
