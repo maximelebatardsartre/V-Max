@@ -24,8 +24,7 @@ namespace VPet_Simulator.Windows
 
         public static HashSet<string> LoadedDLL { get; } = new HashSet<string>()
         {
-            "Panuon.WPF.dll","steam_api.dll","Panuon.WPF.UI.dll","steam_api64.dll",
-            "LinePutScript.dll","Facepunch.Steamworks.Win32.dll", "Facepunch.Steamworks.Win64.dll",
+            "Panuon.WPF.dll","Panuon.WPF.UI.dll","LinePutScript.dll",
             "VPet-Simulator.Core.dll","VPet-Simulator.Windows.Interface.dll","LinePutScript.Localization.WPF.dll",
             "NAudio.Asio.dll", "libSkiaSharp.dll","NAudio.Core.dll","NAudio.dll", "SkiaSharp.dll","NAudio.Midi.dll",
             "NAudio.Wasapi.dll","NAudio.WinForms.dll", "NAudio.WinMM.dll", "WpfAnimatedGif.dll"
@@ -42,14 +41,6 @@ namespace VPet_Simulator.Windows
         /// 上传至Steam的ItemID
         /// </summary>
         public ulong ItemID { get; set; } = 0;
-        /// <summary>
-        /// Steam 工坊查询返回的作者 ID，仅在当前进程中使用，不写入 MOD 文件。
-        /// </summary>
-        public long sAuthorID { get; set; }
-        /// <summary>
-        /// Steam 工坊查询返回的作品 ID，仅在当前进程中使用，不写入 MOD 文件。
-        /// </summary>
-        public long sItemID { get; set; }
         public string Intro { get; set; } = string.Empty;
         public DirectoryInfo Path { get; set; } = null!;
         public int GameVer { get; set; }
@@ -95,15 +86,13 @@ namespace VPet_Simulator.Windows
                 LoadFile(mw, fordi, pre + fordi.Name + "_");
             }
         }
-        public CoreMOD(DirectoryInfo directory, MainWindow mw, long steamItemId = 0, long steamAuthorId = 0)
+        public CoreMOD(DirectoryInfo directory, MainWindow mw)
         {
 #if !DEBUG
             try
             {
 #endif
             Path = directory;
-            sItemID = steamItemId;
-            sAuthorID = steamAuthorId;
             LpsDocument modlps = new LpsDocument(File.ReadAllText(directory.FullName + @"\info.lps"));
             Name = modlps.FindLine("vupmod")!.Info;
             NowLoading = Name;

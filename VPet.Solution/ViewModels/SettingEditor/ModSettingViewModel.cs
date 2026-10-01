@@ -100,14 +100,6 @@ public partial class ModSettingViewModel : CloseableViewModel, ISubSettingViewMo
     }
 
     [RelayCommand]
-    private static void OpenSteamCommunity(ModModel parameter)
-    {
-        NativeUtils.OpenLink(
-            "https://steamcommunity.com/sharedfiles/filedetails/?id=" + parameter.ItemID
-        );
-    }
-
-    [RelayCommand]
     private void OpenModPath(ModModel parameter)
     {
         try

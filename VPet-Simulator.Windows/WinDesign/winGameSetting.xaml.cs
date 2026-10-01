@@ -4,8 +4,6 @@ using LinePutScript.Localization.WPF;
 using NAudio.Midi;
 using NAudio.SoundFont;
 using Panuon.WPF.UI;
-using Steamworks;
-using Steamworks.Ugc;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -26,7 +24,6 @@ using System.Windows.Threading;
 using VPet_Simulator.Core;
 using VPet_Simulator.Windows.Interface;
 using static VPet_Simulator.Windows.Win32;
-using Item = Steamworks.Ugc.Item;
 
 namespace VPet_Simulator.Windows
 {
@@ -80,7 +77,6 @@ namespace VPet_Simulator.Windows
             ConsoleBox.IsChecked = mw.Set.DeBug;
 
             StartUpBox.IsChecked = mw.Set.StartUPBoot;
-            StartUpSteamBox.IsChecked = mw.Set.StartUPBootSteam;
             TextBoxPetName.Text = mw.Core.Save!.Name;
             foreach (PetLoader pl in mw.Pets)
             {
@@ -195,19 +191,7 @@ namespace VPet_Simulator.Windows
             GameVerison.Content = "游戏版本".Translate() + $"v{mw.Version} x86";
 #endif
             //关于ui
-            if (mw.IsSteamUser)
-            {
-                runUserName.Text = SteamClient.Name;
-                runActivate.Text = "已通过Steam[{0}]激活服务注册".Translate(SteamClient.SteamId.Value.ToString("x").Substring(6));
-                run_BC.Text = "前往 更好买:贡献兑换".Translate();
-                run_VV.Text = "前往 生日会投票 页面".Translate();
-            }
-            else
-            {
-                runUserName.Text = Environment.UserName;
-                runActivate.Text = "尚未激活 您可能需要启动Steam或去Steam上免费领个".Translate();
-                btn_fixdata.Visibility = Visibility.Collapsed;
-            }
+            runUserName.Text = Environment.UserName;
             //CGPT
             if (mw.TalkAPI.Count > 0)
             {
@@ -230,7 +214,7 @@ namespace VPet_Simulator.Windows
                 //    break;
                 case "DIY":
                     RBCGPTDIY.IsChecked = true;
-                    BtnCGPTReSet.Content = "打开 {0} 设置".Translate(mw.TalkBoxCurr?.APIName ?? "Steam Workshop");
+                    BtnCGPTReSet.Content = "打开 {0} 设置".Translate(mw.TalkBoxCurr?.APIName ?? "API");
                     break;
                 case "LB":
                     RBCGPTUseLB.IsChecked = true;
@@ -453,16 +437,11 @@ namespace VPet_Simulator.Windows
 
             public static ModInfo FromCoreMod(CoreMOD mod, int loadOrder)
             {
-                long authorId = mod.sAuthorID > 0 ? mod.sAuthorID : mod.AuthorID;
-                ulong itemId = mod.sItemID > 0 ? checked((ulong)mod.sItemID) : mod.ItemID;
-                return new ModInfo(mod, loadOrder, mod.Name, mod.Author, authorId, itemId, mod.Intro,
+                return new ModInfo(mod, loadOrder, mod.Name, mod.Author, mod.AuthorID, mod.ItemID, mod.Intro,
                     mod.Path, mod.GameVer, mod.Ver, new HashSet<string>(mod.Tag));
             }
 
-            public static ModInfo FromDirectory(
-                DirectoryInfo directory,
-                long workshopAuthorId = 0,
-                ulong workshopItemId = 0)
+            public static ModInfo FromDirectory(DirectoryInfo directory)
             {
                 string name = directory.Name;
                 string author = string.Empty;
@@ -497,20 +476,12 @@ namespace VPet_Simulator.Windows
                     }
                 }
 
-                if (workshopAuthorId > 0)
-                    authorID = workshopAuthorId;
-                if (workshopItemId > 0)
-                    itemID = workshopItemId;
-
                 return new ModInfo(null, int.MaxValue, name, author, authorID, itemID, intro, directory, gameVer, ver, tag);
             }
         }
 
         private readonly List<ModInfo> modInfos = new List<ModInfo>();
-        private readonly Dictionary<string, string?> workshopVerificationErrors = new(StringComparer.OrdinalIgnoreCase);
-        private readonly Dictionary<string, Task<string?>> workshopVerificationTasks = new(StringComparer.OrdinalIgnoreCase);
         private ModInfo? selectedModInfo;
-        private int workshopVerificationRequestId;
         CoreMOD? mod;
 
         private IEnumerable<DirectoryInfo> GetModDirectories()
@@ -520,39 +491,13 @@ namespace VPet_Simulator.Windows
                 foreach (var di in new DirectoryInfo(MainWindow.ModPath).EnumerateDirectories())
                     yield return di;
             }
-
-            foreach (Sub ws in mw.Set["workshop"])
-            {
-                if (Directory.Exists(ws.Name))
-                    yield return new DirectoryInfo(ws.Name);
-            }
         }
-
-        private bool isWorkshopRefreshing = false;
 
         private void RefreshModInfos()
         {
             modInfos.Clear();
             var modInfoByPath = new Dictionary<string, ModInfo>(StringComparer.OrdinalIgnoreCase);
-            var workshopIdsByPath = new Dictionary<string, (long AuthorId, ulong ItemId)>(StringComparer.OrdinalIgnoreCase);
 
-            foreach (Sub workshop in mw.Set["workshop"])
-            {
-                try
-                {
-                    string[] infos = workshop.GetInfos();
-                    if (infos.Length >= 2
-                        && ulong.TryParse(infos[0], out ulong itemId)
-                        && ulong.TryParse(infos[1], out ulong authorId))
-                    {
-                        workshopIdsByPath[new DirectoryInfo(workshop.Name).FullName] =
-                            (unchecked((long)authorId), itemId);
-                    }
-                }
-                catch
-                {
-                }
-            }
 
             for (int i = 0; i < mw.CoreMODs.Count; i++)
             {
@@ -565,11 +510,7 @@ namespace VPet_Simulator.Windows
                 if (!File.Exists(Path.Combine(di.FullName, "info.lps")))
                     continue;
                 if (!modInfoByPath.ContainsKey(di.FullName))
-                {
-                    workshopIdsByPath.TryGetValue(di.FullName, out var workshopIds);
-                    modInfoByPath[di.FullName] = ModInfo.FromDirectory(
-                        di, workshopIds.AuthorId, workshopIds.ItemId);
-                }
+                    modInfoByPath[di.FullName] = ModInfo.FromDirectory(di);
             }
 
             modInfos.AddRange(modInfoByPath.Values
@@ -635,58 +576,10 @@ namespace VPet_Simulator.Windows
                 ShowMod(modInfo);
         }
 
-        private async Task RefreshWorkshopListFromSteamAsync()
+
+        public void ShowModList()
         {
-            if (!mw.IsSteamUser)
-                return;
-
-            var workshop = new Line_D("workshop");
-            int i = 1;
-            while (true)
-            {
-                var page = await Steamworks.Ugc.Query.ItemsReadyToUse.GetPageAsync(i++);
-                if (!page.HasValue || page.Value.ResultCount == 0)
-                    break;
-
-                foreach (Steamworks.Ugc.Item entry in page.Value.Entries)
-                {
-                    if (entry.Directory != null && !entry.IsBanned)
-                    {
-                        workshop.Add(new Sub(
-                            entry.Directory,
-                            entry.Id.Value.ToString(),
-                            entry.Owner.Id.Value.ToString()));
-                    }
-                }
-            }
-
-            mw.Set["workshop"] = workshop;
-        }
-
-        public async void ShowModList()
-        {
-            if (isWorkshopRefreshing)
-                return;
-
-            var selectedPath = selectedModInfo?.Path.FullName;
-            var searchText = tb_seach_mod.Text;
-            isWorkshopRefreshing = true;
-            TabModManage.IsEnabled = false;
-            ButtonReLS.IsEnabled = false;
-            try
-            {
-                await RefreshWorkshopListFromSteamAsync();
-            }
-            catch
-            {
-            }
-            finally
-            {
-                RenderModList(selectedPath, searchText);
-                ButtonReLS.IsEnabled = true;
-                TabModManage.IsEnabled = true;
-                isWorkshopRefreshing = false;
-            }
+            RenderModList(selectedModInfo?.Path.FullName, tb_seach_mod.Text);
         }
 
         public void ShowMod(string modname)
@@ -700,7 +593,6 @@ namespace VPet_Simulator.Windows
         {
             selectedModInfo = modInfo;
             mod = modInfo.CoreMod;
-            ShowWorkshopVerification(modInfo);
 
             LabelModName.Content = modInfo.Name.Translate();
             runMODAuthor.Text = modInfo.Author;
@@ -784,48 +676,6 @@ namespace VPet_Simulator.Windows
                 ButtonEnable.IsEnabled = false;
                 ButtonDisEnable.IsEnabled = true;
             }
-            //发布steam等功能
-            if (mw.IsSteamUser && modInfo.IsLoaded)
-            {
-                if (modInfo.ItemID == 1)
-                {
-                    ButtonSteam.IsEnabled = false;
-                    ButtonPublish.Text = "系统自带".Translate();
-                    ButtonSteam.Foreground = new SolidColorBrush(Color.FromRgb(100, 100, 100));
-                }
-                else if (modInfo.ItemID == 0)
-                {
-                    ButtonSteam.IsEnabled = false;
-                    ButtonPublish.Text = "上传至Steam".Translate();
-                    ButtonSteam.Foreground = new SolidColorBrush(Color.FromRgb(100, 100, 100));
-                }
-                else
-                {
-                    ButtonSteam.IsEnabled = true;
-                    ButtonPublish.Text = "更新至Steam".Translate();
-                    ButtonSteam.Foreground = Function.ResourcesBrush(Function.BrushType.DARKPrimaryDarker);
-                }
-                bool isCurrentAuthor = modInfo.AuthorID == unchecked((long)SteamClient.SteamId.Value)
-                    || modInfo.AuthorID == SteamClient.SteamId.AccountId;
-                if (modInfo.ItemID != 1 && (isCurrentAuthor || modInfo.AuthorID == 0))
-                {
-                    ButtonPublish.IsEnabled = true;
-                    ButtonPublish.Foreground = Function.ResourcesBrush(Function.BrushType.DARKPrimaryDarker);
-                }
-                else
-                {
-                    ButtonPublish.IsEnabled = false;
-                    ButtonPublish.Foreground = new SolidColorBrush(Color.FromRgb(100, 100, 100));
-                }
-            }
-            else
-            {
-                ButtonSteam.IsEnabled = false;
-                ButtonPublish.Text = modInfo.IsLoaded ? "未登录".Translate() : "重启进行重新校验".Translate();
-                ButtonPublish.IsEnabled = false;
-                ButtonPublish.Foreground = new SolidColorBrush(Color.FromRgb(100, 100, 100));
-                ButtonSteam.Foreground = new SolidColorBrush(Color.FromRgb(100, 100, 100));
-            }
             runMODVer.Text = CoreMOD.INTtoVER(modInfo.Ver);
             GameInfo.Text = modInfo.Intro.Translate();
             string content = "";
@@ -856,86 +706,9 @@ namespace VPet_Simulator.Windows
             ButtonSetting.Visibility = Visibility.Collapsed;
         }
 
-        private bool IsWorkshopMod(DirectoryInfo directory)
-        {
-            foreach (Sub workshop in mw.Set["workshop"])
-            {
-                try
-                {
-                    if (new DirectoryInfo(workshop.Name).FullName.Equals(
-                        directory.FullName, StringComparison.OrdinalIgnoreCase))
-                        return true;
-                }
-                catch
-                {
-                }
-            }
 
-            return false;
-        }
 
-        private async void ShowWorkshopVerification(ModInfo modInfo)
-        {
-            int requestId = ++workshopVerificationRequestId;
-            WorkshopVerificationError.Visibility = Visibility.Collapsed;
-            WorkshopVerificationErrorText.Text = string.Empty;
 
-            string path = modInfo.Path.FullName;
-            string? error = await GetWorkshopVerificationErrorAsync(modInfo);
-
-            if (requestId != workshopVerificationRequestId ||
-                selectedModInfo?.Path.FullName.Equals(path, StringComparison.OrdinalIgnoreCase) != true ||
-                string.IsNullOrWhiteSpace(error))
-                return;
-
-            WorkshopVerificationErrorText.Text = error;
-            WorkshopVerificationError.Visibility = Visibility.Visible;
-        }
-
-        private async Task<string?> GetWorkshopVerificationErrorAsync(ModInfo modInfo)
-        {
-            if (!IsWorkshopMod(modInfo.Path) || !WorkshopVerificationClient.HasCodePlugin(modInfo.Path))
-                return null;
-
-            string path = modInfo.Path.FullName;
-            if (workshopVerificationErrors.TryGetValue(path, out string? cachedError))
-                return cachedError;
-
-            if (!workshopVerificationTasks.TryGetValue(path, out Task<string?>? verificationTask))
-            {
-                verificationTask = VerifyWorkshopModAsync(modInfo);
-                workshopVerificationTasks[path] = verificationTask;
-            }
-
-            try
-            {
-                string? error = await verificationTask;
-                workshopVerificationErrors[path] = error;
-                return error;
-            }
-            finally
-            {
-                if (workshopVerificationTasks.TryGetValue(path, out Task<string?>? currentTask) &&
-                    ReferenceEquals(currentTask, verificationTask))
-                    workshopVerificationTasks.Remove(path);
-            }
-        }
-
-        private async Task<string?> VerifyWorkshopModAsync(ModInfo modInfo)
-        {
-            try
-            {
-                WorkshopVerifyResponse response = await Task.Run(() =>
-                    WorkshopVerificationClient.VerifyAsync(
-                        modInfo.Path, checked((long)modInfo.ItemID), modInfo.AuthorID, mw.version));
-                string? error = WorkshopVerificationClient.GetVerificationErrorMessage(response);
-                return error == null ? null : $"{WorkshopVerificationClient.GetModDisplayName(modInfo.Path)}: {error}";
-            }
-            catch (Exception ex)
-            {
-                return $"{WorkshopVerificationClient.GetModDisplayName(modInfo.Path)}: {"无法完成创意工坊校验：{0}".Translate(ex.Message)}";
-            }
-        }
 
         private void FullScreenBox_Check(object sender, RoutedEventArgs e)
         {
@@ -1022,22 +795,11 @@ namespace VPet_Simulator.Windows
             Process.Start(psi);
         }
 
-        private async void ButtonEnable_MouseDown(object sender, MouseButtonEventArgs e)
+        private void ButtonEnable_MouseDown(object sender, MouseButtonEventArgs e)
         {
             ModInfo? modInfo = selectedModInfo;
             if (modInfo == null)
                 return;
-
-            string? verificationError = await GetWorkshopVerificationErrorAsync(modInfo);
-            if (selectedModInfo?.Path.FullName.Equals(modInfo.Path.FullName, StringComparison.OrdinalIgnoreCase) != true)
-                return;
-            if (!string.IsNullOrWhiteSpace(verificationError))
-            {
-                MessageBoxX.Show(
-                    "该 MOD 未通过创意工坊校验，无法启用：\n{0}".Translate(verificationError),
-                    "启用模组失败".Translate(), MessageBoxIcon.Warning);
-                return;
-            }
 
             mw.Set.OnMod(modInfo.Name);
             ButtonRestart.Visibility = Visibility.Visible;
@@ -1059,247 +821,16 @@ namespace VPet_Simulator.Windows
             ButtonRestart.Visibility = Visibility.Visible;
             ShowModList();
         }
-        class ProgressClass : IProgress<float>
-        {
-            float lastvalue = 0;
-            ProgressBar pb;
-            public ProgressClass(ProgressBar p) => pb = p;
-            public void Report(float value)
-            {
-                if (lastvalue >= value) return;
-                lastvalue = value;
-                pb.Dispatcher.Invoke(new Action(() => pb.Value = (int)(lastvalue * 100)));
-            }
-        }
 
-        private static string GetWorkshopUploadVerificationMessage(WorkshopUploadResponse response)
-        {
-            string message = response.Message switch
-            {
-                "NonAuthorMessage" => "该创意工坊作品已绑定其他作者，不能覆盖上传".Translate(),
-                "LowPlayTimeForCodePluginMessage" => "Steam 游戏时长不足，暂不能上传包含代码的 MOD".Translate(),
-                "Illegal calls" => "Steam 身份验证失败，请稍后重试".Translate(),
-                "Steam Server Down" => "Steam 验证服务暂时不可用，请稍后重试".Translate(),
-                "Steam Not purchased" => "当前 Steam 账号未通过游戏拥有验证".Translate(),
-                "Outdated Appid" => "当前游戏版本过旧，无法完成上传验证".Translate(),
-                _ => string.IsNullOrWhiteSpace(response.Message)
-                    ? "上传验证未通过".Translate()
-                    : response.Message.Translate()
-            };
 
-            if (response.Conflicts == null || response.Conflicts.Count == 0)
-                return message;
 
-            string conflicts = string.Join("\n", response.Conflicts.Select(x =>
-                $"{x.Type}: {x.Value} (Workshop {x.WorkshopId})"));
-            return $"{message}\n{conflicts}";
-        }
 
-        private static async Task DeleteWorkshopDraftAsync(CoreMOD mods, ulong draftItemId, long originalAuthorId)
-        {
-            try
-            {
-                if (!await SteamUGC.DeleteFileAsync(draftItemId) || mods.ItemID != draftItemId)
-                    return;
 
-                mods.ItemID = 0;
-                mods.AuthorID = originalAuthorId;
-                mods.WriteFile();
-            }
-            catch (Exception ex)
-            {
-                // 草稿清理不应打断上传流程或向用户显示额外提示；保留 ID 以便下次复用。
-                Debug.WriteLine($"Failed to delete workshop draft {draftItemId}: {ex}");
-            }
-        }
-
-        private async void ButtonPublish_MouseDown(object sender, MouseButtonEventArgs e)
-        {
-            var mods = mod;
-            if (mods == null)
-                return;
-            if (!mw.IsSteamUser)
-            {
-                MessageBoxX.Show("请先登录Steam后才能上传文件".Translate(), "上传MOD需要Steam登录".Translate(), MessageBoxIcon.Warning);
-                return;
-            }
-            if (CoreMOD.OnModDefList.Contains(mods.Name))
-            {
-                MessageBoxX.Show("模组 Core 为<虚拟桌宠模拟器>核心文件,无法发布\n如需发布自定义内容,请复制并更改名称".Translate(), "MOD上传失败".Translate(), MessageBoxIcon.Error);
-                return;
-            }
-            if (mods.Path.FullName.Contains("workshop"))
-            {
-                MessageBoxX.Show("创意工坊物品无法进行上传,请移动到mod文件夹后重试".Translate(), "MOD上传失败".Translate(), MessageBoxIcon.Error);
-                return;
-            }
-            if (!File.Exists(mods.Path.FullName + @"\icon.png") || new FileInfo(mods.Path.FullName + @"\icon.png").Length > 524288)
-            {
-                MessageBoxX.Show("封面图片(icon.png)大于500kb,请修改后重试".Translate(), "MOD上传失败".Translate(), MessageBoxIcon.Error);
-                return;
-            }
-            mods.GameVer = mw.version;
-#if DEMO
-            MessageBoxX.Show("经测试,除正式版均无创意工坊权限,此功能仅作为展示", "特殊版无法上传创意工坊");
-#endif
-
-            uint currentAuthorId = SteamClient.SteamId.AccountId;
-            if (mods.ItemID != 0 && mods.AuthorID != currentAuthorId)
-            {
-                MessageBoxX.Show("该 MOD 记录的作者与当前 Steam 账号不一致，无法更新".Translate(),
-                    "MOD上传失败".Translate(), MessageBoxIcon.Error);
-                return;
-            }
-
-            ButtonPublish.IsEnabled = false;
-            ButtonPublish.Text = "正在验证".Translate();
-            ProgressBarUpload.Visibility = Visibility.Visible;
-            ProgressBarUpload.Value = 0;
-            bool createdPrivateDraft = false;
-            bool publishSubmissionStarted = false;
-            long originalAuthorId = mods.AuthorID;
-
-            try
-            {
-                mods.AuthorID = currentAuthorId;
-                mods.WriteFile();
-
-                if (mods.ItemID == 0)
-                {
-                    // Steam 只有创建物品后才会分配 workshopId。先创建不可见草稿，
-                    // 完成服务端身份/名称绑定后再公开提交实际内容。
-                    ButtonPublish.Text = "正在准备上传".Translate();
-                    var draft = Editor.NewCommunityFile
-                        .WithTitle(mods.Name)
-                        .WithDescription(mods.Intro)
-                        .WithPrivateVisibility()
-                        .WithPreviewFile(mods.Path.FullName + @"\icon.png")
-                        .WithContent(mods.Path.FullName);
-                    foreach (string tag in mods.Tag)
-                        draft = draft.WithTag(tag);
-
-                    var draftResult = await draft.SubmitAsync(new ProgressClass(ProgressBarUpload));
-                    if (!draftResult.Success)
-                    {
-                        mods.AuthorID = originalAuthorId;
-                        mods.WriteFile();
-                        MessageBoxX.Show("{0} 准备WorkShop上传失败\n请检查网络后重试\n失败原因:{1}"
-                            .Translate(mods.Name, draftResult.Result), "MOD上传失败 {0}".Translate(draftResult.Result));
-                        return;
-                    }
-
-                    mods.ItemID = draftResult.FileId.Value;
-                    mods.WriteFile();
-                    createdPrivateDraft = true;
-                }
-
-                ButtonPublish.Text = "正在验证".Translate();
-                int checkKey = await mw.GenerateAuthKey();
-                WorkshopUploadResponse verification = await WorkshopVerificationClient.RegisterUploadAsync(
-                    mods.Path,
-                    mods.ItemID,
-                    SteamClient.SteamId.Value,
-                    checkKey,
-                    mw.version);
-
-                if (!verification.Ok || !verification.CanUpload)
-                {
-                    if (createdPrivateDraft)
-                        await DeleteWorkshopDraftAsync(mods, mods.ItemID, originalAuthorId);
-                    MessageBoxX.Show(GetWorkshopUploadVerificationMessage(verification),
-                        "MOD上传验证失败".Translate(), MessageBoxIcon.Warning);
-                    return;
-                }
-
-                ButtonPublish.Text = "正在上传".Translate();
-                ProgressBarUpload.Value = 0;
-                var item = await Item.GetAsync(mods.ItemID);
-                Editor result;
-                if (item == null || createdPrivateDraft)
-                {
-                    result = new Editor(new Steamworks.Data.PublishedFileId() { Value = mods.ItemID })
-                        .WithTitle(mods.Name)
-                        .WithDescription(mods.Intro)
-                        .WithPublicVisibility()
-                        .WithPreviewFile(mods.Path.FullName + @"\icon.png")
-                        .WithContent(mods.Path);
-                }
-                else
-                {
-                    result = new Editor(new Steamworks.Data.PublishedFileId() { Value = mods.ItemID })
-                        .WithTitle(item.Value.Title)
-                        .WithDescription(item.Value.Description)
-                        .WithPublicVisibility()
-                        .WithPreviewFile(mods.Path.FullName + @"\icon.png")
-                        .WithContent(mods.Path);
-                }
-
-                foreach (string tag in mods.Tag)
-                    result = result.WithTag(tag);
-                publishSubmissionStarted = true;
-                var r = await result.SubmitAsync(new ProgressClass(ProgressBarUpload));
-                publishSubmissionStarted = false;
-                if (r.Success)
-                {
-                    bool isNewUpload = createdPrivateDraft;
-                    createdPrivateDraft = false;
-                    mods.AuthorID = currentAuthorId;
-                    mods.ItemID = r.FileId.Value;
-                    mods.WriteFile();
-                    string title = isNewUpload ? "MOD上传成功".Translate() : "MOD更新成功".Translate();
-                    string prompt = isNewUpload
-                        ? "{0} 成功上传至WorkShop服务器\n是否跳转至创意工坊页面进行编辑详细介绍和图标?".Translate(mods.Name)
-                        : "{0} 成功上传至WorkShop服务器\n是否跳转至创意工坊页面进行编辑新内容?".Translate(mods.Name);
-                    if (MessageBoxX.Show(prompt, title, MessageBoxButton.YesNo, MessageBoxIcon.Success) == MessageBoxResult.Yes)
-                        ExtensionFunction.StartURL("https://steamcommunity.com/sharedfiles/filedetails/?id=" + r.FileId);
-                }
-                else
-                {
-                    if (createdPrivateDraft)
-                        await DeleteWorkshopDraftAsync(mods, mods.ItemID, originalAuthorId);
-                    MessageBoxX.Show("{0} 上传至WorkShop服务器失败\n请检查网络后重试\n请注意:上传和下载工坊物品可能需要良好的网络条件\n失败原因:{1}"
-                        .Translate(mods.Name, r.Result), "MOD上传失败 {0}".Translate(r.Result));
-                }
-            }
-            catch (Exception ex)
-            {
-                // 若公开提交已发出但结果不明，保留物品 ID，避免误删已上传的作品。
-                if (createdPrivateDraft && !publishSubmissionStarted)
-                    await DeleteWorkshopDraftAsync(mods, mods.ItemID, originalAuthorId);
-                MessageBoxX.Show("无法连接创意工坊验证服务，已取消上传。\n{0}"
-                    .Translate(ex.Message), "MOD上传验证失败".Translate(), MessageBoxIcon.Error);
-            }
-            finally
-            {
-                ButtonPublish.IsEnabled = true;
-                ButtonPublish.Text = "任务完成".Translate();
-                ProgressBarUpload.Visibility = Visibility.Collapsed;
-            }
-        }
-
-        private void ButtonSteam_MouseDown(object sender, MouseButtonEventArgs e)
-        {
-            if (!AllowChange || selectedModInfo == null)
-                return;
-            ExtensionFunction.StartURL("https://steamcommunity.com/sharedfiles/filedetails/?id=" + selectedModInfo.ItemID);
-        }
-
-        private async void ButtonAllow_Click(object sender, RoutedEventArgs e)
+        private void ButtonAllow_Click(object sender, RoutedEventArgs e)
         {
             ModInfo? modInfo = selectedModInfo;
             if (modInfo == null)
                 return;
-
-            string? verificationError = await GetWorkshopVerificationErrorAsync(modInfo);
-            if (selectedModInfo?.Path.FullName.Equals(modInfo.Path.FullName, StringComparison.OrdinalIgnoreCase) != true)
-                return;
-            if (!string.IsNullOrWhiteSpace(verificationError))
-            {
-                MessageBoxX.Show(
-                    "该 MOD 未通过创意工坊校验，无法启用代码插件：\n{0}".Translate(verificationError),
-                    "启用代码插件失败".Translate(), MessageBoxIcon.Warning);
-                return;
-            }
 
             if (MessageBoxX.Show("是否启用 {0} 的代码插件?\n一经启用,该插件将会允许访问该系统(包括外部系统)的所有数据\n如果您不确定,请先使用杀毒软件查杀检查".Translate(modInfo.Name),
                 "启用 {0} 的代码插件?".Translate(modInfo.Name), MessageBoxButton.YesNo, MessageBoxIcon.Warning) == MessageBoxResult.Yes)
@@ -1436,10 +967,6 @@ namespace VPet_Simulator.Windows
             ExtensionFunction.StartURL("https://github.com/LorisYounger/VPet/graphs/contributors");
         }
 
-        private void Steam_Click(object sender, RoutedEventArgs e)
-        {
-            ExtensionFunction.StartURL("https://store.steampowered.com/app/1920960/_/");
-        }
 
         private void Github_Click(object sender, RoutedEventArgs e)
         {
@@ -1517,13 +1044,7 @@ namespace VPet_Simulator.Windows
                 if (File.Exists(path))
                     File.Delete(path);
                 var link = (IShellLink)new ShellLink();
-                if (mw.Set.StartUPBootSteam)
-                {
-                    link.SetPath(ExtensionValue.BaseDirectory + @"\VPet.Solution.exe");
-                    link.SetArguments("launchsteam");
-                }
-                else
-                    link.SetPath(System.Reflection.Assembly.GetExecutingAssembly().Location.Replace(".dll", ".exe"));
+                link.SetPath(System.Reflection.Assembly.GetExecutingAssembly().Location.Replace(".dll", ".exe"));
 
                 link.SetDescription("VPet Simulator");
                 link.SetIconLocation(ExtensionValue.BaseDirectory + @"vpeticon.ico", 0);
@@ -1565,13 +1086,6 @@ namespace VPet_Simulator.Windows
             GenStartUP();
         }
 
-        private void StartUpSteamBox_Checked(object sender, RoutedEventArgs e)
-        {
-            if (!AllowChange)
-                return;
-            mw.Set.StartUPBootSteam = StartUpSteamBox.IsChecked == true;
-            GenStartUP();
-        }
         private int petboxbef;
         private void petbox_back()
         {
@@ -1652,8 +1166,6 @@ namespace VPet_Simulator.Windows
             {
                 mw.Core.Save!.Name = mw.Pets[petboxbef].PetName.Translate();
                 TextBoxPetName.Text = mw.Core.Save!.Name;
-                if (mw.IsSteamUser)
-                    SteamFriends.SetRichPresence("username", mw.Core.Save!.Name);
             }
         }
 
@@ -1662,8 +1174,6 @@ namespace VPet_Simulator.Windows
             if (!AllowChange)
                 return;
             mw.Core.Save!.Name = TextBoxPetName.Text;
-            if (mw.IsSteamUser)
-                SteamFriends.SetRichPresence("username", mw.Core.Save!.Name);
         }
 
         private void DIY_ADD_Click(object sender, RoutedEventArgs e)
@@ -1690,10 +1200,7 @@ namespace VPet_Simulator.Windows
                 //    new winCGPTSetting(mf).ShowDialog();
                 //    break;
                 case "DIY":
-                    if (mw.TalkBoxCurr != null)
-                        mw.TalkBoxCurr.Setting();
-                    else
-                        ExtensionFunction.StartURL("https://steamcommunity.com/app/1920960/workshop/");
+                    mw.TalkBoxCurr?.Setting();
                     break;
                 case "LB":
                     //Task.Run(() =>
@@ -1747,7 +1254,7 @@ namespace VPet_Simulator.Windows
                 case "DIY":
                     BtnCGPTReSet.IsEnabled = true;
                     mw.RemoveTalkBox();
-                    BtnCGPTReSet.Content = "打开 {0} 设置".Translate(mw.TalkBoxCurr?.APIName ?? "Steam Workshop");
+                    BtnCGPTReSet.Content = "打开 {0} 设置".Translate(mw.TalkBoxCurr?.APIName ?? "API");
                     mw.LoadTalkDIY();
                     break;
                 case "LB":
@@ -2036,7 +1543,7 @@ namespace VPet_Simulator.Windows
             mw.Set["CGPT"][(gstr)"DIY"] = mw.TalkBoxCurr?.APIName ?? "";
             if (RBCGPTDIY.IsChecked == true)
                 mw.LoadTalkDIY();
-            BtnCGPTReSet.Content = "打开 {0} 设置".Translate(mw.TalkBoxCurr?.APIName ?? "Steam Workshop");
+            BtnCGPTReSet.Content = "打开 {0} 设置".Translate(mw.TalkBoxCurr?.APIName ?? "API");
 
         }
 
@@ -2117,95 +1624,6 @@ namespace VPet_Simulator.Windows
             MessageBoxX.Show("已将当前选择 {0} 设为默认启动存档".Translate(str.Translate()));
         }
 
-        private void btn_fixdata_Click(object sender, RoutedEventArgs e)
-        {
-            //先拿玩家游戏时间
-            int playtime;
-            try
-            {
-                string _url = "https://aiopen.exlb.net/VPet/GetPlayTime?steamid=" + SteamClient.SteamId.Value;
-#pragma warning disable SYSLIB0014 // 类型或成员已过时
-                var request = (HttpWebRequest)WebRequest.Create(_url);
-#pragma warning restore SYSLIB0014 // 类型或成员已过时
-                request.Method = "GET";
-                string responseString;
-                using (var response = (HttpWebResponse)request.GetResponse())
-                {
-                    responseString = new StreamReader(response.GetResponseStream(), Encoding.UTF8).ReadToEnd();
-                    response.Dispose();
-                }
-                playtime = int.Parse(responseString);
-            }
-            catch
-            {
-                MessageBoxX.Show("获取玩家游戏时间失败,请检查网络连接或稍后再试".Translate());
-                return;
-            }
-            if (playtime == 0) return;
-            if (mw.GameSavesData.HashCheck)
-            {//对于
-                int hours = mw.GameSavesData.Statistics![(gint)"stat_total_time"] / 60;
-                if (hours < playtime)
-                {
-                    mw.GameSavesData.Statistics[(gint)"stat_total_time"] = playtime * 60;
-                    MessageBoxX.Show("陪伴时长已更新".Translate() + $"\n{hours}Min->{playtime}Min", "修复成功".Translate());
-                }
-                else
-                    MessageBoxX.Show("当前游戏时间已经大于Steam服务器记录时间,无需修复".Translate());
-                if (mw.GameSavesData.GameSave.LikabilityMax < 100 + playtime)
-                    mw.GameSavesData.GameSave.LikabilityMax = 100 + playtime;
-            }
-            else
-            {
-                GameSave_v2 ogs = mw.GameSavesData;
-                mw.GameSavesData = new GameSave_v2(ogs.GameSave.Name);
-                mw.GameSavesData.Statistics[(gint)"stat_time"] = ogs.Statistics![(gint)"stat_time"];
-                mw.GameSavesData.Statistics[(gint)"stat_autobuy"] = ogs.Statistics![(gint)"stat_autobuy"];
-                mw.GameSavesData.Statistics[(gint)"autofeel"] = ogs.Statistics![(gint)"autofeel"];
-                mw.GameSavesData.Statistics[(gint)"stat_autogift"] = ogs.Statistics![(gint)"stat_autogift"];
-                mw.GameSavesData.Statistics[(gint)"stat_buytimes"] = ogs.Statistics![(gint)"stat_buytimes"];
-                mw.GameSavesData.Statistics[(gint)"stat_bb_food"] = ogs.Statistics![(gint)"stat_bb_food"];
-                mw.GameSavesData.Statistics[(gint)"stat_bb_drink"] = ogs.Statistics![(gint)"stat_bb_drink"];
-                mw.GameSavesData.Statistics[(gint)"stat_bb_drug"] = ogs.Statistics![(gint)"stat_bb_drug"];
-                mw.GameSavesData.Statistics[(gint)"stat_bb_drug_exp"] = ogs.Statistics![(gint)"stat_bb_drug_exp"];
-                mw.GameSavesData.Statistics[(gint)"stat_bb_snack"] = ogs.Statistics![(gint)"stat_bb_snack"];
-                mw.GameSavesData.Statistics[(gint)"stat_bb_functional"] = ogs.Statistics![(gint)"stat_bb_functional"];
-                mw.GameSavesData.Statistics[(gint)"stat_bb_meal"] = ogs.Statistics![(gint)"stat_bb_meal"];
-                mw.GameSavesData.Statistics[(gint)"stat_bb_gift"] = ogs.Statistics![(gint)"stat_bb_gift"];
-                mw.GameSavesData.Statistics[(gint)"stat_work_time"] = ogs.Statistics![(gint)"stat_work_time"];
-                mw.GameSavesData.Statistics[(gint)"stat_study_time"] = ogs.Statistics![(gint)"stat_study_time"];
-                mw.GameSavesData.Statistics[(gint)"stat_sleep_time"] = ogs.Statistics![(gint)"stat_sleep_time"];
-                mw.GameSavesData.Statistics[(gint)"stat_betterbuy"] = ogs.Statistics![(gint)"stat_betterbuy"];
-
-                mw.GameSavesData.Statistics[(gint)"stat_total_time"] = playtime * 60;
-                mw.GameSavesData.GameSave.Event_LevelUp += mw.LevelUP;
-
-                //同步等级
-                //按2小时=1级进行计算
-                int newlevel = playtime / 120;
-                int newmaxlevel = 0;
-                if (newlevel > 0)
-                {
-                    while (newlevel > (newmaxlevel * 100 + 1000))
-                    {
-                        newlevel -= (newmaxlevel * 100 + 1000);
-                        newmaxlevel++;
-                    }
-                    mw.GameSavesData.GameSave.LevelMax = Math.Min(newmaxlevel, ogs.GameSave.LevelMax);
-                    mw.GameSavesData.GameSave.Level = Math.Min(newlevel + (ogs.GameSave.LevelMax - newmaxlevel) * 500, ogs.GameSave.Level);
-                }
-                //同步金钱
-                //根据当前等级计算金钱
-                int newmoney = (200 * mw.GameSavesData.GameSave.Level - 100) * mw.GameSavesData.GameSave.LevelMax + 1;
-                mw.GameSavesData.GameSave.Money = Math.Min(newmoney, ogs.GameSave.Money);
-                //好感度最大值(1h=+1)
-                mw.GameSavesData.GameSave.LikabilityMax += playtime;
-                //同步好感度
-                mw.GameSavesData.GameSave.Likability = ogs.GameSave.Likability;
-
-                MessageBoxX.Show("数据修复成功".Translate());
-            }
-        }
 
         private void ConsoleBox_Checked(object sender, RoutedEventArgs e)
         {
@@ -2275,19 +1693,10 @@ namespace VPet_Simulator.Windows
             UpdateMoveAreaText();
         }
 
-        private void BC_Click(object sender, RoutedEventArgs e)
-        {
-            Task.Run(() => ExtensionFunction.StartURL($"https://bettercontribution.exlb.net/shop#steamid={mw.SteamID}&checkkey={mw.GenerateAuthKey().Result}&lang={LocalizeCore.CurrentCulture}"));
-        }
 
-        private void VV_Click(object sender, RoutedEventArgs e)
-        {
-            Task.Run(() => ExtensionFunction.StartURL($"https://vpetvote.exlb.net/#steamid={mw.SteamID}&checkkey={mw.GenerateAuthKey().Result}&lang={LocalizeCore.CurrentCulture}"));
-        }
 
         private void ButtonReLS_Click(object sender, RoutedEventArgs e)
         {
-            workshopVerificationErrors.Clear();
             ShowModList();
         }
 

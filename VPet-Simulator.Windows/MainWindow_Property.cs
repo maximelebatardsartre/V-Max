@@ -1,6 +1,5 @@
 ﻿using LinePutScript.Dictionary;
 using LinePutScript.Localization.WPF;
-using Steamworks;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -27,13 +26,13 @@ public partial class MainWindow
     /// </summary>
     public string Version => $"{version / 10000}.{version % 10000 / 100}.{version % 100:00}";
     /// <summary>
-    /// SteamID
+    /// V-Max: Steam retiré. Conservé pour compatibilité des plugins (toujours 0).
     /// </summary>
-    public ulong SteamID => IsSteamUser ? SteamClient.SteamId.Value : 0;
+    public ulong SteamID => 0;
     /// <summary>
-    /// SteamIDAccountId
+    /// V-Max: Steam retiré. Conservé pour compatibilité des plugins (toujours 0).
     /// </summary>
-    public uint SteamAuthorID => IsSteamUser ? SteamClient.SteamId.AccountId : 0;
+    public uint SteamAuthorID => 0;
     public List<LowText> LowFoodText { get; set; } = new List<LowText>();
 
     public List<LowText> LowDrinkText { get; set; } = new List<LowText>();
@@ -50,7 +49,10 @@ public partial class MainWindow
     public GameSave_v2 GameSavesData { get; set; } = new GameSave_v2("VPET");
 
     public static readonly string ModPath = ExtensionValue.BaseDirectory + @"\mod";
-    public bool IsSteamUser { get; }
+    /// <summary>
+    /// V-Max: Steam retiré. Conservé pour compatibilité des plugins (toujours false).
+    /// </summary>
+    public bool IsSteamUser => false;
     public LPS_D Args { get; }
     public string PrefixSave { get; } = "";
     private string? prefixsavetrans = null;

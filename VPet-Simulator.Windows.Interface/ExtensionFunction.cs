@@ -245,7 +245,19 @@ namespace VPet_Simulator.Windows.Interface
         /// </summary>
         public static string BaseDirectory = new FileInfo(System.Reflection.Assembly.GetExecutingAssembly().Location).DirectoryName!;
         /// <summary>
-        /// 获取MOD存储目录 (会自动创建/Steam云同步)
+        /// Dépôt GitHub de V-Max
+        /// </summary>
+        public const string RepositoryURL = "https://github.com/maximelebatardsartre/V-Max";
+        /// <summary>
+        /// Page de création d'un ticket (rapport de bug / suggestion)
+        /// </summary>
+        public const string IssueURL = RepositoryURL + "/issues/new";
+        /// <summary>
+        /// Projet d'origine (VPet) — lien d'attribution obligatoire pour les animations
+        /// </summary>
+        public const string UpstreamURL = "https://github.com/LorisYounger/VPet";
+        /// <summary>
+        /// 获取MOD存储目录 (会自动创建)
         /// 但是还是建议以LPS形式存在Setting/Save里 不保证完整可靠性(可能会因为切换电脑等导致数据丢失)
         /// </summary>
         /// <param name="modName">MOD名字</param>
@@ -283,13 +295,6 @@ namespace VPet_Simulator.Windows.Interface
                 ["NAudio.WinForms"] = "License: MIT | Copyright © Mark Heath",
                 ["NAudio.WinMM"] = "License: MIT | Copyright © Mark Heath",
                 ["NAudio.SoundFont"] = "License: MIT | Copyright © Mark Heath",
-
-                ["Steamworks"] = "License: MIT | Copyright © Facepunch Studios LTD",
-                ["Steamworks.Ugc"] = "License: MIT | Copyright © Facepunch Studios LTD",
-                ["Facepunch.Steamworks.Win32"] = "License: MIT | Copyright © Facepunch Studios LTD",
-                ["Facepunch.Steamworks.Win64"] = "License: MIT | Copyright © Facepunch Studios LTD",
-                ["steam_api"] = "License: Proprietary | Copyright © Valve Corporation",
-                ["steam_api64"] = "License: Proprietary | Copyright © Valve Corporation",
 
                 ["Panuon.WPF"] = "License: Apache-2.0 | Copyright © Panuon",
                 ["Panuon.WPF.UI"] = "License: Apache-2.0 | Copyright © Panuon",

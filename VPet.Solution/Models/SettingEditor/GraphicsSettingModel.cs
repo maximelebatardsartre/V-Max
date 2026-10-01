@@ -95,10 +95,6 @@ public partial class GraphicsSettingModel : ObservableObjectEx, ISubSettingModel
     [ObservableProperty]
     public bool StartUPBoot { get; set; }
 
-    /// <inheritdoc cref="Setting.StartUPBootSteam"/>
-    [ObservableProperty]
-    public bool StartUPBootSteam { get; set; }
-
     /// <inheritdoc cref="Setting.StartRecordLast"/>
     [ObservableProperty]
     [DefaultValue(true)]

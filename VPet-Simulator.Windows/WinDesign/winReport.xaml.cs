@@ -10,6 +10,7 @@ using System.Timers;
 using System.Web;
 using System.Windows;
 using VPet_Simulator.Core;
+using VPet_Simulator.Windows.Interface;
 
 namespace VPet_Simulator.Windows
 {
@@ -36,12 +37,6 @@ namespace VPet_Simulator.Windows
                 tContent.IsReadOnly = true;
             }
 
-            if (!mw.IsSteamUser)
-            {
-                MessageBoxX.Show("您不是Steam用户，无法使用反馈中心\n欢迎加入虚拟主播模拟器群430081239反馈问题".Translate(),
-                    "非Steam用户无法使用反馈中心".Translate(), MessageBoxButton.OK, MessageBoxIcon.Info);
-                btn_Report.IsEnabled = false;
-            }
         }
 
         private void Timer_Elapsed(object sender, ElapsedEventArgs e)
@@ -64,77 +59,40 @@ namespace VPet_Simulator.Windows
                 MessageBoxX.Show("问题详细描述是反馈具体问题\n例如如何触发这个报错,游戏有什么地方不合理等".Translate(), "请填写问题描述".Translate());
                 return;
             }
-            if (!mw.IsSteamUser)
-            {
-                MessageBoxX.Show("您不是Steam用户，无法使用反馈中心\n欢迎加入虚拟主播模拟器群430081239反馈问题".Translate(), "非Steam用户无法使用反馈中心".Translate(), MessageBoxButton.OK, MessageBoxIcon.Info);
-                return;//不遥测非Steam用户
-            }
-            MainGrid.IsEnabled = false;
-            pgload.Value = 0;
-            gridLoading.Visibility = Visibility.Visible;
-
-#if DEBUG
-            string _url = "http://localhost:5079/VPET/Report";
-#else
-                string _url = "https://report.exlb.net/VPET/Report";
-#endif
-            //参数
+            // V-Max : le rapport n'est plus envoyé au serveur d'origine de VPet.
+            // On prépare le texte, on le copie dans le presse-papiers et on ouvre un ticket GitHub.
             StringBuilder sb = new StringBuilder();
-            sb.Append("action=error");
-            sb.Append("&type=" + HttpUtility.UrlEncode(tType.Text));
-            sb.Append("&description=" + HttpUtility.UrlEncode(tDescription.Text));
-            sb.Append("&content=" + HttpUtility.UrlEncode(tContent.Text));
-            sb.Append("&contact=" + HttpUtility.UrlEncode(tContact.Text));
-            sb.Append($"&steamid={Steamworks.SteamClient.SteamId.Value}");
-            sb.Append($"&ver={mw.version}&repver=3&lang={LocalizeCore.CurrentCulture}");
-            sb.Append("&save=");
-            sb.Append(HttpUtility.UrlEncode(save));
-
-            Task.Run(async () =>
+            sb.AppendLine("**Type :** " + tType.Text);
+            sb.AppendLine("**Version :** " + mw.Version + " (" + LocalizeCore.CurrentCulture + ")");
+            if (!string.IsNullOrWhiteSpace(tContact.Text))
+                sb.AppendLine("**Contact :** " + tContact.Text);
+            sb.AppendLine();
+            sb.AppendLine(tDescription.Text);
+            sb.AppendLine();
+            sb.AppendLine("```");
+            sb.AppendLine(tContent.Text);
+            sb.AppendLine("```");
+            if (tUpload.IsChecked == true)
             {
-                try
-                {
-                    ShowTimeLoading();
-                    using System.Net.Http.HttpClient client = new System.Net.Http.HttpClient();
-                    client.Timeout = TimeSpan.FromSeconds(120);
-                    byte[] byteData = Encoding.UTF8.GetBytes(sb.ToString());
-                    using System.Net.Http.ByteArrayContent content = new System.Net.Http.ByteArrayContent(byteData);
-                    content.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("application/x-www-form-urlencoded");
-                    System.Net.Http.HttpResponseMessage httpResponse = await client.PostAsync(_url, content);
-                    string responseString = await httpResponse.Content.ReadAsStringAsync();
-
-                    Dispatcher.Invoke(() =>
-                    {
-                        gridLoading.Visibility = Visibility.Collapsed;
-                        if (responseString == "Report Error Success")
-                        {
-                            MessageBoxX.Show("您的反馈已提交成功,感谢您的反馈与提交\nVOS将会尽快处理您的反馈并做的更好".Translate(), "感谢您的反馈和提交".Translate());
-                            Close();
-                        }
-                        else if (responseString == "IP times Max")
-                        {
-                            mw.Set.DiagnosisDayEnable = false;
-                            MessageBoxX.Show("您今天的反馈次数已达上限,请明天再来反馈.\n或欢迎加入虚拟主播模拟器群430081239反馈问题".Translate(), "您今天的反馈次数已达上限".Translate(), MessageBoxButton.OK, MessageBoxIcon.Error);
-                        }
-                        else if (responseString.StartsWith("ReportMessage:"))
-                        {
-                            MessageBoxX.Show(responseString.Substring(14), "感谢您的反馈和提交".Translate());
-                            Close();
-                        }
-                        else
-                        {
-                            MessageBoxX.Show("反馈上传失败\n欢迎加入虚拟主播模拟器群430081239手动反馈问题\n服务器消息:".Translate() + responseString, "反馈提交失败,遇到错误".Translate(), MessageBoxButton.OK, MessageBoxIcon.Error);
-                        }
-                        MainGrid.IsEnabled = true;
-                    });
-                }
-                catch (Exception exp)
-                {
-                    Dispatcher.Invoke(() => MessageBoxX.Show("反馈上传失败,可能是网络或其他问题导致无法上传\n欢迎加入虚拟主播模拟器群430081239手动反馈问题\n".Translate() + exp.ToString(), "反馈提交失败,遇到错误".Translate(), MessageBoxButton.OK, MessageBoxIcon.Error));
-                }
-                Dispatcher.Invoke(() => MainGrid.IsEnabled = true);
-            });
-
+                sb.AppendLine("<details><summary>Sauvegarde et paramètres</summary>");
+                sb.AppendLine();
+                sb.AppendLine("```");
+                sb.AppendLine(save);
+                sb.AppendLine("```");
+                sb.AppendLine("</details>");
+            }
+            try
+            {
+                Clipboard.SetText(sb.ToString());
+            }
+            catch
+            {
+            }
+            string title = HttpUtility.UrlEncode("[" + tType.Text + "] " + (tDescription.Text.Split('\n')[0].Trim() is { Length: > 0 } t ? t[..System.Math.Min(t.Length, 80)] : "Rapport"));
+            ExtensionFunction.StartURL(ExtensionValue.IssueURL + "?title=" + title);
+            MessageBoxX.Show("Le rapport a été copié dans le presse-papiers.\nCollez-le dans le ticket GitHub qui vient de s'ouvrir.".Translate(),
+                "Rapport prêt".Translate());
+            Close();
         }
         public void ShowTimeLoading()
         {

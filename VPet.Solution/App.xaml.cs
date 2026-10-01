@@ -37,17 +37,6 @@ public partial class App : Application
                     File.Delete(path);
                 }
                 break;
-            case "launchsteam":
-                var psi = new ProcessStartInfo
-                {
-                    FileName = "cmd",
-                    WindowStyle = ProcessWindowStyle.Hidden,
-                    UseShellExecute = false,
-                    RedirectStandardOutput = true,
-                    Arguments = "/c start steam://rungameid/1920960",
-                };
-                Process.Start(psi);
-                break;
         }
         Application.Current.Shutdown();
     }

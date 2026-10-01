@@ -1,7 +1,6 @@
 ﻿using LinePutScript;
 using LinePutScript.Localization.WPF;
 using Panuon.WPF.UI;
-using Steamworks;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -41,22 +40,19 @@ namespace VPet_Simulator.Windows
             public enum SourceType
             {
                 Local,
-                Backup,
-                Steam
+                Backup
             }
             public SourceType Source { get; init; }
             public string SourceText => Source switch
             {
                 SourceType.Local => "本地".Translate(),
                 SourceType.Backup => "备份".Translate(),
-                SourceType.Steam => "Steam云".Translate(),
                 _ => string.Empty
             };
             public string SourceToolTip => Source switch
             {
-                SourceType.Local => "本地存档, 会被Steam自动同步".Translate(),
-                SourceType.Backup => "本地备份文件, 不会被steam云存档同步".Translate(),
-                SourceType.Steam => "Steam云备份存档, 跟随Steam账号保存".Translate(),
+                SourceType.Local => "Sauvegarde locale".Translate(),
+                SourceType.Backup => "Fichier de sauvegarde de secours local".Translate(),
                 _ => string.Empty
             };
             public string SaveId { get; init; } = string.Empty;
@@ -66,7 +62,6 @@ namespace VPet_Simulator.Windows
             public string LevelText { get; init; } = string.Empty;
             public string MoneyText { get; init; } = string.Empty;
             public string FullPath { get; init; } = string.Empty;
-            public string SteamPath { get; init; } = string.Empty;
             public bool HashCheck { get; init; }
             public string HashCheckText => HashCheck ? "Pass" : "Fail";
         }
@@ -75,11 +70,6 @@ namespace VPet_Simulator.Windows
         {
             var list = new List<SaveEntry>();
             foreach (var item in GetLocalSaveEntries())
-            {
-                list.Add(item);
-            }
-
-            foreach (var item in GetSteamSaveEntries())
             {
                 list.Add(item);
             }
@@ -102,9 +92,6 @@ namespace VPet_Simulator.Windows
                         break;
                     case "localbackup":
                         filtered = filtered.Where(x => x.Source == SaveEntry.SourceType.Backup);
-                        break;
-                    case "steam":
-                        filtered = filtered.Where(x => x.Source == SaveEntry.SourceType.Steam);
                         break;
                 }
             }
@@ -181,112 +168,18 @@ namespace VPet_Simulator.Windows
             return entries;
         }
 
-        private IEnumerable<SaveEntry> GetSteamSaveEntries()
-        {
-            var entries = new List<SaveEntry>();
-            if (!mw.IsSteamUser)
-                return entries;
-
-            var steamFiles = SteamRemoteStorage.Files.ToList();
-            steamFiles = steamFiles
-                .Where(x =>
-                    (x.StartsWith($"VPetCloud/Save{mw.PrefixSave}_"))
-                    && x.EndsWith(".lps"))
-                .ToList();
-
-            foreach (var file in steamFiles)
-            {
-                string lpsText;
-                try
-                {
-                    var data = SteamRemoteStorage.FileRead(file);
-                    if (data == null || data.Length == 0)
-                        continue;
-                    lpsText = Encoding.UTF8.GetString(data);
-                }
-                catch
-                {
-                    continue;
-                }
-
-                try
-                {
-                    var gs = new GameSave_v2(new LPS(lpsText));
-                    var saveTime = ParseSteamSaveTime(file);
-                    entries.Add(new SaveEntry()
-                    {
-                        Source = SaveEntry.SourceType.Steam,
-                        SaveId = Path.GetFileNameWithoutExtension(file),
-                        PetName = gs.GameSave.Name,
-                        SaveTime = saveTime,
-                        SaveTimeText = saveTime == DateTime.MinValue ? "-" : saveTime.ToString("yyyy-MM-dd HH:mm:ss"),
-                        LevelText = $"{gs.GameSave.Level} (x{gs.GameSave.LevelMax})",
-                        MoneyText = gs.GameSave.Money.ToString("f2"),
-                        SteamPath = file,
-                        HashCheck = gs.HashCheck,
-                    });
-                }
-                catch
-                {
-                }
-            }
-            return entries;
-        }
-
-        private static DateTime ParseSteamSaveTime(string steamFilePath)
-        {
-            try
-            {
-                var fileName = Path.GetFileNameWithoutExtension(steamFilePath);
-                var suffix = fileName.Split('_').LastOrDefault();
-                if (string.IsNullOrEmpty(suffix))
-                    return DateTime.MinValue;
-
-                if (long.TryParse(suffix, System.Globalization.NumberStyles.HexNumber, null, out var ticksDivMinute))
-                {
-                    var ticks = ticksDivMinute * 60000;
-                    return new DateTime(ticks);
-                }
-            }
-            catch
-            {
-            }
-            return DateTime.MinValue;
-        }
-
         private void LoadSelectedSave()
         {
             if (DataGridSaves.SelectedItem is not SaveEntry selected)
                 return;
 
             string lpsText;
-            if (!string.IsNullOrEmpty(selected.SteamPath))
+            if (!File.Exists(selected.FullPath))
             {
-                try
-                {
-                    var data = SteamRemoteStorage.FileRead(selected.SteamPath);
-                    if (data == null || data.Length == 0)
-                    {
-                        MessageBoxX.Show("Steam云存档文件不存在,请刷新后重试".Translate(), "加载失败".Translate(), MessageBoxIcon.Warning);
-                        return;
-                    }
-                    lpsText = Encoding.UTF8.GetString(data);
-                }
-                catch
-                {
-                    MessageBoxX.Show("读取Steam云存档失败,请稍后重试".Translate(), "加载失败".Translate(), MessageBoxIcon.Warning);
-                    return;
-                }
+                MessageBoxX.Show("存档文件不存在,请刷新后重试".Translate(), "加载失败".Translate(), MessageBoxIcon.Warning);
+                return;
             }
-            else
-            {
-                if (!File.Exists(selected.FullPath))
-                {
-                    MessageBoxX.Show("存档文件不存在,请刷新后重试".Translate(), "加载失败".Translate(), MessageBoxIcon.Warning);
-                    return;
-                }
-                lpsText = File.ReadAllText(selected.FullPath);
-            }
+            lpsText = File.ReadAllText(selected.FullPath);
 
             var message = "存档名称:{0}\n保存时间:{1}\n存档等级:{2}\n存档金钱:{3}\nHashCheck:{4}\n是否加载该备份存档? 当前游戏数据会丢失"
                 .Translate(selected.PetName, selected.SaveTimeText, selected.LevelText, selected.MoneyText, selected.HashCheck);
@@ -302,7 +195,7 @@ namespace VPet_Simulator.Windows
                 }
 
                 if (!mw.SavesLoad(new LPS(lpsText)))
-                    MessageBoxX.Show("存档损毁,无法加载该存档\n可能是上次储存出错或Steam云同步导致的\n请在设置中加载备份还原存档", "存档损毁".Translate());
+                    MessageBoxX.Show("存档损毁,无法加载该存档\n可能是上次储存出错或Steam云同步导致的\n请在设置中加载备份还原存档".Translate(), "存档损毁".Translate());
                 else
                     MessageBoxX.Show("加载成功".Translate());
             }

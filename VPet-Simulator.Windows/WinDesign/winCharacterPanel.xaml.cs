@@ -2,8 +2,6 @@
 using LinePutScript.Localization.WPF;
 using Microsoft.Win32;
 using Panuon.WPF.UI;
-using Steamworks;
-using Steamworks.Data;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -159,16 +157,8 @@ namespace VPet_Simulator.Windows
                 }
                 MostPurchasedItemCount = mostUsedItemCount;
 
-                if (mw.IsSteamUser)
-                {
-                    SingleWorkMoneyMax = SteamUserStats.GetStatInt("stat_single_profit_money");
-                    SingleStudyExpMax = SteamUserStats.GetStatInt("stat_single_profit_exp");
-                }
-                else
-                {
-                    SingleWorkMoneyMax = statistics[(gint)"stat_single_profit_money"];
-                    SingleStudyExpMax = statistics[(gint)"stat_single_profit_exp"];
-                }
+                SingleWorkMoneyMax = statistics[(gint)"stat_single_profit_money"];
+                SingleStudyExpMax = statistics[(gint)"stat_single_profit_exp"];
 
                 LogicIntervalSeconds = mw.Set.LogicInterval;
                 FullStateHours = statistics[(gint)"stat_100_all"] * LogicIntervalSeconds / 3600.0;
@@ -295,8 +285,6 @@ namespace VPet_Simulator.Windows
             if (mw.GameSavesData.HashCheck)
             {
                 cb_NoCheat.IsEnabled = true;
-                if (mw.IsSteamUser)
-                    cb_AgreeUpload.IsEnabled = true;
             }
             Task.Run(Load_Log);
         }
@@ -447,8 +435,6 @@ namespace VPet_Simulator.Windows
                 encoder.Frames.Add(BitmapFrame.Create(image));
                 encoder.Save(ms);
                 File.WriteAllBytes(path, ms.ToArray());
-                if (mw.IsSteamUser && cb_AgreeUpload.IsChecked == true)
-                    SteamScreenshots.AddScreenshot(path, null, image.PixelWidth, image.PixelHeight);
 
                 var psi = new ProcessStartInfo
                 {
@@ -457,16 +443,6 @@ namespace VPet_Simulator.Windows
                 };
                 Process.Start(psi);
             }
-        }
-
-        private void cb_AgreeUpload_Checked(object sender, RoutedEventArgs e)
-        {
-            cb_NoCheat.IsChecked = true;
-        }
-
-        private void cb_NoCheat_Unchecked(object sender, RoutedEventArgs e)
-        {
-            cb_AgreeUpload.IsChecked = false;
         }
 
         private void btn_r_genRank_Click(object sender, RoutedEventArgs e)
@@ -479,24 +455,14 @@ namespace VPet_Simulator.Windows
         private async void GenRank()
         {
             mw.Set["v"][(gint)"rank"] = DateTime.Now.Year;
-            bool useranking = mw.IsSteamUser && await Dispatcher.InvokeAsync(() => cb_AgreeUpload.IsChecked == true);
 
             string petname = mw.GameSavesData.GameSave.Name;
-            string username = mw.IsSteamUser ? SteamClient.Name : Environment.UserName;
+            string username = Environment.UserName;
 
             int timelength = mw.GameSavesData.Statistics![(gint)"stat_total_time"];
             double timelength_h = (timelength / 3600.0);
             double startdatelength = (DateTime.Now - mw.GameSavesData[(gdat)"birthday"]).TotalDays;
             double startlengthrank = 0;
-            if (useranking)
-            {
-                Leaderboard? leaderboard = await SteamUserStats.FindOrCreateLeaderboardAsync("stat_total_time", LeaderboardSort.Descending, LeaderboardDisplay.Numeric);
-                LeaderboardUpdate? result = null;
-                if (leaderboard.HasValue)
-                    result = await leaderboard.Value.ReplaceScore(timelength);
-                var length = leaderboard?.EntryCount ?? 1.0;
-                startlengthrank = 1 - ((result?.NewGlobalRank - 1) ?? length) / length;
-            }
             string startlengthranktext;
             if (startlengthrank < 0.5)
                 startlengthranktext = '"' + "主人~多陪陪我~".Translate() + '"';
@@ -569,39 +535,9 @@ namespace VPet_Simulator.Windows
 
             int studyexpmax, studymoneymax;
             double studyexpmaxrank = 0, studymoneymaxrank = 0;
-            if (mw.IsSteamUser)
-            {
-                studyexpmax = SteamUserStats.GetStatInt("stat_single_profit_exp");
-                studymoneymax = SteamUserStats.GetStatInt("stat_single_profit_money");
-            }
-            else
-            {
-                studyexpmax = mw.GameSavesData.Statistics[(gint)"stat_single_profit_exp"];
-                studymoneymax = mw.GameSavesData.Statistics[(gint)"stat_single_profit_money"];
-            }
+            studyexpmax = mw.GameSavesData.Statistics[(gint)"stat_single_profit_exp"];
+            studymoneymax = mw.GameSavesData.Statistics[(gint)"stat_single_profit_money"];
             await Dispatcher.InvokeAsync(() => pb_r_genRank.Value = 20);
-            if (useranking)
-            {
-                Leaderboard? leaderboard = await SteamUserStats.FindOrCreateLeaderboardAsync("stat_single_profit_exp", LeaderboardSort.Descending, LeaderboardDisplay.Numeric);
-                LeaderboardUpdate? result = null;
-                if (leaderboard.HasValue)
-                    result = await leaderboard.Value.ReplaceScore(studyexpmax);
-                var length = leaderboard?.EntryCount ?? 1.0;
-                if (result?.NewGlobalRank != null)
-                    studyexpmaxrank = 1 - (result.Value.NewGlobalRank - 1) / length;
-                else
-                    studyexpmaxrank = 0;
-
-                leaderboard = await SteamUserStats.FindOrCreateLeaderboardAsync("stat_single_profit_money", LeaderboardSort.Descending, LeaderboardDisplay.Numeric);
-                result = null;
-                if (leaderboard.HasValue)
-                    result = await leaderboard.Value.ReplaceScore(studymoneymax);
-                length = leaderboard?.EntryCount ?? 1.0;
-                if (result?.NewGlobalRank != null)
-                    studymoneymaxrank = 1 - (result.Value.NewGlobalRank - 1) / length;
-                else
-                    studymoneymaxrank = 0;
-            }
             string studyexptext, workmoneytext;
             int studyexp_i, workmoney_i;
             if (studyexpmaxrank < 0.25)
@@ -656,17 +592,6 @@ namespace VPet_Simulator.Windows
             int worktime = mw.GameSavesData.Statistics[(gint)"stat_work_time"];
             double worktimeph = (double)worktime / timelength;
             double worktimephrank = 0;
-            if (useranking)
-            {
-                Leaderboard? leaderboard = await SteamUserStats.FindOrCreateLeaderboardAsync("stat_work_time_ph", LeaderboardSort.Descending, LeaderboardDisplay.Numeric);
-                LeaderboardUpdate? result = null;
-                if (leaderboard.HasValue)
-                    result = await leaderboard.Value.ReplaceScore((int)(worktimeph * 10000));
-                var length = leaderboard?.EntryCount ?? 1.0;
-                if (result?.NewGlobalRank != null)
-                    worktimephrank = 1 - (result.Value.NewGlobalRank - 1) / length;
-                else worktimephrank = 0;
-            }
             string worktimephtext;
             int worktime_i;
             if (worktimephrank < 0.25)
@@ -747,18 +672,6 @@ namespace VPet_Simulator.Windows
             int autobuytimes = mw.GameSavesData.Statistics[(gint)"stat_autobuy"];
             double autobuytimesph = (double)autobuytimes / betterbuytimes;
             double autobuytimesphrank = 0;
-            if (useranking)
-            {
-                Leaderboard? leaderboard = await SteamUserStats.FindOrCreateLeaderboardAsync("stat_autobuy_ph", LeaderboardSort.Descending, LeaderboardDisplay.Numeric);
-                LeaderboardUpdate? result = null;
-                if (leaderboard.HasValue)
-                    result = await leaderboard.Value.ReplaceScore((int)(autobuytimesph * 10000));
-                var length = leaderboard?.EntryCount ?? 1.0;
-                if (result?.NewGlobalRank != null)
-                    autobuytimesphrank = 1 - (result.Value.NewGlobalRank - 1) / length;
-                else
-                    autobuytimesphrank = 0;
-            }
             string autobuytext;
             int autobuy_i;
             if (autobuytimesph < 0.25)
@@ -788,18 +701,6 @@ namespace VPet_Simulator.Windows
             int modworkshop = modworkshoplist.Count;
             int modon = modworkshoplist.FindAll(x => x.IsOnMOD(mw)).Count;
             double modworkshoprank = 0;
-            if (useranking)
-            {
-                Leaderboard? leaderboard = await SteamUserStats.FindOrCreateLeaderboardAsync("workshop", LeaderboardSort.Descending, LeaderboardDisplay.Numeric);
-                LeaderboardUpdate? result = null;
-                if (leaderboard.HasValue)
-                    result = await leaderboard.Value.ReplaceScore(modworkshop);
-                var length = leaderboard?.EntryCount ?? 1.0;
-                if (result?.NewGlobalRank != null)
-                    modworkshoprank = 1 - (result.Value.NewGlobalRank - 1) / length;
-                else
-                    modworkshoprank = 0;
-            }
             string modworkshoptext;
             int modworkshop_i;
             if (modworkshop == 0)
@@ -836,18 +737,6 @@ namespace VPet_Simulator.Windows
                 liketext = "\uEECA";
             }
             double likerank = 0;
-            if (useranking)
-            {
-                Leaderboard? leaderboard = await SteamUserStats.FindOrCreateLeaderboardAsync("stat_likability", LeaderboardSort.Descending, LeaderboardDisplay.Numeric);
-                LeaderboardUpdate? result = null;
-                if (leaderboard.HasValue)
-                    result = await leaderboard.Value.ReplaceScore((int)mw.GameSavesData.GameSave.Likability);
-                var length = leaderboard?.EntryCount ?? 1.0;
-                if (result?.NewGlobalRank != null)
-                    likerank = 1 - (result.Value.NewGlobalRank - 1) / length;
-                else
-                    likerank = 0;
-            }
             await Dispatcher.InvokeAsync(() => pb_r_genRank.Value = 88);
 
             await Dispatcher.InvokeAsync(() =>
@@ -995,11 +884,6 @@ namespace VPet_Simulator.Windows
                 }
                 cb_birthday.ItemsSource = bdpetlist.Select(x => x.name);
                 lb_b_datetime.Content = "Shot on VPet - " + DateTime.Now.ToShortDateString();
-                if (mw.IsSteamUser)
-                {
-                    Steamworks.Data.Image? img = await SteamFriends.GetLargeAvatarAsync(SteamClient.SteamId);
-                    img_b_head.Source = winMutiPlayer.ConvertToImageSource(img);
-                }
                 cb_birthday.SelectedIndex = sidx;
                 BDay_Load();
                 Width = 800;
@@ -1067,8 +951,6 @@ namespace VPet_Simulator.Windows
                 encoder.Frames.Add(BitmapFrame.Create(image));
                 encoder.Save(ms);
                 File.WriteAllBytes(path, ms.ToArray());
-                if (mw.IsSteamUser && cb_AgreeUpload.IsChecked == true)
-                    SteamScreenshots.AddScreenshot(path, null, image.PixelWidth, image.PixelHeight);
 
                 var psi = new ProcessStartInfo
                 {

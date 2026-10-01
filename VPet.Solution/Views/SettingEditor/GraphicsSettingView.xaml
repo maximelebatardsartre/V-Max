@@ -285,23 +285,6 @@
                 />
               </Grid>
             </Border>
-            <Border Height="50" Style="{StaticResource Border_SettingGroupItem}">
-              <Grid
-                ColumnDefinitions="*,Auto"
-                ToolTip="{ll:Str '从Steam启动该游戏, 统计时长不能停'}"
-              >
-                <TextBlock
-                  Text="{ll:Str 从Steam启动}"
-                  Style="{DynamicResource TextBlock_SettingName}"
-                />
-                <pu:Switch
-                  x:Name="StartUPBootSteam"
-                  Grid.Column="2"
-                  Style="{DynamicResource Switch_SwitchOnly}"
-                  IsChecked="{Binding GraphicsSetting.StartUPBootSteam}"
-                />
-              </Grid>
-            </Border>
           </StackPanel>
         </GroupBox>
         <!-- TODO: 翻译暂未实现 -->

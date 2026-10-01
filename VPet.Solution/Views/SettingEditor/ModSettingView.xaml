@@ -245,26 +245,6 @@
                 Command="{Binding DataContext.OpenModPathCommand,RelativeSource={RelativeSource AncestorType=UserControl}}"
                 Style="{DynamicResource Button_BaseStyle}"
               />
-              <!--<TextBlock
-                x:Name="ButtonPublish"
-                Margin="0,2,0,0"
-                HorizontalAlignment="Left"
-                VerticalAlignment="Top"
-                d:MouseDown="ButtonPublish_MouseDown"
-                Cursor="Hand"
-                FontSize="14"
-                Foreground="DimGray"
-                Text="{ll:Str 更新至Steam}"
-                TextDecorations="Underline"
-                TextWrapping="Wrap" />-->
-              <Button
-                x:Name="OpenSteamCommunity"
-                HorizontalAlignment="Stretch"
-                CommandParameter="{Binding}"
-                Command="{Binding DataContext.OpenSteamCommunityCommand,RelativeSource={RelativeSource AncestorType=UserControl}}"
-                Content="{ll:Str 打开创意工坊页面}"
-                Style="{DynamicResource Button_BaseStyle}"
-              />
             </StackPanel>
           </Grid>
         </Grid>

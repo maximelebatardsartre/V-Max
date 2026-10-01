@@ -355,14 +355,6 @@ public class Setting : LPS_D, ISetting
         set => this["gameconfig"].SetBool("startboot", value);
     }
 
-    /// <summary>
-    /// 开机启动 Steam
-    /// </summary>
-    public bool StartUPBootSteam
-    {
-        get => !this["gameconfig"].GetBool("startbootsteam");
-        set => this["gameconfig"].SetBool("startbootsteam", !value);
-    }
 
     /// <summary>
     /// 桌宠选择内容
@@ -562,11 +554,6 @@ public class Setting : LPS_D, ISetting
         set => this["gameconfig"].SetInt("gamescreenindex", value);
     }
 
-    public long SteamID
-    {
-        get => this[(gi64)"steamid"];
-        set => this[(gi64)"steamid"] = value;
-    }
 
     /// <summary>
     /// 读写自定义游戏设置(给mod准备的接口)
@@ -625,8 +612,6 @@ public class Setting : LPS_D, ISetting
         //if (ischangename)
         //{
         //    mw.Core.Save!.Name = petloader.PetName.Translate();
-        //    if (mw.IsSteamUser)
-        //        SteamFriends.SetRichPresence("username", mw.Core.Save!.Name);
         //}
     }
 

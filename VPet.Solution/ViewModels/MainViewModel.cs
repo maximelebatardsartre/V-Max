@@ -66,9 +66,7 @@ public partial class MainViewModel : CloseableViewModel
         if (LocalizeCore.CurrentCulture == "zh-Hans")
             NativeUtils.OpenLink("https://www.bilibili.com/read/cv26510496/");
         else
-            NativeUtils.OpenLink(
-                "https://steamcommunity.com/games/1920960/announcements/detail/3681184905256253203"
-            );
+            NativeUtils.OpenLink(VPet_Simulator.Windows.Interface.ExtensionValue.IssueURL);
     }
     #endregion
 }
