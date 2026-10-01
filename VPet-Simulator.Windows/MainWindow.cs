@@ -98,6 +98,8 @@ namespace VPet_Simulator.Windows
             Application.Current.Resources["SecondaryTransE"] = new SolidColorBrush(c);
 
 
+            LoadVMaxBrushes(ctheme);
+
             c = Function.HEXToColor('#' + ctheme.ThemeColor["DARKPrimary"].info);
             c.A = 204;
             Application.Current.Resources["DARKPrimaryTrans"] = new SolidColorBrush(c);
@@ -124,7 +126,9 @@ namespace VPet_Simulator.Windows
                 var dv = new DrawingVisual();
                 using (var dc = dv.RenderOpen())
                 {
-                    dc.DrawRectangle(window.Background ?? Brushes.Transparent, null, new Rect(0, 0, root.ActualWidth, root.ActualHeight));
+                    var bg = window.Background is SolidColorBrush scb && scb.Color.A == 0 || window.Background == null
+                        ? (Brush)Application.Current.Resources["VMaxWindowFallback"] : window.Background;
+                    dc.DrawRectangle(bg, null, new Rect(0, 0, root.ActualWidth, root.ActualHeight));
                     dc.DrawRectangle(new VisualBrush(root), null, new Rect(0, 0, root.ActualWidth, root.ActualHeight));
                 }
                 rtb.Render(dv);
@@ -143,6 +147,46 @@ namespace VPet_Simulator.Windows
         /// V-Max : le thème suit le mode clair/sombre de Windows
         /// </summary>
         public bool ThemeFollowsSystem { get; private set; }
+
+        /// <summary>
+        /// V-Max : le thème actif est-il sombre (texte clair) ?
+        /// </summary>
+        public bool IsDarkTheme { get; private set; }
+
+        /// <summary>
+        /// V-Max : couleurs dérivées utilisées par l'interface 2026 (cartes translucides, contours, texte secondaire)
+        /// </summary>
+        private void LoadVMaxBrushes(Theme ctheme)
+        {
+            Color text = Function.HEXToColor('#' + ctheme.ThemeColor["PrimaryText"].info);
+            Color accent = Function.HEXToColor('#' + ctheme.ThemeColor["DARKPrimary"].info);
+            Color surface = Function.HEXToColor('#' + ctheme.ThemeColor["PrimaryLighter"].info);
+            IsDarkTheme = (0.299 * text.R + 0.587 * text.G + 0.114 * text.B) > 128;
+            SolidColorBrush b(byte a, Color c) { c.A = a; var br = new SolidColorBrush(c); br.Freeze(); return br; }
+            var res = Application.Current.Resources;
+            res["VMaxSubtleText"] = b(0xA8, text);
+            res["VMaxToggleOff"] = b(0x8A, text);
+            res["VMaxNavSelected"] = b(0x2E, accent);
+            res["VMaxWindowFallback"] = b(0xFF, surface);
+            if (IsDarkTheme)
+            {
+                res["VMaxCard"] = b(0x10, Colors.White);
+                res["VMaxCardHover"] = b(0x1C, Colors.White);
+                res["VMaxStroke"] = b(0x18, Colors.White);
+                res["VMaxControlFill"] = b(0x14, Colors.White);
+                res["VMaxControlStroke"] = b(0x24, Colors.White);
+            }
+            else
+            {
+                res["VMaxCard"] = b(0xB3, Colors.White);
+                res["VMaxCardHover"] = b(0xE6, Colors.White);
+                res["VMaxStroke"] = b(0x14, Colors.Black);
+                res["VMaxControlFill"] = b(0xB3, Colors.White);
+                res["VMaxControlStroke"] = b(0x29, Colors.Black);
+            }
+            if (winVMaxSetting != null)
+                WindowEffects.SetDark(winVMaxSetting, IsDarkTheme);
+        }
 
         public void LoadFont(string fontname)
         {
@@ -534,11 +578,33 @@ namespace VPet_Simulator.Windows
             }
         }
 
+        /// <summary>
+        /// Ouvre les paramètres. V-Max : sans page précise, ouvre la nouvelle fenêtre ;
+        /// avec un numéro de page (API héritée des plugins), ouvre l'interface classique sur cette page.
+        /// </summary>
         public void ShowSetting(int page = -1)
+        {
+            if (page >= 0)
+            {
+                ShowLegacySetting(page);
+                return;
+            }
+            winVMaxSetting ??= new winVMaxSettings(this);
+            winVMaxSetting.Show();
+            if (winVMaxSetting.WindowState == WindowState.Minimized)
+                winVMaxSetting.WindowState = WindowState.Normal;
+            winVMaxSetting.Activate();
+        }
+
+        /// <summary>
+        /// Ouvre l'ancienne fenêtre de paramètres (héritée de VPet) sur une page
+        /// </summary>
+        public void ShowLegacySetting(int page = -1)
         {
             if (page >= 0 && page <= 6)
                 winSetting!.MainTab.SelectedIndex = page;
             winSetting!.Show();
+            winSetting.Activate();
         }
         public void ShowWorkMenu(Work.WorkType type)
         {
@@ -2373,12 +2439,16 @@ namespace VPet_Simulator.Windows
                   // V-Max (QA) : ouvre directement une page des paramètres, ex. argument « vmax-open-settings#0:| »
                   if (Args.FindLine("vmax-open-settings") is ILine qaSettings)
                   {
-                      ShowSetting(qaSettings.InfoToInt);
+                      // -1 : nouvelle fenêtre (catégorie via « vmax-settings-page#apparence:| », mode avancé via « vmax-settings-advanced#1:| »)
+                      int qaPage = string.IsNullOrEmpty(qaSettings.info) ? -1 : qaSettings.InfoToInt;
+                      ShowSetting(qaPage);
+                      if (qaPage < 0)
+                          winVMaxSetting!.QaShow(Args.FindLine("vmax-settings-page")?.info, Args.FindLine("vmax-settings-advanced") != null);
                       // rendu de la fenêtre dans %TEMP%\vmax-qa-settings.png (sans capture d'écran)
                       Task.Run(async () =>
                       {
                           await Task.Delay(4000);
-                          Dispatcher.Invoke(() => QaSnapshot(winSetting!, System.IO.Path.Combine(System.IO.Path.GetTempPath(), "vmax-qa-settings.png")));
+                          Dispatcher.Invoke(() => QaSnapshot(qaPage < 0 ? winVMaxSetting! : winSetting!, System.IO.Path.Combine(System.IO.Path.GetTempPath(), "vmax-qa-settings.png")));
                       });
                   }
 

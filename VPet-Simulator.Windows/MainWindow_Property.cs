@@ -80,6 +80,10 @@ public partial class MainWindow
     public Main Main { get; set; } = null!;
     public UIElement? TalkBox;
     public winGameSetting? winSetting { get; set; }
+    /// <summary>
+    /// V-Max : nouvelle fenêtre de paramètres (créée à la demande)
+    /// </summary>
+    public winVMaxSettings? winVMaxSetting { get; set; }
     public winBetterBuy? winBetterBuy { get; set; }
     public winGallery? winGallery { get; set; } 
     public winInventory? winInventory { get; set; }

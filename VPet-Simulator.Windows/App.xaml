@@ -49,6 +49,7 @@
                     </pu:ToastSettings>
                 </ResourceDictionary>
                 <ResourceDictionary Source="/VPet-Simulator.Windows.Interface;component/ResourceStyle.xaml" />
+                <ResourceDictionary Source="WinDesign/VMax/VMaxStyles.xaml" />
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </Application.Resources>

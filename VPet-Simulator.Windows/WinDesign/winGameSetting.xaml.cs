@@ -974,35 +974,8 @@ namespace VPet_Simulator.Windows
         }
 
 
-        public void GenStartUP()
-        {
-            mw.Set["v"][(gbol)"newverstartup"] = true;
-            var path = Environment.GetFolderPath(Environment.SpecialFolder.Startup) + @"\V-Max.lnk";
-            if (mw.Set.StartUPBoot)
-            {
-                if (File.Exists(path))
-                    File.Delete(path);
-                var link = (IShellLink)new ShellLink();
-                link.SetPath(System.Reflection.Assembly.GetExecutingAssembly().Location.Replace(".dll", ".exe"));
+        public void GenStartUP() => StartupShortcut.Apply(mw);
 
-                link.SetDescription("V-Max");
-                link.SetIconLocation(System.IO.Path.Combine(ExtensionValue.BaseDirectory, "vpeticon.ico"), 0);
-                try
-                {
-                    var file = (IPersistFile)link;
-                    file.Save(path, false);
-                }
-                catch
-                {
-                    MessageBox.Show("创建快捷方式失败,权限不足\n请以管理员身份运行后重试".Translate(), "权限不足".Translate());
-                }
-            }
-            else
-            {
-                if (File.Exists(path))
-                    File.Delete(path);
-            }
-        }
         private void StartUpBox_Checked(object sender, RoutedEventArgs e)
         {
             if (!AllowChange)
