@@ -581,7 +581,7 @@ namespace VPet_Simulator.Windows
                     }
                     catch (Exception e)
                     {
-                        MessageBoxX.Show("快捷键运行失败:无法运行指定内容".Translate() + '\n' + e.Message);
+                        Toast("快捷键运行失败:无法运行指定内容".Translate() + '\n' + e.Message, HUD.HudToast.Kind.Warning);
                     }
                 }
             }
@@ -593,7 +593,7 @@ namespace VPet_Simulator.Windows
                 }
                 catch (Exception e)
                 {
-                    MessageBoxX.Show("快捷键运行失败:无法运行指定内容".Translate() + '\n' + e.Message);
+                    Toast("快捷键运行失败:无法运行指定内容".Translate() + '\n' + e.Message, HUD.HudToast.Kind.Warning);
                 }
             }
             else
@@ -604,7 +604,7 @@ namespace VPet_Simulator.Windows
                 }
                 catch (Exception e)
                 {
-                    MessageBoxX.Show("快捷键运行失败:无法运行指定内容".Translate() + '\n' + e.Message);
+                    Toast("快捷键运行失败:无法运行指定内容".Translate() + '\n' + e.Message, HUD.HudToast.Kind.Warning);
                 }
             }
         }
@@ -1064,18 +1064,18 @@ namespace VPet_Simulator.Windows
             {
                 tmp.GameSave.Exp = 1000000;
                 tmp.Data[(gbol)"round"] = true;
-                Dispatcher.Invoke(() => NoticeBox.Show("检测到经验值超过 9,223,372,036 导致算数溢出\n已经自动回正".Translate(), "数据溢出警告".Translate()));
+                Toast("检测到经验值超过 9,223,372,036 导致算数溢出\n已经自动回正".Translate(), HUD.HudToast.Kind.Warning, 8);
 
             }
             if (tmp.GameSave.Money < -1000000000)
             {
                 tmp.GameSave.Money = 100000;
-                Dispatcher.Invoke(() => NoticeBox.Show("检测到金钱超过 9,223,372,036 导致算数溢出\n已经自动回正".Translate(), "数据溢出警告".Translate()));
+                Toast("检测到金钱超过 9,223,372,036 导致算数溢出\n已经自动回正".Translate(), HUD.HudToast.Kind.Warning, 8);
             }
 
             if (tmp.Data[(gbol)"round"])
             {//根据游玩时间补偿数据溢出
-                Dispatcher.Invoke(() => NoticeBox.Show("您以前遭遇过数据溢出, 已根据游戏时长自动添加进当前数值".Translate(), "数据溢出恢复".Translate()));
+                Toast("您以前遭遇过数据溢出, 已根据游戏时长自动添加进当前数值".Translate(), HUD.HudToast.Kind.Info, 8);
                 var totalhour = (int)(tmp.Statistics![(gint)"stat_total_time"] / 3600);//总计游玩时间/小时
                 if (totalhour < 500)
                 {
@@ -2218,8 +2218,7 @@ namespace VPet_Simulator.Windows
                       {
                           Thread.Sleep(2000);
                           Set["SingleTips"].SetBool("helloworld", true);
-                          NoticeBox.Show("欢迎使用虚拟桌宠模拟器!\n如果遇到桌宠爬不见了,可以在我这里设置居中或退出桌宠".Translate(),
-                             "你好".Translate() + Environment.UserName, Panuon.WPF.UI.MessageBoxIcon.Info, true, 5000);
+                          Toast("Bienvenue dans V-Max ! Clic droit sur ton compagnon pour ouvrir l'anneau, Ctrl+Alt+Espace pour lui parler. S'il sort de l'écran, l'icône de la zone de notification permet de le recentrer.".Translate(), HUD.HudToast.Kind.Info, 12);
                           //Thread.Sleep(2000);
                           //Main.SayRnd("欢迎使用虚拟桌宠模拟器\n这是个中期的测试版,若有bug请多多包涵\n欢迎加群虚拟主播模拟器430081239或在菜单栏-管理-反馈中提交bug或建议".Translate());
                       });
@@ -2595,6 +2594,16 @@ namespace VPet_Simulator.Windows
                           Dispatcher.Invoke(() => QaSnapshot(Hud!.PanelWindow ?? (Window)this, System.IO.Path.Combine(System.IO.Path.GetTempPath(), "vmax-qa-settings.png")));
                       });
                   }
+                  if (Args.FindLine("vmax-toast") is ILine qaToast)
+                  {// QA : notification rendue dans %TEMP%\vmax-qa-settings.png
+                      Task.Run(async () =>
+                      {
+                          await Task.Delay(9000);
+                          Toast(qaToast.Info, HUD.HudToast.Kind.Success, 10);
+                          await Task.Delay(1500);
+                          Dispatcher.Invoke(() => QaSnapshot(Application.Current.Windows.OfType<HUD.HudToast>().FirstOrDefault() ?? (Window)this, System.IO.Path.Combine(System.IO.Path.GetTempPath(), "vmax-qa-settings.png")));
+                      });
+                  }
                   if (Args.FindLine("vmax-open-chat") != null)
                   {// QA : panneau de discussion rendu dans %TEMP%max-qa-settings.png
                       Task.Run(async () =>
@@ -2941,12 +2950,26 @@ namespace VPet_Simulator.Windows
                     Thread.Sleep(5000);
                     Dispatcher.Invoke(() =>
                     {
-                        MessageBoxX.Show("系统提示\n您的桌宠等级已经突破\nLv{0}→LV{1} x{2}\n已突破为尊贵的x{3}阶".Translate(
+                        Toast("系统提示\n您的桌宠等级已经突破\nLv{0}→LV{1} x{2}\n已突破为尊贵的x{3}阶".Translate(
                             1000 + args.BeforeLevelMax * 100, 100 * GameSavesData.GameSave.LevelMax, GameSavesData.GameSave.LevelMax),
-                            "桌宠等级突破".Translate());
+                            HUD.HudToast.Kind.Success, 8);
                     });
                 });
             }
+        }
+
+        /// <summary>
+        /// V-Max : notification courte près du compagnon (repli sur une notification classique tant que le HUD n'est pas prêt)
+        /// </summary>
+        public void Toast(string text, HUD.HudToast.Kind kind = HUD.HudToast.Kind.Info, double seconds = 4)
+        {
+            Dispatcher.BeginInvoke(() =>
+            {
+                if (Hud != null && IsLoaded)
+                    HUD.HudToast.Show(this, text, kind, seconds);
+                else
+                    NoticeBox.Show(text, "V-Max", kind == HUD.HudToast.Kind.Warning ? Panuon.WPF.UI.MessageBoxIcon.Warning : Panuon.WPF.UI.MessageBoxIcon.Info, true, (int)(seconds * 1000));
+            });
         }
 
         public void CheckGalleryUnlock()
@@ -2961,9 +2984,7 @@ namespace VPet_Simulator.Windows
                 sb.Append(p.TranslateName);
             }
             ActivityLogs.Add(new ActivityLog("photo_unlock", sb.ToString().AsSpan(2).ToString()));
-            Dispatcher.Invoke(() =>
-            NoticeBox.Show(string.Concat(sb.ToString().AsSpan(2), "\n", "以上照片已解锁".Translate()), "新的照片已解锁".Translate()
-            , Panuon.WPF.UI.MessageBoxIcon.Info, true, 5000));
+            Toast(string.Concat(sb.ToString().AsSpan(2), "\n", "以上照片已解锁".Translate()), HUD.HudToast.Kind.Success, 6);
         }
         /// <summary>
         /// V-Max: l'authentification par Steam est retirée. Conservé pour compatibilité des plugins (toujours 0).

@@ -713,12 +713,23 @@ namespace VPet_Simulator.Core
                         return true;
                     }
                 else
-                    MessageBoxX.Show(LocalizeCore.Translate("您的桌宠等级不足{0}/{2}\n无法进行{1}", Core.Save!.Level.ToString()
+                    Notify(LocalizeCore.Translate("您的桌宠等级不足{0}/{2}\n无法进行{1}", Core.Save!.Level.ToString()
                         , work.NameTrans, work.LevelLimit), LocalizeCore.Translate("{0}取消", work.NameTrans));
             else
-                MessageBoxX.Show(LocalizeCore.Translate("您的桌宠 {0} 生病啦,没法进行{1}", Core.Save!.Name,
+                Notify(LocalizeCore.Translate("您的桌宠 {0} 生病啦,没法进行{1}", Core.Save!.Name,
                   work.NameTrans), LocalizeCore.Translate("{0}取消", work.NameTrans));
             return false;
+        }
+        /// <summary>
+        /// V-Max : affiche les avertissements non bloquants (notification de l'interface si fournie, sinon boîte de dialogue)
+        /// </summary>
+        public Action<string>? NotifyHandler { get; set; }
+        private void Notify(string text, string title)
+        {
+            if (NotifyHandler != null)
+                NotifyHandler(text);
+            else
+                MessageBoxX.Show(text, title);
         }
         /// <summary>
         /// 任务开始时调用该参数

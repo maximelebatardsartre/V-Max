@@ -63,6 +63,7 @@ public sealed class HudController
                 ToggleOrbit();
                 return true;
             };
+        mw.Main.NotifyHandler = text => HudToast.Show(mw, text, HudToast.Kind.Warning, 5);
         RegisterChatHotkey();
     }
 
