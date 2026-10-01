@@ -2051,7 +2051,13 @@ namespace VPet_Simulator.Windows
 
 
                   m_menu = new ContextMenu();
-                  m_menu.Opening += (x, y) => { if (GameSavesData.Statistics != null) GameSavesData.Statistics[(gint)"stat_menu_pop"]++; };
+                  m_menu.Opening += (x, y) =>
+                  {
+                      if (GameSavesData.Statistics != null) GameSavesData.Statistics[(gint)"stat_menu_pop"]++;
+                      // V-Max : menu classique remplacé par la surcouche moderne (le ContextMenuStrip reste le modèle)
+                      y.Cancel = true;
+                      TrayMenu.Show(this, m_menu);
+                  };
                   var hitThrough = new MenuItem("鼠标穿透".Translate(), null, (x, y) => { SetTransparentHitThrough(); })
                   {
                       Name = "NotifyIcon_HitThrough",
@@ -2071,24 +2077,27 @@ namespace VPet_Simulator.Windows
                   m_menu.Items.Add(new MenuItem("操作教程".Translate(), null, (x, y) =>
                   {
                       ExtensionFunction.StartURL(ExtensionValue.RepositoryURL + "#readme");// V-Max : documentation du projet
-                  }));
+                  })
+                  { Name = "NotifyIcon_Tutorial" });
                   m_menu.Items.Add(new MenuItem("重置位置与状态".Translate(), null, (x, y) =>
                   {
                       Main.CleanState();
                       Main.DisplayToNomal();
                       Left = (SystemParameters.PrimaryScreenWidth - Width) / 2;
                       Top = (SystemParameters.PrimaryScreenHeight - Height) / 2;
-                  }));
-                  m_menu.Items.Add(new MenuItem("反馈中心".Translate(), null, (x, y) => { new winReport(this).Show(); }));
+                  })
+                  { Name = "NotifyIcon_Reset" });
+                  m_menu.Items.Add(new MenuItem("反馈中心".Translate(), null, (x, y) => { new winReport(this).Show(); }) { Name = "NotifyIcon_Report" });
                   if (Set.DeBug)
-                      m_menu.Items.Add(new MenuItem("开发控制台".Translate(), null, (x, y) => { new winConsole(this).Show(); }));
+                      m_menu.Items.Add(new MenuItem("开发控制台".Translate(), null, (x, y) => { new winConsole(this).Show(); }) { Name = "NotifyIcon_Console" });
 
                   m_menu.Items.Add(new MenuItem("设置面板".Translate(), null, (x, y) =>
                   {
-                      winSetting.Show();
-                  }));
-                  m_menu.Items.Add(new MenuItem("重启桌宠".Translate(), null, (x, y) => Restart()));
-                  m_menu.Items.Add(new MenuItem("退出桌宠".Translate(), null, (x, y) => Close()));
+                      ShowSetting();// V-Max : nouvelle fenêtre de paramètres
+                  })
+                  { Name = "NotifyIcon_Settings" });
+                  m_menu.Items.Add(new MenuItem("重启桌宠".Translate(), null, (x, y) => Restart()) { Name = "NotifyIcon_Restart" });
+                  m_menu.Items.Add(new MenuItem("退出桌宠".Translate(), null, (x, y) => Close()) { Name = "NotifyIcon_Exit" });
 
                   LoadDIY();
 
@@ -2099,7 +2108,13 @@ namespace VPet_Simulator.Windows
                   notifyIcon.Visible = true;
                   notifyIcon.BalloonTipClicked += (a, b) =>
                   {
-                      winSetting.Show();
+                      ShowSetting();
+                  };
+                  // V-Max : un clic gauche sur l'icône ouvre aussi le menu
+                  notifyIcon.MouseClick += (a, b) =>
+                  {
+                      if (b.Button == System.Windows.Forms.MouseButtons.Left)
+                          TrayMenu.Show(this, m_menu);
                   };
                   if (Set.StartUPBoot == true && !Set["v"][(gbol)"newverstartup"])
                   {//更新到最新版开机启动方式
@@ -2437,6 +2452,15 @@ namespace VPet_Simulator.Windows
                       }
 
                   // V-Max (QA) : ouvre directement une page des paramètres, ex. argument « vmax-open-settings#0:| »
+                  if (Args.FindLine("vmax-open-traymenu") != null)
+                  {// QA : menu de la zone de notification rendu dans %TEMP%\vmax-qa-settings.png
+                      TrayMenu.Show(this, notifyIcon.ContextMenuStrip!);
+                      Task.Run(async () =>
+                      {
+                          await Task.Delay(2500);
+                          Dispatcher.Invoke(() => { if (TrayMenu.Current != null) QaSnapshot(TrayMenu.Current, System.IO.Path.Combine(System.IO.Path.GetTempPath(), "vmax-qa-settings.png")); });
+                      });
+                  }
                   if (Args.FindLine("vmax-open-settings") is ILine qaSettings)
                   {
                       // -1 : nouvelle fenêtre (catégorie via « vmax-settings-page#apparence:| », mode avancé via « vmax-settings-advanced#1:| »)
