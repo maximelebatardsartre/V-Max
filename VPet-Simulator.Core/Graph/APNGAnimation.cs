@@ -526,9 +526,7 @@ namespace VPet_Simulator.Core
             Touch();
             while (true)
             {
-                var gate = AnimationGate.WaitAsync();
-                if (!gate.IsCompleted)
-                    await gate.ConfigureAwait(false);
+
                 int frameIndex;
                 int duration;
                 BitmapSource? frameSource;
@@ -543,7 +541,8 @@ namespace VPet_Simulator.Core
                     frameIndex = nowid;
                     duration = FrameDurations[frameIndex];
                 }
-                frameSource = GetFrameSource(frameIndex);
+                bool render = !AnimationGate.IsPaused;
+                frameSource = render ? GetFrameSource(frameIndex) : null;
 
                 void show()
                 {
@@ -553,7 +552,9 @@ namespace VPet_Simulator.Core
                     }
                     element.Margin = new Thickness(0, 0, 0, 0);
                 }
-                if (element.Dispatcher.CheckAccess())
+                if (!render)
+                { }
+                else if (element.Dispatcher.CheckAccess())
                     show();
                 else
                     _ = element.Dispatcher.InvokeAsync(show, System.Windows.Threading.DispatcherPriority.Render);

@@ -11,16 +11,21 @@
             <MenuItem Header="{ll:Str 关闭}" Click="MenuItemClose_Click" />
         </ContextMenu>
     </UserControl.ContextMenu>
-    <Border x:Name="BorderMain" Background="{DynamicResource Primary}" BorderBrush="{DynamicResource DARKPrimaryDark}"
-            BorderThickness="5" VerticalAlignment="Bottom" Padding="10" Margin="5" CornerRadius="5"
+    <!-- V-Max : bulle modernisée (coins arrondis, contour fin, ombre douce) -->
+    <Border x:Name="BorderMain" Background="{DynamicResource PrimaryLighter}" BorderBrush="{DynamicResource PrimaryDark}"
+            BorderThickness="1.5" VerticalAlignment="Bottom" Padding="18,14" Margin="10" CornerRadius="22"
             MouseEnter="Border_MouseEnter" MouseLeave="Border_MouseLeave">
+        <Border.Effect>
+            <DropShadowEffect BlurRadius="24" ShadowDepth="4" Direction="270" Opacity="0.22" Color="Black" />
+        </Border.Effect>
         <StackPanel>
-            <Label x:Name="LName" Content="虚拟桌宠名字:" Foreground="{DynamicResource PrimaryText}"
-                    HorizontalAlignment="Left" Padding="0" FontWeight="Bold" Margin="0,0,0,6" FontSize="32"
+            <Label x:Name="LName" Content="虚拟桌宠名字:" Foreground="{DynamicResource DARKPrimary}"
+                    HorizontalAlignment="Left" Padding="0" FontWeight="SemiBold" Margin="0,0,0,4" FontSize="26"
                     Background="{x:Null}" />
             <ScrollViewer x:Name="sv" MaxHeight="400">
                 <TextBox x:Name="TText" Text="我说话长这样,这是我说的话巴拉巴拉巴拉巴拉巴拉巴拉巴拉巴拉巴拉巴拉巴拉巴拉巴拉巴拉" IsReadOnly="True"
                         TextWrapping="WrapWithOverflow" FontSize="24" x:FieldModifier="public" Background="{x:Null}"
+                        Foreground="{DynamicResource PrimaryText}"
                         BorderBrush="{x:Null}" BorderThickness="0" SizeChanged="TText_SizeChanged" />
             </ScrollViewer>
             <Grid x:Name="MessageBoxContent" x:FieldModifier="public">

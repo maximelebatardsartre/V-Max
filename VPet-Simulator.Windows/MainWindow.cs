@@ -2452,6 +2452,35 @@ namespace VPet_Simulator.Windows
                       }
 
                   // V-Max (QA) : ouvre directement une page des paramètres, ex. argument « vmax-open-settings#0:| »
+                  if (Args.FindLine("vmax-say") is ILine qaSay)
+                  {// QA : fait parler le compagnon et rend sa fenêtre (bulle comprise) dans %TEMP%\vmax-qa-settings.png
+                      Task.Run(async () =>
+                      {
+                          await Task.Delay(9000);// après les animations de démarrage
+                          Dispatcher.Invoke(() =>
+                          {
+                              if (Args.FindLine("vmax-say-noanim") != null)
+                                  Main.Say(qaSay.Info);
+                              else
+                                  Main.Say(qaSay.Info, "shining", true);
+                              if (Args.FindLine("vmax-show-toolbar") != null)
+                                  Main.ToolBar.Show();
+                          });
+                          var trace = new System.Text.StringBuilder();
+                          for (int qi = 0; qi < 7; qi++)
+                          {
+                              await Task.Delay(500);
+                              Dispatcher.Invoke(() => trace.AppendLine($"{qi * 500 + 500}ms msgbar={Main.MsgBar?.Visibility} graph={Main.DisplayType.Name}/{Main.DisplayType.Animat} gate=[{string.Join(",", AnimationGate.ActiveReasons)}]"));
+                          }
+                          System.IO.File.WriteAllText(System.IO.Path.Combine(System.IO.Path.GetTempPath(), "vmax-qa-trace.txt"), trace.ToString());
+                          Dispatcher.Invoke(() =>
+                          {
+                              System.IO.File.WriteAllText(System.IO.Path.Combine(System.IO.Path.GetTempPath(), "vmax-qa-debug.txt"),
+                                  $"msgbar={Main.MsgBar?.Visibility} op={(Main.MsgBar as UIElement)?.Opacity} toolbar={Main.ToolBar?.Visibility} state={Main.State} size={ActualWidth}x{ActualHeight}");
+                              QaSnapshot(this, System.IO.Path.Combine(System.IO.Path.GetTempPath(), "vmax-qa-settings.png"));
+                          });
+                      });
+                  }
                   if (Args.FindLine("vmax-open-traymenu") != null)
                   {// QA : menu de la zone de notification rendu dans %TEMP%\vmax-qa-settings.png
                       TrayMenu.Show(this, notifyIcon.ContextMenuStrip!);

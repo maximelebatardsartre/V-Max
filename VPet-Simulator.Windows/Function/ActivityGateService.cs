@@ -88,10 +88,40 @@ public static class ActivityGateService
 
     private static void CheckFullScreen()
     {
-        if (SHQueryUserNotificationState(out int state) != 0)
-            return;
-        bool fullScreen = state is QUNS_BUSY or QUNS_RUNNING_D3D_FULL_SCREEN or QUNS_PRESENTATION_MODE;
+        bool fullScreen = false;
+        if (SHQueryUserNotificationState(out int state) == 0 && state is QUNS_BUSY or QUNS_RUNNING_D3D_FULL_SCREEN or QUNS_PRESENTATION_MODE)
+            fullScreen = ForegroundCoversPetMonitor();
         AnimationGate.Set(ReasonFullScreen, fullScreen);
+    }
+
+    /// <summary>
+    /// La fenêtre au premier plan (d'un autre processus) couvre-t-elle entièrement un écran où se trouve un compagnon ?
+    /// (Avec plusieurs écrans, un jeu ou une vidéo plein écran ailleurs ne doit pas figer le compagnon.)
+    /// </summary>
+    private static bool ForegroundCoversPetMonitor()
+    {
+        var fg = GetForegroundWindow();
+        if (fg == IntPtr.Zero || fg == GetShellWindow())
+            return false;
+        GetWindowThreadProcessId(fg, out uint pid);
+        if (pid == (uint)Environment.ProcessId)
+            return false;
+        if (!GetWindowRect(fg, out RECT r))
+            return false;
+        var fgMonitor = MonitorFromWindow(fg, MONITOR_DEFAULTTONEAREST);
+        var mi = new MONITORINFO { cbSize = Marshal.SizeOf<MONITORINFO>() };
+        if (!GetMonitorInfo(fgMonitor, ref mi))
+            return false;
+        bool covers = r.Left <= mi.rcMonitor.Left && r.Top <= mi.rcMonitor.Top && r.Right >= mi.rcMonitor.Right && r.Bottom >= mi.rcMonitor.Bottom;
+        if (!covers)
+            return false;
+        foreach (var w in App.MainWindows)
+        {
+            var h = new WindowInteropHelper(w).Handle;
+            if (h != IntPtr.Zero && MonitorFromWindow(h, MONITOR_DEFAULTTONEAREST) == fgMonitor)
+                return true;
+        }
+        return false;
     }
 
     private static IntPtr WndProc(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled)
@@ -133,5 +163,20 @@ public static class ActivityGateService
 
     [DllImport("shell32.dll")]
     private static extern int SHQueryUserNotificationState(out int pquns);
+
+    private const uint MONITOR_DEFAULTTONEAREST = 2;
+
+    [StructLayout(LayoutKind.Sequential)]
+    private struct RECT { public int Left, Top, Right, Bottom; }
+
+    [StructLayout(LayoutKind.Sequential)]
+    private struct MONITORINFO { public int cbSize; public RECT rcMonitor; public RECT rcWork; public uint dwFlags; }
+
+    [DllImport("user32.dll")] private static extern IntPtr GetForegroundWindow();
+    [DllImport("user32.dll")] private static extern IntPtr GetShellWindow();
+    [DllImport("user32.dll")] private static extern uint GetWindowThreadProcessId(IntPtr hWnd, out uint processId);
+    [DllImport("user32.dll")] private static extern bool GetWindowRect(IntPtr hWnd, out RECT rect);
+    [DllImport("user32.dll")] private static extern IntPtr MonitorFromWindow(IntPtr hwnd, uint flags);
+    [DllImport("user32.dll")] private static extern bool GetMonitorInfo(IntPtr hMonitor, ref MONITORINFO lpmi);
     #endregion
 }

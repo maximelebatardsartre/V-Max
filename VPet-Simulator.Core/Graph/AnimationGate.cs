@@ -5,9 +5,10 @@ using System.Threading.Tasks;
 namespace VPet_Simulator.Core
 {
     /// <summary>
-    /// V-Max : interrupteur global des animations.
-    /// Quand au moins une raison de pause est active (session verrouillée, écran éteint, application plein écran,
-    /// compagnon masqué…), les boucles d'animation attendent sans consommer de CPU, puis reprennent là où elles étaient.
+    /// V-Max : interrupteur global du rendu des animations.
+    /// Quand au moins une raison de pause est active (session verrouillée, écran éteint, application plein écran
+    /// sur l'écran du compagnon, compagnon masqué…), les animations ne dessinent plus aucune image (aucun travail
+    /// d'interface), mais leur chronologie continue : les enchaînements (bulles, fins d'animation) restent corrects.
     /// La logique de jeu (minuteur de 15 s) n'est pas concernée.
     /// </summary>
     public static class AnimationGate

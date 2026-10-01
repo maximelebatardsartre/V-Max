@@ -160,9 +160,6 @@ namespace VPet_Simulator.Core
         /// </summary>
         public async Task RunAsync(TaskControl Control)
         {
-            var gate = AnimationGate.WaitAsync();
-            if (!gate.IsCompleted)
-                await gate.ConfigureAwait(false);
             await Task.Delay(Length).ConfigureAwait(false);
             //判断是否要下一步
             switch (Control.Type)

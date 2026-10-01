@@ -291,6 +291,8 @@ namespace VPet_Simulator.Core
             {
                 Panel.SetZIndex(this, m.UIGrid.Children.Count);
             }
+            if (Visibility != Visibility.Visible)
+                UiMotion.SlideIn(ToolBarMenu, 12, 200);// V-Max : apparition douce de la barre
             Visibility = Visibility.Visible;
             if (CloseTimer.Enabled)
                 onFocus = true;
@@ -428,6 +430,8 @@ namespace VPet_Simulator.Core
 
         private void MenuPanel_MouseEnter(object sender, MouseEventArgs e)
         {
+            if (BdrPanel.Visibility != Visibility.Visible)
+                UiMotion.PopIn(BdrPanel, new Point(0.5, 1), 0.96, 180);
             BdrPanel.Visibility = Visibility.Visible;
             M_TimeUIHandle(m);
             EventMenuPanelShow?.Invoke();

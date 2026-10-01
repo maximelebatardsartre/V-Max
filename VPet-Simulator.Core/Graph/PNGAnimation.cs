@@ -287,16 +287,17 @@ namespace VPet_Simulator.Core
                 int id = startIndex;
                 while (true)
                 {
-                    var gate = AnimationGate.WaitAsync();
-                    if (!gate.IsCompleted)
-                        await gate.ConfigureAwait(false);
-
                     nowid = id;
-                    var frameSource = GetFrameSource(id);
-                    if (This.Dispatcher.CheckAccess())
-                        ShowFrame(This, frameSource);
-                    else
-                        _ = This.Dispatcher.InvokeAsync(() => ShowFrame(This, frameSource), DispatcherPriority.Render);
+                    // En pause (compagnon invisible) : pas de rendu, mais la chronologie continue
+                    // pour que les enchaînements (bulle, fin d'animation…) se produisent normalement.
+                    if (!AnimationGate.IsPaused)
+                    {
+                        var frameSource = GetFrameSource(id);
+                        if (This.Dispatcher.CheckAccess())
+                            ShowFrame(This, frameSource);
+                        else
+                            _ = This.Dispatcher.InvokeAsync(() => ShowFrame(This, frameSource), DispatcherPriority.Render);
+                    }
 
                     await Task.Delay(Animations[id].Time).ConfigureAwait(false);
 

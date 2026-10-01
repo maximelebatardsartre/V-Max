@@ -185,8 +185,11 @@ namespace VPet_Simulator.Core
             LName.Content = name;
             timeleft = Function.ComCheck(text) * 10 + 20;
             ShowTimer.Start(); EndTimer.Stop(); CloseTimer.Stop();
+            bool wasHidden = this.Visibility != Visibility.Visible || Opacity < 0.5;
             this.Visibility = Visibility.Visible;
             Opacity = .8;
+            if (wasHidden)
+                UiMotion.PopIn(BorderMain, new Point(0.5, 1), 0.92, 220);// V-Max : apparition douce
             this.graphName = graphName;
             if (msgContent != null)
             {
@@ -218,8 +221,11 @@ namespace VPet_Simulator.Core
             ShowTimer.Stop();
             EndTimer.Stop();
             CloseTimer.Stop();
+            bool wasHidden = this.Visibility != Visibility.Visible || Opacity < 0.5;
             this.Visibility = Visibility.Visible;
             Opacity = .8;
+            if (wasHidden)
+                UiMotion.PopIn(BorderMain, new Point(0.5, 1), 0.92, 220);// V-Max : apparition douce
             graphName = sayInfoWithStream.GraphName;
 
             var msgcontent = sayInfoWithStream.MsgContent ?? (string.IsNullOrWhiteSpace(sayInfoWithStream.Desc)
