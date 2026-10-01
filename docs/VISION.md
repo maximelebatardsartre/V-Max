@@ -355,3 +355,82 @@ L'agent ne doit pas être branché sur les fondations actuelles sans ces correct
 | Actions de l'agent sur le système | Sécurité, confiance | Niveaux de risque, confirmations, pas de shell libre, journal d'audit |
 | Faux positifs du mot d'activation | Gêne, vie privée | Seuil réglable, coupure en visioconférence, indicateur visible, *push-to-talk* par défaut |
 | Compatibilité des mods VPet | Écosystème | Façade `IMainWindow` conservée, tests de non-régression sur les mods officiels |
+
+---
+
+## 11. Habitat : le mode autonome sur un fond personnalisé
+
+> Décision du 2026-10-02. Le compagnon peut vivre sa vie dans un décor choisi par l'utilisateur (par exemple une maison en coupe 2D). L'utilisateur « calque » la logique de jeu sur l'image : sols, axes d'escalade, pièces. Le compagnon s'y déplace seul (routines, besoins, IA) et ses occupations se jouent au bon endroit.
+
+### 11.1 Ce que le code de VPet apporte déjà
+
+| Constat | Conséquence pour l'habitat |
+|---|---|
+| Le moteur de déplacement ne connaît que **4 distances** : du compagnon aux bords gauche, droit, haut et bas de la zone de déplacement (`IController.GetWindowsDistance*`). La table `pet/vup.lps` déclenche et arrête `walk`, `crawl`, `climb.*` et `fall.*` selon ces distances. | Un `IController` « habitat » qui mesure ces distances par rapport au **sol courant** (et plus tard aux échelles) suffit pour que l'errance native fonctionne sur le décor, **sans modifier aucune animation**. |
+| Les animations d'escalade ont un décalage d'accroche (`climb.left` : `LocateLength#145`). | L'alignement des mains sur une échelle tracée est connu d'avance. |
+| `Main.DisplayMove` (choix du prochain déplacement) est une fonction remplaçable. | Le navigateur de l'habitat s'y branche pour les déplacements volontaires. |
+| Les animations d'occupation **contiennent leurs meubles** : bureau et chaise pour « Étudier », couette et oreiller pour « Dormir ». | Les meubles « apparaissent » d'eux-mêmes. Il faut un emplacement **vide** sur le décor, et un sol aligné sur le bas de l'image de l'animation (pieds à ~97 % de la hauteur pour le personnage par défaut, mesuré sur l'image). |
+| La fin d'un glisser-déposer appelle `IController.CheckPosition()`. | C'est là que s'applique la gravité : le compagnon tombe sur le premier sol sous lui. |
+
+### 11.2 Modes d'affichage (décidés)
+
+| Mode | Quand | Statut |
+|---|---|---|
+| **(b) Fenêtre habitat** (par défaut) | Toujours disponible. Le décor s'affiche dans une fenêtre type « aquarium », redimensionnable, plaçable sur n'importe quel écran. Le compagnon lui est rattaché (fenêtre propriétaire) : il ne flotte jamais au-dessus d'un navigateur quand l'habitat est derrière. | Étape 1 |
+| **(a) Bureau** | Quand l'utilisateur affiche le bureau (Win+D) ou que le PC est inactif, le compagnon passe sur le vrai fond d'écran (même carte, projetée selon le mode d'ajustement du fond). Il revient dans la fenêtre habitat dès que le bureau est recouvert. | Étape 2 |
+| **(c) Couche du fond d'écran** | Vivre derrière les fenêtres, à la manière de Wallpaper Engine. Windows 11 24H2 a modifié cette couche : expérimental, ne bloque pas la v1. | Plus tard |
+
+### 11.3 Architecture en couches
+
+| Couche | Rôle | Fichiers |
+|---|---|---|
+| **Modèle** | `HabitatMap` : JSON versionné, coordonnées en pixels de l'image, rattaché à l'image par son empreinte SHA-256. Stocké dans `%APPDATA%\V-Max\habitats\<sha256>.json`. | `Habitat/HabitatMap.cs` |
+| **Projection** | Image → écran : mode d'ajustement (remplir, ajuster, étirer, centré, mosaïque, étendu), rectangle cible (fenêtre habitat ou moniteur), unités WPF. Fonctions pures, testées. | `Habitat/HabitatProjection.cs` |
+| **Locomotion** | `HabitatController : IController` : distances virtuelles par rapport au sol courant, gravité au dépôt, recalage quand la fenêtre habitat bouge ou change de taille. Mesure automatique des pieds et du centre du corps sur l'image du personnage. | `Habitat/HabitatController.cs`, `Habitat/PetMetrics.cs` |
+| **Navigation** (étape 2) | Graphe de points de passage + A* (quelques dizaines de nœuds, pas de grille). Arêtes : marcher, grimper (`climb.*`), se laisser tomber (`fall.*`). Les arêtes dont l'animation manque pour le personnage sont **impraticables** : il reste au rez-de-chaussée ou demande de l'aide. | `Habitat/HabitatNavigator.cs` |
+| **Comportement** (étape 2–3) | Routines (faim → cuisine, nuit ou fatigue → chambre), occupations rattachées à des emplacements, outils de l'agent `aller_dans(pièce)` et `où_es_tu`, pièce courante dans le contexte de l'IA. | `Habitat/HabitatBrain.cs`, `Agent/AgentTools.cs` |
+
+Format (version 1) :
+
+```json
+{ "version": 1,
+  "image": { "sha256": "…", "width": 3840, "height": 2160, "name": "Maison" },
+  "petHeight": 420,
+  "floors":  [{ "id": "f1", "y": 1980, "x1": 0, "x2": 3840 }],
+  "climbs":  [{ "id": "c1", "x": 1210, "y1": 1150, "y2": 1980, "side": "left" }],
+  "drops":   [{ "id": "d1", "from": "f2", "x": 2600, "to": "f1" }],
+  "rooms":   [{ "id": "r1", "name": "Cuisine", "tag": "kitchen", "x": 0, "y": 1150, "width": 1200, "height": 830 }],
+  "spots":   [{ "id": "s1", "room": "r1", "floor": "f2", "x": 600, "activity": "GrilledSausage" }] }
+```
+
+`petHeight` est la hauteur **visible** du compagnon debout, en pixels de l'image : la taille suit donc automatiquement la taille de la fenêtre habitat ou de l'écran.
+
+### 11.4 Éditeur intégré (WPF)
+
+- **On édite sur l'image**, pas sur le bureau : indépendant de la résolution, possible avec des fenêtres ouvertes. Un aperçu sur le bureau viendra avec le mode (a).
+- **Un seul repère** : l'image et les calques partagent la même transformation (zoom et défilement). Toutes les coordonnées restent en pixels de l'image ; aucune conversion dans l'éditeur.
+- **Outils** : Sélection, Sol, puis Escalade, Chute, Pièce, Emplacement. Les sols restent horizontaux, les échelles verticales.
+- **Aimantation (à sanctuariser)** : les extrémités d'une échelle se collent aux sols, ce qui crée les connexions du graphe A* ; les sols s'alignent entre eux et sur les bords de l'image.
+- **Fantôme à l'échelle (à sanctuariser)** : le compagnon est dessiné à sa taille réelle sur le sol survolé ; pour un emplacement, l'animation choisie (avec ses meubles) est affichée en fantôme pour vérifier qu'elle tombe dans un espace vide.
+- **Validation en direct** : aucun sol, plafond trop bas pour la taille du compagnon, pièce inaccessible, échelle qui ne touche aucun sol.
+- Annuler / rétablir, déplacement au clavier, « Tester un trajet » (étape 2).
+
+### 11.5 Cas limites retenus
+
+| Cas | Traitement |
+|---|---|
+| **Taille du compagnon** | Enregistrée dans la carte (`petHeight`) : un manoir géant ou une petite cabane donnent la bonne échelle. Réglable à tout moment (curseur de l'éditeur, Ctrl + molette sur le compagnon). Hors habitat, la taille se règle aussi à la volée (Ctrl + molette) et s'affiche en pourcentage de la hauteur de l'écran. |
+| **Personnage sans animation `climb`** | Les arêtes « échelle » sont retirées du graphe pour ce personnage. |
+| **Glisser-déposer** | Au relâchement, chute verticale jusqu'au premier sol sous le compagnon (ou le plus proche s'il n'y en a aucun dessous). |
+| **Fond d'écran qui change** (diaporama, autre image) | La carte est liée à une image ; sans carte pour l'image affichée, retour au mode classique. |
+| **Plusieurs écrans, DPI** | La projection travaille en unités WPF par moniteur ; la fenêtre habitat peut vivre sur n'importe quel écran. |
+| **Mise au premier plan forcée** | En mode habitat, le compagnon suit le premier plan de la fenêtre habitat. |
+| **Partage** | Paquet `.vmaxhome` (image + JSON), attention aux droits sur les images (étape 3). |
+
+### 11.6 Découpage
+
+| Étape | Contenu | Critère de sortie |
+|---|---|---|
+| **1. Fondations** | Modèle, projection, fenêtre habitat, locomotion et gravité sur les sols, éditeur des sols avec fantôme et taille du compagnon, réglages, taille à la volée | Le compagnon marche sur un sol tracé, suit la fenêtre quand on la déplace ou la redimensionne, retombe sur un sol quand on le lâche |
+| **2. Navigation** | Échelles (aimantation), chutes, A*, pièces, emplacements, routines, bascule vers le bureau (Win+D, inactivité) | « Va dans la cuisine » fonctionne à travers deux étages |
+| **3. Extras** | Outils de l'agent, détection automatique des sols, suggestion des pièces par l'IA, partage, expérimentation de la couche du fond d'écran | — |
