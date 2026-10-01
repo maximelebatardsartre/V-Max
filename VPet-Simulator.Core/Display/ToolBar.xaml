@@ -9,9 +9,12 @@
     <UserControl.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="Theme.xaml" />
                 <ResourceDictionary Source="basestyle.xaml" />
             </ResourceDictionary.MergedDictionaries>
+            <!-- V-Max : couleur du texte des entrées suivant le thème (Panuon impose sinon un noir fixe) -->
+            <Style TargetType="MenuItem" BasedOn="{StaticResource {x:Static pu:StyleKeys.MenuItemStyle}}">
+                <Setter Property="Foreground" Value="{DynamicResource PrimaryText}" />
+            </Style>
         </ResourceDictionary>
     </UserControl.Resources>
     <Grid x:Name="MainGrid" x:FieldModifier="public">
@@ -121,10 +124,10 @@
                     <UniformGrid Columns="{Binding Tag, ElementName=ToolBarMenu}" />
                 </ItemsPanelTemplate>
             </Menu.ItemsPanel>
-            <MenuItem x:Name="MenuFeed" Padding="0" x:FieldModifier="public" Header="{ll:Str 投喂}" />
-            <MenuItem x:Name="MenuPanel" Padding="0" Header="{ll:Str 面板}" MouseEnter="MenuPanel_MouseEnter"
+            <MenuItem x:Name="MenuFeed" Foreground="{DynamicResource PrimaryText}" Padding="0" x:FieldModifier="public" Header="{ll:Str 投喂}" />
+            <MenuItem x:Name="MenuPanel" Foreground="{DynamicResource PrimaryText}" Padding="0" Header="{ll:Str 面板}" MouseEnter="MenuPanel_MouseEnter"
                     MouseLeave="MenuPanel_MouseLeave" />
-            <MenuItem x:Name="MenuInteract" Padding="0" Header="{ll:Str 互动}" x:FieldModifier="public">
+            <MenuItem x:Name="MenuInteract" Foreground="{DynamicResource PrimaryText}" Padding="0" Header="{ll:Str 互动}" x:FieldModifier="public">
                 <MenuItem Click="Sleep_Click" Header="{ll:Str 睡觉}" />
                 <MenuItem x:Name="MenuStudy" Header="{ll:Str 学习}" ScrollViewer.VerticalScrollBarVisibility="Auto"
                         pu:DropDownHelper.MaxHeight="100" x:FieldModifier="public" />
@@ -134,8 +137,8 @@
                         pu:DropDownHelper.MaxHeight="100" x:FieldModifier="public" />
                 <!--<MenuItem Header="说话"  IsEnabled="False" />-->
             </MenuItem>
-            <MenuItem x:Name="MenuDIY" Padding="0" x:FieldModifier="public" Header="{ll:Str 自定}" />
-            <MenuItem x:Name="MenuSetting" Padding="0" x:FieldModifier="public" Header="{ll:Str 系统}">
+            <MenuItem x:Name="MenuDIY" Foreground="{DynamicResource PrimaryText}" Padding="0" x:FieldModifier="public" Header="{ll:Str 自定}" />
+            <MenuItem x:Name="MenuSetting" Foreground="{DynamicResource PrimaryText}" Padding="0" x:FieldModifier="public" Header="{ll:Str 系统}">
                 <MenuItem x:Name="MenuMODConfig" x:FieldModifier="public" Header="{ll:Str MOD设置}" Visibility="Collapsed" />
             </MenuItem>
         </Menu>

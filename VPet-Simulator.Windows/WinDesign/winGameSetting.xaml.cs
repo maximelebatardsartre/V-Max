@@ -147,17 +147,21 @@ namespace VPet_Simulator.Windows
                 }
             }
 
+            FontBox.Items.Add("Police système (Segoe UI)".Translate());
             foreach (var v in mw.Fonts)
             {
                 FontBox.Items.Add(v.TranslateName);
             }
-            FontBox.SelectedIndex = mw.Fonts.FindIndex(x => x.Name == mw.Set.Font);
+            FontBox.SelectedIndex = mw.Set.Font == SystemTheme.SystemFont ? 0 : mw.Fonts.FindIndex(x => x.Name == mw.Set.Font) + 1;
 
+            ThemeBox.Items.Add("Suivre Windows (clair / sombre)".Translate());
             foreach (var v in mw.Themes)
             {
                 ThemeBox.Items.Add(v.TranslateName);
             }
-            if (mw.Theme != null)
+            if (mw.ThemeFollowsSystem)
+                ThemeBox.SelectedIndex = 0;
+            else if (mw.Theme != null)
                 ThemeBox.SelectedItem = mw.Theme.TranslateName;
 
             VoiceCatchSilder.Value = mw.Set.MusicCatch;
@@ -679,7 +683,13 @@ namespace VPet_Simulator.Windows
         {
             if (!AllowChange)
                 return;
-            mw.LoadTheme(mw.Themes[ThemeBox.SelectedIndex].xName);
+            if (ThemeBox.SelectedIndex <= 0)
+            {
+                mw.LoadTheme(SystemTheme.FollowSystem);
+                mw.Set.Theme = SystemTheme.FollowSystem;
+                return;
+            }
+            mw.LoadTheme(mw.Themes[ThemeBox.SelectedIndex - 1].xName);
             mw.Set.Theme = mw.Theme?.xName ?? string.Empty;
         }
 
@@ -687,7 +697,7 @@ namespace VPet_Simulator.Windows
         {
             if (!AllowChange)
                 return;
-            string str = mw.Fonts[FontBox.SelectedIndex].Name;
+            string str = FontBox.SelectedIndex <= 0 ? SystemTheme.SystemFont : mw.Fonts[FontBox.SelectedIndex - 1].Name;
             mw.LoadFont(str);
             mw.Set.Font = str;
         }

@@ -169,7 +169,7 @@ namespace VPet_Simulator.Windows
         }
         public string Font
         {
-            get => GetString("font", "OPPOSans R")!;
+            get => GetString("font", SystemTheme.SystemFont)!;// V-Max : police système (Segoe UI Variable)
             set => this[(gstr)"font"] = value;
         }
         public string Theme
@@ -178,7 +178,7 @@ namespace VPet_Simulator.Windows
             {
                 var line = FindLine("theme");
                 if (line == null)
-                    return "default";
+                    return SystemTheme.FollowSystem;// V-Max : suit le mode clair/sombre de Windows
                 return line.Info;
             }
             set

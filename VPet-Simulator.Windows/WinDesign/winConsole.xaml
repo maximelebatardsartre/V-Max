@@ -2,7 +2,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:ll="clr-namespace:LinePutScript.Localization.WPF;assembly=LinePutScript.Localization.WPF"
-        xmlns:local="clr-namespace:VPet_Simulator.Windows" Foreground="{StaticResource PrimaryText}"
+        xmlns:local="clr-namespace:VPet_Simulator.Windows" Foreground="{DynamicResource PrimaryText}"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:pu="clr-namespace:Panuon.WPF.UI;assembly=Panuon.WPF.UI" Width="{ll:Dbe ConsoleWidth_450, DefValue=450}"
         Height="{ll:Dbe ConsoleHeight_450, DefValue=450}" FontSize="16"

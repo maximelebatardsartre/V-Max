@@ -29,6 +29,14 @@ namespace VPet_Simulator.Core
         {
             InitializeComponent();
             this.m = m;
+            // V-Max : les sous-menus (souvent créés par le code ou les plugins) suivent la couleur de texte du thème
+            ToolBarMenu.AddHandler(MenuItem.SubmenuOpenedEvent, new RoutedEventHandler((_, e) =>
+            {
+                if (e.OriginalSource is MenuItem parent)
+                    foreach (var item in parent.Items)
+                        if (item is MenuItem mi && mi.ReadLocalValue(ForegroundProperty) == DependencyProperty.UnsetValue)
+                            mi.SetResourceReference(ForegroundProperty, "PrimaryText");
+            }));
             CloseTimer = new Timer()
             {
                 Interval = 4000,

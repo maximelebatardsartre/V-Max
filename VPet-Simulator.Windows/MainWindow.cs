@@ -49,6 +49,17 @@ namespace VPet_Simulator.Windows
         /// <param name="themename">主题名称</param>
         public void LoadTheme(string themename)
         {
+            // V-Max : « system » suit le mode clair/sombre de Windows, et se réapplique quand il change
+            ThemeFollowsSystem = themename == SystemTheme.FollowSystem;
+            if (ThemeFollowsSystem)
+            {
+                SystemTheme.EnsureWatching(() => Dispatcher.Invoke(() =>
+                {
+                    if (ThemeFollowsSystem)
+                        LoadTheme(SystemTheme.FollowSystem);
+                }));
+                themename = SystemTheme.IsAppsDarkMode() ? "vmax-sombre" : "vmax-clair";
+            }
             Theme? ctheme = Themes.Find(x => x.xName == themename);
             if (ctheme == null)
             {
@@ -98,8 +109,50 @@ namespace VPet_Simulator.Windows
             Application.Current.Resources["DARKPrimaryTransE"] = new SolidColorBrush(c);
         }
 
+        /// <summary>
+        /// V-Max (QA) : rend une fenêtre de l'application dans un PNG, sans capturer l'écran
+        /// </summary>
+        public static void QaSnapshot(Window window, string path)
+        {
+            try
+            {
+                if (window.Content is not FrameworkElement root || root.ActualWidth < 1)
+                    return;
+                var dpi = VisualTreeHelper.GetDpi(root);
+                var rtb = new System.Windows.Media.Imaging.RenderTargetBitmap((int)(root.ActualWidth * dpi.DpiScaleX), (int)(root.ActualHeight * dpi.DpiScaleY),
+                    dpi.PixelsPerInchX, dpi.PixelsPerInchY, PixelFormats.Pbgra32);
+                var dv = new DrawingVisual();
+                using (var dc = dv.RenderOpen())
+                {
+                    dc.DrawRectangle(window.Background ?? Brushes.Transparent, null, new Rect(0, 0, root.ActualWidth, root.ActualHeight));
+                    dc.DrawRectangle(new VisualBrush(root), null, new Rect(0, 0, root.ActualWidth, root.ActualHeight));
+                }
+                rtb.Render(dv);
+                var enc = new System.Windows.Media.Imaging.PngBitmapEncoder();
+                enc.Frames.Add(System.Windows.Media.Imaging.BitmapFrame.Create(rtb));
+                using var fs = File.Create(path);
+                enc.Save(fs);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("QaSnapshot: " + e.Message);
+            }
+        }
+
+        /// <summary>
+        /// V-Max : le thème suit le mode clair/sombre de Windows
+        /// </summary>
+        public bool ThemeFollowsSystem { get; private set; }
+
         public void LoadFont(string fontname)
         {
+            if (fontname == SystemTheme.SystemFont)
+            {// V-Max : police système moderne
+                var sys = new FontFamily("Segoe UI Variable Text, Segoe UI, Microsoft YaHei UI");
+                Application.Current.Resources["MainFont"] = sys;
+                Panuon.WPF.UI.GlobalSettings.Setting.FontFamily = sys;
+                return;
+            }
             IFont? cfont = Fonts.Find(x => x.Name == fontname);
             if (cfont == null)
             {
@@ -2316,6 +2369,18 @@ namespace VPet_Simulator.Windows
                       {
                           NoticeBox.Show("由于插件引起的游戏启动错误".Translate() + "\n" + e.ToString(), "由于插件引起的游戏启动错误".Translate() + '-' + mp.PluginName);
                       }
+
+                  // V-Max (QA) : ouvre directement une page des paramètres, ex. argument « vmax-open-settings#0:| »
+                  if (Args.FindLine("vmax-open-settings") is ILine qaSettings)
+                  {
+                      ShowSetting(qaSettings.InfoToInt);
+                      // rendu de la fenêtre dans %TEMP%\vmax-qa-settings.png (sans capture d'écran)
+                      Task.Run(async () =>
+                      {
+                          await Task.Delay(4000);
+                          Dispatcher.Invoke(() => QaSnapshot(winSetting!, System.IO.Path.Combine(System.IO.Path.GetTempPath(), "vmax-qa-settings.png")));
+                      });
+                  }
 
                   //这里写的都是共通的功能, 如果限定第一个MW使用的功能, 请前往
 

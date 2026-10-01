@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:pu="clr-namespace:Panuon.WPF.UI;assembly=Panuon.WPF.UI"
         xmlns:ll="clr-namespace:LinePutScript.Localization.WPF;assembly=LinePutScript.Localization.WPF" mc:Ignorable="d"
-        Width="900" Height="540" FontSize="16" Foreground="{StaticResource PrimaryText}" Title="{ll:Str '存档管理器'}"
+        Width="900" Height="540" FontSize="16" Foreground="{DynamicResource PrimaryText}" Title="{ll:Str '存档管理器'}"
         Style="{DynamicResource BaseWindowXStyle}" WindowStartupLocation="CenterOwner">
     <Grid Margin="10">
         <Grid.RowDefinitions>

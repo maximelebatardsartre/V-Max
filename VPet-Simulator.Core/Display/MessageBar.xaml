@@ -5,9 +5,6 @@
         xmlns:local="clr-namespace:VPet_Simulator.Core" mc:Ignorable="d" Height="500" Width="500"
         xmlns:ll="clr-namespace:LinePutScript.Localization.WPF;assembly=LinePutScript.Localization.WPF"
         MouseDoubleClick="UserControl_MouseDoubleClick">
-    <UserControl.Resources>
-        <ResourceDictionary Source="Theme.xaml" d:IsDataSource="True" />
-    </UserControl.Resources>
     <UserControl.ContextMenu>
         <ContextMenu Opened="ContextMenu_Opened" Closed="ContextMenu_Closed">
             <MenuItem Header="{ll:Str 复制全文}" Click="MenuItemCopy_Click" />

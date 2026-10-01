@@ -293,6 +293,9 @@
         <Setter Property="pu:MenuHelper.TopLevelDropDownVerticalOffset" Value="-25" />
         <Setter Property="BorderBrush" Value="{DynamicResource DARKPrimaryDarker}" />
         <Setter Property="Background" Value="{DynamicResource DARKPrimaryText}" />
+        <Setter Property="Foreground" Value="{DynamicResource PrimaryText}" />
+        <Setter Property="pu:MenuHelper.TopLevelItemsForeground" Value="{DynamicResource PrimaryText}" />
+        <Setter Property="pu:MenuHelper.SubmenuItemsForeground" Value="{DynamicResource PrimaryText}" />
         <Setter Property="pu:MenuHelper.CornerRadius" Value="5" />
         <Setter Property="pu:MenuHelper.TopLevelDropDownPlacement" Value="TopRight" />
         <Setter Property="pu:MenuHelper.TopLevelItemsPadding" Value="15,0" />

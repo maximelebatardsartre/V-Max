@@ -10,6 +10,8 @@
 
 
   <Style x:Key="BaseWindowXStyle" TargetType="pu:WindowX">
+    <Setter Property="Background" Value="{DynamicResource PrimaryLighter}" />
+    <Setter Property="Foreground" Value="{DynamicResource PrimaryText}" />
     <Setter Property="pu:WindowXCaption.Background" Value="{DynamicResource DARKPrimary}" />
     <Setter Property="pu:WindowXCaption.Foreground" Value="{DynamicResource DARKPrimaryText}" />
     <Setter Property="pu:ScrollBarHelper.ThumbBackground" Value="{DynamicResource DARKPrimaryTrans4}" />
@@ -61,6 +63,8 @@
     TargetType="{x:Type ComboBox}">
     <Setter Property="FontSize" Value="14" />
     <Setter Property="Height" Value="30" />
+    <Setter Property="Foreground" Value="{DynamicResource PrimaryText}" />
+    <Setter Property="pu:ComboBoxHelper.ItemsForeground" Value="{DynamicResource PrimaryText}" />
     <Setter Property="Background" Value="{DynamicResource DARKPrimaryText}" />
     <Setter Property="BorderThickness" Value="1.5" />
     <Setter Property="BorderBrush" Value="{DynamicResource DARKPrimary}" />
@@ -111,6 +115,7 @@
     x:Key="StandardRadioButtonStyle"
     BasedOn="{StaticResource {x:Type RadioButton}}"
     TargetType="RadioButton">
+    <Setter Property="Foreground" Value="{DynamicResource PrimaryText}" />
     <Setter Property="pu:RadioButtonHelper.CheckedToggleBrush" Value="{DynamicResource DARKPrimary}" />
     <Setter Property="pu:RadioButtonHelper.CheckedBorderBrush" Value="{DynamicResource DARKPrimary}" />
   </Style>
@@ -121,6 +126,7 @@
     TargetType="ListBox">
     <Setter Property="BorderThickness" Value="0" />
     <Setter Property="Background" Value="Transparent" />
+    <Setter Property="Foreground" Value="{DynamicResource PrimaryText}" />
     <Setter Property="pu:ListBoxHelper.ItemsHeight" Value="30" />
     <Setter Property="pu:ListBoxHelper.ItemsPadding" Value="15,0" />
     <Setter Property="pu:ListBoxHelper.ItemsCornerRadius" Value="5" />
