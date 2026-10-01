@@ -1,0 +1,143 @@
+动画加载错误,请尝试以下解决方法修复问题:\n	1. 删除游戏根目录`Cache`文件夹\n	2. 删除游戏根目录`mod\0000_core\pet`文件夹#Erreur de chargement de l'animation. Essayez les solutions suivantes :\n/tab1. Supprimez le dossier `Cache` à la racine du jeu\n/tab2. Supprimez le dossier `mod\0000_core\pet` à la racine du jeu:|
+当前工作数据属性超模,是否继续工作?\n超模工作可能会导致游戏发生不可预料的错误\n超模工作不影响大部分成就解锁\n可以在设置中开启自动计算自动为工作设置合理数值#Les attributs de ce travail sont déséquilibrés. Continuer à travailler ?\nUn travail déséquilibré peut provoquer des erreurs imprévues dans le jeu\nUn travail déséquilibré n'empêche pas de débloquer la plupart des succès\nVous pouvez activer le calcul automatique dans les paramètres pour attribuer des valeurs raisonnables aux travaux:|
+老板牌的最新款碳纤维球拍. 内置辅助动力, 让您可以轻松用出"零式发球""天衣无缝"等球技\n你刚刚说了，网球?#La toute dernière raquette en fibre de carbone de la marque du patron. Son assistance motorisée intégrée permet de réussir sans effort des coups comme le « Service zéro » ou l'« Harmonie parfaite ».\nTu viens de dire « tennis » ?:|
+超模工作提醒#Avertissement : travail déséquilibré:|
+存档不一致提示#Incohérence de sauvegarde:|
+这个玩具好像不能玩耍呢#On dirait qu'on ne peut pas jouer avec ce jouet...:|
+{name}已经移动了足足{0}#{name} a parcouru pas moins de {0}.:|
+双份蛋糕#Double part de gâteau:|
+生日蛋糕提问!#Question du gâteau d'anniversaire !:|
+答对啦! 奖励双份蛋糕!#Bonne réponse ! Une double part de gâteau en récompense !:|
+流式说话测试#Test de parole en streaming:|
+刷新列表#Actualiser la liste:|
+打开 ChatGPT API 设置#Ouvrir les paramètres de l'API ChatGPT:|
+自动选择窗口#Fenêtre choisie automatiquement:|
+刷新#Actualiser:|
+宠物名称#Nom du compagnon:|
+加载失败#Échec du chargement:|
+加载成功#Chargement réussi:|
+备份#Copie de secours:|
+存档名称:{0}\n保存时间:{1}\n存档等级:{2}\n存档金钱:{3}\nHashCheck:{4}\n是否加载该备份存档? 当前游戏数据会丢失#Nom de la sauvegarde : {0}\nDate de sauvegarde : {1}\nNiveau : {2}\nArgent : {3}\nHashCheck : {4}\nCharger cette sauvegarde ? Les données de jeu actuelles seront perdues:|
+存档文件不存在,请刷新后重试#Le fichier de sauvegarde n'existe pas. Actualisez la liste et réessayez:|
+LB制作组发售的一款含有萝莉丝的中秋礼盒。\n生产日期:明天，保质期:永久#Un coffret de la fête de la Mi-Automne vendu par l'équipe LB, avec Lolis à l'intérieur.\nDate de fabrication : demain. À consommer : pour toujours:|
+冲Q币吗#Et si on achetait des Q-coins ?:|
+ {name}这个人最精了，熬穿了，给自己烧烤的夜宵，说给主人的早饭# {name} est vraiment futée : elle a veillé toute la nuit, s'est grillé un en-cas de minuit, et prétend que c'est le petit-déjeuner du maître:|
+1，2,3,4,5,6！可以！#1, 2, 3, 4, 5, 6 ! Ça marche !:|
+1，哎呦。1,2哎呀。#1, aïe. 1, 2, ouille.:|
+201,202,203,206。。。。数到哪了？#201, 202, 203, 206... J'en étais où ?:|
+一嗒嗒二嗒嗒三嗒嗒。#Un-tap-tap, deux-tap-tap, trois-tap-tap.:|
+上划不要长，下划是主功。―整体两划间，排列宜适中。#Le trait du haut ne doit pas être long, celui du bas fait le travail. ― Entre les deux, garde un espacement équilibré.:|
+下午运动注意#Prudence avec le sport l'après-midi:|
+中划长启下，横担要分明。一笔揽腰过，不失砥柱用。#Le trait du milieu, long, porte le bas ; la barre horizontale doit être nette. Un trait qui traverse la taille tient lieu de pilier.:|
+为什么要半夜跳绳？我也不知道。#Pourquoi sauter à la corde en pleine nuit ? Aucune idée.:|
+主人~这个字怎么写啊？~#Maître~ comment on écrit ce caractère ?~:|
+主人主人，看我个主人写的诗！#Maître, maître, regarde le poème que j'ai écrit pour toi !:|
+主人你看我写的好看吗。#Maître, regarde : c'est joli, ce que j'ai écrit ?:|
+主人你看，我写满一本了哦！#Regarde, maître, j'ai rempli tout un cahier !:|
+主人先睡把，我修好就睡。#Va dormir, maître, je me couche dès que j'ai réparé.:|
+主人快看我100连跳！#Maître, regarde vite : 100 sauts d'affilée !:|
+主人有兴趣一起写吗？很简单的~#Maître, ça te dit d'écrire avec moi ? C'est tout simple~:|
+主人来一起写嘛~~#Allez maître, viens écrire avec moi~~:|
+主人来双人跳吧！#Maître, on saute à deux !:|
+主人看我特技跳！#Maître, regarde mes sauts acrobatiques !:|
+主人！玩跳大神吗？什么还少一个人？#Maître ! On fait une danse chamanique ? Quoi, il manque quelqu'un ?:|
+主人，一起跳吧！#Maître, sautons ensemble !:|
+人字八交叉，叉处空中顶。下部要对准，不要偏西东。#Pour 人 et 八, le croisement se place en haut, au centre. Le bas doit être bien aligné, sans pencher à l'est ni à l'ouest.:|
+什么？你要把这张字裱起来？不行！！！#Quoi ? Tu veux faire encadrer cette page ? Hors de question !!!:|
+今天目标是！100个！#Objectif du jour : 100 sauts !:|
+八字下交叉，亦在字正中。如若偏东西，此字不成形。#Quand 八 se croise en bas, c'est aussi au centre. S'il penche d'un côté, le caractère perd sa forme.:|
+划斜体不斜，整体要端正。上斜虽明显，立稳是主功。 #Traits obliques, corps bien droit : l'ensemble doit rester stable. La pente du haut a beau se voir, tenir debout reste l'essentiel. :|
+到了中午，一天之中，是练字的好时候！#Midi, au cœur de la journée : le moment idéal pour la calligraphie !:|
+剑外忽传收蓟北，初闻涕泪满衣裳#Au-delà des monts, on annonce le Nord reconquis ; à cette nouvelle, mes larmes inondent mes habits:|
+午来需练字。#À midi, place à la calligraphie.:|
+午间运动！开始！12345678,22345678。。。#Gym de midi ! C'est parti ! 1-2-3-4-5-6-7-8, 2-2-3-4-5-6-7-8...:|
+吃完晚饭要半小时才能运动哦~#Après le dîner, il faut attendre une demi-heure avant de faire du sport~:|
+呜呜呜1，呜呜呜呜2，呜呜呜呜呜呜3.#Snif snif 1, snif snif snif 2, snif snif snif snif 3.:|
+哎呦！（被绊倒脸着地）#Aïe ! (se prend les pieds dans la corde et tombe face contre terre):|
+啊，主人你什么什么都没看见喵！#Ah, maître, tu n'as rien vu du tout, miaou !:|
+夜深人静，万籁俱寂，是练字的好时候！#La nuit est profonde, tout est silencieux : le moment idéal pour la calligraphie !:|
+夜深静练字。#Tard dans la nuit, calligraphie en silence.:|
+天已入夜，众生归巢，是练字的好时候！#La nuit tombe, chacun rentre au nid : le moment idéal pour la calligraphie !:|
+寻寻觅觅，冷冷清清，凄凄惨惨戚戚。#Je cherche, je cherche encore ; tout est froid, tout est désert ; tout n'est que tristesse, peine et chagrin.:|
+就若间隔一次元，我心依旧只向君。#Même séparés par une dimension, mon cœur ne se tourne que vers toi.:|
+左右有竖者，左短宜瘦形。右竖粗又壮，主笔浑圆成。#Avec un trait vertical de chaque côté, celui de gauche est court et fin ; celui de droite, épais et robuste, est le trait principal, bien plein.:|
+开始练字！#On commence la calligraphie !:|
+抽刀断水水更流，举杯消愁愁更愁。#Tranche l'eau d'un coup de sabre, elle coule de plus belle ; lève ta coupe pour noyer ton chagrin, il n'en devient que plus lourd.:|
+方字不方正，左右全内行，左阴笔划细，右阳粗笔明。#Un caractère carré n'est pas tout carré : ses côtés rentrent un peu. À gauche (yin), un trait fin ; à droite (yang), un trait franc et épais.:|
+旋转跳跃我闭着眼~#Je tourbillonne et je saute, les yeux fermés~:|
+早上就该做运动喵。#Le matin, c'est fait pour le sport, miaou.:|
+早上起来，万物皆新，是练字的好时候！#Le matin, tout est neuf : le moment idéal pour la calligraphie !:|
+春风得意马蹄疾，一日看尽长安花#Fier sous la brise printanière, mon cheval file au galop ; en un seul jour, j'ai vu toutes les fleurs de Chang'an:|
+晚间也练字。#Le soir aussi, calligraphie.:|
+有字无正笔，划撇偏斜行。偏者要稍正，整体美容生。#Certains caractères n'ont aucun trait droit, tout part en oblique. Redresse un peu ce qui penche, et l'ensemble devient beau.:|
+有横又有竖，横短要记清。―竖长不得减，撇捺展长风。#Avec horizontal et vertical, retiens bien : l'horizontal est court. ― Le vertical ne se raccourcit pas, et les obliques s'étirent comme le vent.:|
+本来字端正，横笔斜上行。倘要平或下，反倒减美容。#Dans un caractère bien droit, les traits horizontaux montent légèrement. Les tracer à plat ou vers le bas lui ôte sa beauté.:|
+来主人我教你，对，先横，然后。。。#Viens, maître, je t'apprends. Voilà, d'abord le trait horizontal, ensuite...:|
+深夜扰民喵！#Tapage nocturne, miaou !:|
+烧烤不要只肉喵#Un barbecue, ce n'est pas que de la viande, miaou:|
+看我一跳通关！#Regarde, je termine le niveau d'un seul saut !:|
+看我来个跳绳反体两周半！#Regarde, je vais faire un double salto et demi arrière à la corde !:|
+跳到你身边~#Je saute jusqu'à toi~:|
+跳起来！#On saute !:|
+跳跃SB。#Je saute comme une andouille.:|
+跳！#Hop !:|
+跳！跳！跳！#Hop ! Hop ! Hop !:|
+蹦蹦跳跳真可爱。#Sautiller, c'est trop mignon.:|
+辰起一练字。#Au lever, un peu de calligraphie.:|
+运动完咬汗干了才能洗澡哦~#Après le sport, attends que la sueur sèche avant de prendre ta douche~:|
+运动完记得好好擦汗哦。#Après le sport, pense à bien t'essuyer.:|
+这玩意该怎么玩？#Comment ça marche, ce truc ?:|
+你在说什么呢仆从，这是这个月的零花钱（掏出一百万）#Qu'est-ce que tu racontes, mon serviteur ? Tiens, voilà ton argent de poche du mois (sort un million):|
+家人们谁懂啊，有个下头主人，刚刚给我不知道喂了什么药，气抖冷哭，桌宠什么时候才能真正的站起来。#Les amis, vous n'imaginez pas : mon maître, ce boulet, vient de me faire avaler je ne sais quel médicament. J'en tremble de rage ! Quand est-ce que les compagnons virtuels pourront enfin relever la tête ?:|
+路径:"{0}" 异常:"{1}"#Chemin : "{0}" Exception : "{1}":|
+修改#Modifier:|
+最大值#Maximum:|
+最小值#Minimum:|
+未找到模组\n路径: {0}#Mod introuvable\nChemin : {0}:|
+确定清除全部失效模组吗#Voulez-vous vraiment supprimer tous les mods invalides ?:|
+确定清除全部模组吗#Voulez-vous vraiment supprimer tous les mods ?:|
+确定重置为默认设置吗\n名称: {0}\n路径: {1}#Voulez-vous vraiment rétablir les paramètres par défaut ?\nNom : {0}\nChemin : {1}:|
+确定重置全部设置吗#Voulez-vous vraiment réinitialiser tous les paramètres ?:|
+设置载入失败\n[是]: 强制载入并重置	[否]: 取消载入\n名称: {0}\n路径: {1}\n异常: {2}#Échec du chargement des paramètres\n[Oui] : forcer le chargement et réinitialiser/tab[Non] : annuler le chargement\nNom : {0}\nChemin : {1}\nException : {2}:|
+提示#Information:|
+不发送诊断数据:\r适用于启用修改器,修改过游戏数据等不符合分析数据条件. 或不希望提供游戏数据的玩家#Ne pas envoyer de données de diagnostic :\rpour les joueurs utilisant un trainer ou ayant modifié les données du jeu, ou ne souhaitant pas fournir leurs données de jeu.:|
+反馈频率(每周期)#Fréquence des commentaires (par cycle):|
+发送诊断数据:\r发送游戏存档, 包括饱腹,状态等各种游戏内数据. 可能会包括该游戏内存和CPU使用情况#Envoyer les données de diagnostic :\renvoie la sauvegarde, dont la satiété, l'état et d'autres données de jeu. Peut inclure l'utilisation de la mémoire et du processeur par le jeu:|
+对于超模内容,游戏会自动计算合理价格.\r如果未使用任何超模数据,数据菜单栏将会显示图标方便您进行炫耀数据.#Pour le contenu déséquilibré, le jeu calcule automatiquement un prix raisonnable.\rSi aucune donnée déséquilibrée n'est utilisée, une icône s'affiche dans le menu Données pour que vous puissiez vous en vanter.:|
+主题与动画#Thème et animations:|
+启动#Démarrage:|
+在任务切换器中和Alt+Tab中隐藏窗口#Masquer la fenêtre du sélecteur de tâches et d'Alt+Tab:|
+外部消息框#Boîte de message externe:|
+桌宠动画#Animations du compagnon:|
+桌宠透明度#Transparence du compagnon:|
+缩放#Zoom:|
+解锁缩放限制,支持更大缩放倍率#Lever la limite de zoom pour autoriser des facteurs plus élevés:|
+设定#Définir:|
+设置主题#Définir le thème:|
+语言#Langue:|
+互动周期(秒)#Cycle d'interaction (s):|
+关闭数据计算时桌宠显示的状态#État affiché par le compagnon lorsque le calcul des données est désactivé:|
+启动窗口切换，桌宠将能自动切换窗口#Si cette option est activée, le compagnon pourra changer de fenêtre automatiquement:|
+启用数据计算#Activer le calcul des données:|
+启用桌宠智能移动#Activer le déplacement intelligent:|
+固定桌宠状态#État fixe du compagnon:|
+智能移动时间间隔#Intervalle du déplacement intelligent:|
+桌宠名称#Nom du compagnon:|
+移动范围#Zone de déplacement:|
+自动切换窗口#Changement automatique de fenêtre:|
+计算间隔(秒)#Intervalle de calcul (s):|
+重置为主屏幕#Réinitialiser sur l'écran principal:|
+长按间隔(毫秒)#Durée de l'appui long (ms):|
+状态#État:|
+存档文件#Fichiers de sauvegarde:|
+搜索文件#Rechercher un fichier:|
+当前设置未保存, 是否保存#Les paramètres actuels ne sont pas enregistrés. Voulez-vous les enregistrer ?:|
+使用桌宠选项式聊天功能#Utiliser la discussion à choix du compagnon:|
+删除存档#Supprimer la sauvegarde:|
+打开存档#Ouvrir la sauvegarde:|
+新建多开存档#Créer une sauvegarde multi-instance:|
+新建存档#Nouvelle sauvegarde:|
+清理#Nettoyer:|
+清理缓存的动画，声音文件#Vide le cache des fichiers d'animation et de son:|
+聊天接口#Interface de discussion:|
+自动保存频率(分钟)#Fréquence de sauvegarde automatique (min):|
