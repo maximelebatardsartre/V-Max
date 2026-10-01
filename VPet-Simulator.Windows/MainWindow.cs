@@ -597,6 +597,15 @@ namespace VPet_Simulator.Windows
         }
 
         /// <summary>
+        /// V-Max : ouvre la nouvelle fenêtre de paramètres sur une catégorie (« general », « ia »…)
+        /// </summary>
+        public void ShowSetting(string category)
+        {
+            ShowSetting();
+            winVMaxSetting!.OpenCategory(category, false);
+        }
+
+        /// <summary>
         /// Ouvre l'ancienne fenêtre de paramètres (héritée de VPet) sur une page
         /// </summary>
         public void ShowLegacySetting(int page = -1)
@@ -1782,6 +1791,10 @@ namespace VPet_Simulator.Windows
                       Main.WorkTimer.E_FinishWork += WorkTimer_E_FinishWork;
                   Main.ToolBar.MenuMODConfig.Items.Add(m);
 
+                  // V-Max : agent IA intégré (module de discussion), chargé avant les plugins tiers
+                  AgentPlugin = new Agent.VMaxAgentPlugin(this);
+                  Plugins.Insert(0, AgentPlugin);
+
                   //加载游戏创意工坊插件
                   foreach (MainPlugin mp in Plugins)
                       try //不要识图用!DEBUG去掉try, 在主线程也会导致错误显示不出来的
@@ -2452,6 +2465,27 @@ namespace VPet_Simulator.Windows
                       }
 
                   // V-Max (QA) : ouvre directement une page des paramètres, ex. argument « vmax-open-settings#0:| »
+                  if (Args.FindLine("vmax-agent-ask") is ILine qaAsk)
+                  {// QA : envoie un message à l'agent et trace le texte de la bulle dans %TEMP%\vmax-qa-trace.txt
+                      Task.Run(async () =>
+                      {
+                          await Task.Delay(9000);
+                          Dispatcher.Invoke(() =>
+                          {
+                              if (!Agent.VMaxAgentPlugin.IsActive(this))
+                                  Agent.VMaxAgentPlugin.Activate(this, true);
+                              AgentPlugin!.Box!.Responded(qaAsk.Info);
+                          });
+                          var trace = new System.Text.StringBuilder();
+                          for (int qi = 1; qi <= 24; qi++)
+                          {
+                              await Task.Delay(500);
+                              Dispatcher.Invoke(() => trace.AppendLine($"{qi * 500}ms graph={Main.DisplayType.Name}/{Main.DisplayType.Animat} bulle={Main.MsgBar?.Visibility} « {(Main.MsgBar as MessageBar)?.TText.Text} »"));
+                          }
+                          System.IO.File.WriteAllText(System.IO.Path.Combine(System.IO.Path.GetTempPath(), "vmax-qa-trace.txt"), trace.ToString());
+                          Dispatcher.Invoke(() => QaSnapshot(this, System.IO.Path.Combine(System.IO.Path.GetTempPath(), "vmax-qa-settings.png")));
+                      });
+                  }
                   if (Args.FindLine("vmax-say") is ILine qaSay)
                   {// QA : fait parler le compagnon et rend sa fenêtre (bulle comprise) dans %TEMP%\vmax-qa-settings.png
                       Task.Run(async () =>
@@ -2496,7 +2530,7 @@ namespace VPet_Simulator.Windows
                       int qaPage = string.IsNullOrEmpty(qaSettings.info) ? -1 : qaSettings.InfoToInt;
                       ShowSetting(qaPage);
                       if (qaPage < 0)
-                          winVMaxSetting!.QaShow(Args.FindLine("vmax-settings-page")?.info, Args.FindLine("vmax-settings-advanced") != null);
+                          winVMaxSetting!.OpenCategory(Args.FindLine("vmax-settings-page")?.info, Args.FindLine("vmax-settings-advanced") != null);
                       // rendu de la fenêtre dans %TEMP%\vmax-qa-settings.png (sans capture d'écran)
                       Task.Run(async () =>
                       {

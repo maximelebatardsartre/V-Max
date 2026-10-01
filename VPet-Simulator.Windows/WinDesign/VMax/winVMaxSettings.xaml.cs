@@ -295,9 +295,9 @@ public partial class winVMaxSettings : Window
     private void NeedRestart() => RestartBar.Visibility = Visibility.Visible;
 
     /// <summary>
-    /// QA : affiche une catégorie dans un mode donné (vérifications visuelles automatisées)
+    /// Affiche une catégorie (et éventuellement le mode avancé)
     /// </summary>
-    public void QaShow(string? category, bool showAdvanced)
+    public void OpenCategory(string? category, bool showAdvanced)
     {
         if (showAdvanced)
             RbAdvanced.IsChecked = true;
@@ -591,11 +591,7 @@ public partial class winVMaxSettings : Window
             () => SliderRow(0.02, 1, 0.01, () => set.MusicCatch, v => set.MusicCatch = v, v => $"{v * 100:0} %"), advancedOnly: true);
 
         // ---------------- IA
-        Add("ia", "Agent V-Max", "Agent IA (Gemini)",
-            "L'agent IA pourra bientôt répondre, agir sur ton PC avec ta permission et réagir visuellement. Sa configuration (clé API, modèle, outils autorisés) apparaîtra ici.",
-            () => new TextBlock(), fullWidth: true);
-        Add("ia", "Discussion", "Module de discussion actuel", "Choix du fournisseur de discussion hérité de VPet (réponses intégrées ou plugin).",
-            () => ActionButton(T("Configurer"), () => mw.ShowLegacySetting(1)));
+        DefineAgentSettings();
 
         // ---------------- Sauvegardes
         var autosave = new[] { -1, 2, 5, 10, 20, 30, 60 };
@@ -632,6 +628,152 @@ public partial class winVMaxSettings : Window
             "Les animations et images intégrées appartiennent à l'équipe VUP-Simulator et sont utilisées selon les conditions d'autorisation de VPet (mention de la source obligatoire, pas d'usage commercial sans accord).",
             () => Link(T("Conditions d'utilisation des animations"), ExtensionValue.UpstreamURL + "#animation-copyright-notice-and-authorization-terms"),
             fullWidth: true);
+    }
+
+    private void DefineAgentSettings()
+    {
+        var agent = mw.AgentPlugin?.Orchestrator;
+        Add("ia", "Agent V-Max", "Activer l'agent V-Max",
+            "Ton compagnon répond avec Gemini dans la zone « Écris-moi… » et peut agir sur ton PC avec ta permission.",
+            () => Toggle(() => Agent.VMaxAgentPlugin.IsActive(mw), v => Agent.VMaxAgentPlugin.Activate(mw, v)));
+        Add("ia", "Agent V-Max", "Clé API Gemini",
+            "Stockée dans le Gestionnaire d'identification Windows, jamais dans les fichiers de V-Max.",
+            ApiKeyEditor, fullWidth: true);
+        Add("ia", "Agent V-Max", "Tester la connexion", "Envoie une courte requête à Gemini avec la clé et le modèle choisis.",
+            () => ActionButton(T("Tester"), async () =>
+            {
+                var key = Agent.SecretStore.Get(Agent.AgentOrchestrator.SecretName);
+                if (string.IsNullOrEmpty(key)) { Pulse(T("Aucune clé API enregistrée")); return; }
+                Pulse(T("Test en cours…"));
+                try
+                {
+                    var client = new Agent.GeminiClient(key, agent?.Model);
+                    var contents = new System.Text.Json.Nodes.JsonArray(new System.Text.Json.Nodes.JsonObject
+                    {
+                        ["role"] = "user",
+                        ["parts"] = new System.Text.Json.Nodes.JsonArray(new System.Text.Json.Nodes.JsonObject { ["text"] = "Réponds uniquement : OK" })
+                    });
+                    var sb = new StringBuilder();
+                    await foreach (var c in client.StreamAsync(contents, "Tu es un test de connexion.", null))
+                        sb.Append(c.Text);
+                    Pulse(T("Connexion réussie") + " (" + client.Model + ")");
+                }
+                catch (Exception e)
+                {
+                    MessageBox.Show(this, e.Message, T("Test de connexion"), MessageBoxButton.OK, MessageBoxImage.Warning);
+                }
+            }));
+        Add("ia", "Agent V-Max", "Nouvelle conversation", "Oublie l'échange en cours (l'agent ne garde aucune mémoire après la fermeture de V-Max).",
+            () => ActionButton(T("Effacer"), () => { agent?.ResetConversation(); Pulse(T("Conversation effacée")); }));
+        Add("ia", "Modèle", "Modèle Gemini", "« gemini-flash-latest » suit automatiquement le modèle rapide le plus récent.",
+            ModelEditor, advancedOnly: true);
+
+        foreach (var tool in Agent.AgentToolRegistry.All)
+        {
+            var t = tool;
+            string risk = t.Risk switch
+            {
+                Agent.ToolRisk.ReadOnly => T("Lecture seule"),
+                Agent.ToolRisk.Low => T("Effet limité, exécuté directement"),
+                Agent.ToolRisk.Sensitive => T("Demande ton accord"),
+                _ => T("Demande ton accord à chaque fois"),
+            };
+            Add("ia", "Actions autorisées", t.Title, risk,
+                () => Toggle(() => agent?.IsToolEnabled(t) ?? true, v => agent?.SetToolEnabled(t, v)), advancedOnly: true);
+        }
+        Add("ia", "Transparence", "Journal des actions", "Chaque action de l'agent (outil, arguments, décision, résultat) est enregistrée localement.",
+            () => ActionButton(T("Ouvrir le journal"), () =>
+            {
+                var p = Agent.AgentOrchestrator.AuditLogPath;
+                if (!System.IO.File.Exists(p))
+                    System.IO.File.WriteAllText(p, "");
+                Process.Start(new ProcessStartInfo(p) { UseShellExecute = true })?.Dispose();
+            }), advancedOnly: true);
+        Add("ia", "Transparence", "Module de discussion classique", "Réponses intégrées de VPet ou plugin de discussion tiers.",
+            () => ActionButton(T("Configurer"), () => mw.ShowLegacySetting(1)), advancedOnly: true);
+    }
+
+    private FrameworkElement ApiKeyEditor()
+    {
+        var root = new StackPanel();
+        var line = new StackPanel { Orientation = Orientation.Horizontal };
+        var box = new PasswordBox
+        {
+            Width = 340, MinHeight = 32, Padding = new Thickness(8, 5, 8, 5), VerticalContentAlignment = VerticalAlignment.Center,
+            Background = (Brush)FindResource("VMaxControlFill"), BorderBrush = (Brush)FindResource("VMaxControlStroke"),
+            Foreground = (Brush)FindResource("PrimaryText"), CaretBrush = (Brush)FindResource("PrimaryText"),
+        };
+        var status = new TextBlock { Margin = new Thickness(0, 6, 0, 0), FontSize = 12, Foreground = (Brush)FindResource("VMaxSubtleText") };
+        void Refresh() => status.Text = Agent.AgentOrchestrator.HasApiKey ? "✓ " + T("Une clé est enregistrée.") : T("Aucune clé enregistrée.");
+        var save = (Button)ActionButton(T("Enregistrer"), () =>
+        {
+            if (box.Password.Trim().Length < 10) { Pulse(T("Clé trop courte")); return; }
+            Agent.SecretStore.Set(Agent.AgentOrchestrator.SecretName, box.Password.Trim());
+            box.Clear();
+            Refresh();
+            Pulse(T("Clé enregistrée"));
+        }, accent: true);
+        save.Margin = new Thickness(8, 0, 0, 0);
+        var remove = (Button)ActionButton(T("Supprimer"), () =>
+        {
+            Agent.SecretStore.Delete(Agent.AgentOrchestrator.SecretName);
+            Refresh();
+        });
+        remove.Margin = new Thickness(8, 0, 0, 0);
+        line.Children.Add(box);
+        line.Children.Add(save);
+        line.Children.Add(remove);
+        root.Children.Add(line);
+        var help = new StackPanel { Orientation = Orientation.Horizontal };
+        help.Children.Add(status);
+        var link = Link(T("Obtenir une clé gratuite sur Google AI Studio"), "https://aistudio.google.com/app/apikey");
+        link.Margin = new Thickness(12, 6, 0, 0);
+        help.Children.Add(link);
+        root.Children.Add(help);
+        Refresh();
+        return root;
+    }
+
+    private FrameworkElement ModelEditor()
+    {
+        var agent = mw.AgentPlugin?.Orchestrator;
+        var line = new StackPanel { Orientation = Orientation.Horizontal };
+        var combo = new ComboBox { Width = 240, IsEditable = true, Text = agent?.Model ?? Agent.GeminiClient.DefaultModel };
+        if (TryFindResource("StandardComboBoxStyle") is Style s)
+            combo.Style = s;
+        combo.Items.Add(Agent.GeminiClient.DefaultModel);
+        void Apply()
+        {
+            var m = (combo.SelectedItem as string ?? combo.Text ?? "").Trim();
+            if (agent != null && m.Length > 0)
+                agent.Model = m;
+        }
+        combo.SelectionChanged += (_, _) => Apply();
+        combo.LostFocus += (_, _) => Apply();
+        var refresh = (Button)ActionButton(T("Actualiser"), async () =>
+        {
+            var key = Agent.SecretStore.Get(Agent.AgentOrchestrator.SecretName);
+            if (string.IsNullOrEmpty(key)) { Pulse(T("Aucune clé API enregistrée")); return; }
+            try
+            {
+                var models = await Agent.GeminiClient.ListModelsAsync(key);
+                var current = agent?.Model;
+                combo.Items.Clear();
+                combo.Items.Add(Agent.GeminiClient.DefaultModel);
+                foreach (var m in models)
+                    combo.Items.Add(m);
+                combo.Text = current;
+                Pulse(models.Count + " " + T("modèles disponibles"));
+            }
+            catch (Exception e)
+            {
+                MessageBox.Show(this, e.Message, T("Modèles Gemini"), MessageBoxButton.OK, MessageBoxImage.Warning);
+            }
+        });
+        refresh.Margin = new Thickness(8, 0, 0, 0);
+        line.Children.Add(combo);
+        line.Children.Add(refresh);
+        return line;
     }
 
     private void SyncTrayCheck(string name, bool value)

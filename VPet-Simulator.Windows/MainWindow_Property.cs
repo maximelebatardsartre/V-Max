@@ -84,6 +84,10 @@ public partial class MainWindow
     /// V-Max : nouvelle fenêtre de paramètres (créée à la demande)
     /// </summary>
     public winVMaxSettings? winVMaxSetting { get; set; }
+    /// <summary>
+    /// V-Max : plugin intégré de l'agent IA
+    /// </summary>
+    public Agent.VMaxAgentPlugin? AgentPlugin { get; private set; }
     public winBetterBuy? winBetterBuy { get; set; }
     public winGallery? winGallery { get; set; } 
     public winInventory? winInventory { get; set; }
