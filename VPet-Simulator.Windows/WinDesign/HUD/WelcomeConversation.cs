@@ -94,7 +94,16 @@ public sealed class WelcomeConversation : Window
         PreviewKeyDown += (_, e) => { if (e.Key == Key.Enter && nameRow.Visibility != Visibility.Visible) { Advance(); e.Handled = true; } };
         Loaded += (_, _) => { VPet_Simulator.Core.UiMotion.PopIn(card, new Point(0.4, 0.6), 0.94, 260); ShowStep(0); };
         mw.Windows.Add(this);
-        Closed += (_, _) => { portrait.Stop(); mw.Windows.Remove(this); };
+        // onboarding marqué « fait » dès que la conversation se ferme (par n'importe quelle sortie, y compris Alt+F4)
+        // → il ne se relance plus en boucle au prochain lancement. Si l'utilisateur ferme avant la carte de
+        // consentement, les valeurs par défaut sûres s'appliquent (micro OFF) ; il peut tout régler dans Paramètres.
+        Closed += (_, _) =>
+        {
+            portrait.Stop();
+            mw.Windows.Remove(this);
+            mw.Set["vmax"][(gbol)"onboarded"] = true;
+            try { mw.Save(); } catch { }
+        };
     }
 
     // ---- script de la rencontre -------------------------------------------------------------------------

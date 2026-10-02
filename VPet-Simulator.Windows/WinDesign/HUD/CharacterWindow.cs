@@ -347,7 +347,7 @@ public sealed class CharacterWindow : HudWindow
         cardTime.value.Text = (hours >= 100 ? N0(hours) : F1(hours)) + " h";
         var birthday = MW.GameSavesData[(gdat)"birthday"];
         double days = birthday == default ? 0 : (DateTime.Now - birthday).TotalDays;
-        cardTime.sub.Text = days >= 1 ? $"soit {F1(hours / days)} h par jour en moyenne" : "depuis votre rencontre";
+        cardTime.sub.Text = days >= 1 ? $"soit {F1(hours / days)} h par jour en moyenne" : "depuis notre rencontre";
 
         cardSessions.value.Text = N0(stats[(gint)"stat_open_times"]);
         cardSessions.sub.Text = "ouvertures de V-Max";
@@ -379,7 +379,7 @@ public sealed class CharacterWindow : HudWindow
             statCount.Text = statFiltered.Count == statMap.Count ? $"{N0(statMap.Count)} statistiques" : $"{N0(statFiltered.Count)} sur {N0(statMap.Count)}";
         if (statFiltered.Count == 0)
         {
-            statRows.Children.Add(Empty(statMap.Count == 0 ? "Aucune statistique pour l'instant : elles se rempliront au fil de vos journées." : "Rien ne correspond à cette recherche."));
+            statRows.Children.Add(Empty(statMap.Count == 0 ? "Aucune statistique pour l'instant : elles se rempliront au fil de tes journées." : "Rien ne correspond à cette recherche."));
             return;
         }
         MoreStats();
@@ -690,7 +690,7 @@ public sealed class CharacterWindow : HudWindow
         // en-tête
         content.Children.Add(PT($"V-MAX · BILAN {r.Year}", 12, PAccent, true, FontWeights.SemiBold));
         content.Children.Add(PT($"{r.Pet} & {r.User}", 40, PText, true, FontWeights.SemiBold));
-        var since = r.Birthday == default ? "Votre histoire commence à peine."
+        var since = r.Birthday == default ? "Notre histoire commence à peine."
             : $"Ensemble depuis le {r.Birthday.ToString("d MMMM yyyy", Fr)} — {N0(Math.Floor(r.Days))} jours.";
         var sub = PT(since, 15, PSilver);
         sub.Margin = new Thickness(0, 4, 0, 0);
@@ -715,7 +715,7 @@ public sealed class CharacterWindow : HudWindow
         grid.Children.Add(PosterCard("ÉTUDES", N0(r.TotalExp), "XP gagnée",
             [$"Niveau {r.Level} · {r.LevelTier}", $"{N0(r.StudyMinutes)} min d'étude", $"Meilleure séance : {N0(r.BestExp)} XP"], r.StudyQuip));
         grid.Children.Add(PosterCard("TRAVAIL", N0(r.WorkMinutes), "min de travail",
-            [$"{r.WorkShare.ToString("P1", Fr)} de votre temps", $"Meilleure paie : {N0(r.BestMoney)} $"], r.WorkQuip));
+            [$"{r.WorkShare.ToString("P1", Fr)} de ton temps", $"Meilleure paie : {N0(r.BestMoney)} $"], r.WorkQuip));
         grid.Children.Add(PosterCard("ACHATS", N0(r.Purchases), "achats",
             [$"{N0(r.Spent)} $ dépensés", r.FavItem == null ? "Pas encore d'article favori" : $"Favori : {r.FavItem} ({TypeName(r.FavType)})"], r.FoodQuip));
         grid.Children.Add(PosterCard("ACHATS AUTOMATIQUES", N0(r.AutoBuy), "achats auto",

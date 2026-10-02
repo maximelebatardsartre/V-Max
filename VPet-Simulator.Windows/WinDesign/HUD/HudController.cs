@@ -164,6 +164,15 @@ public sealed class HudController
         activities = null;
         more = null;
         openPanel = null;
+
+        // V-Max : la bulle de parole (Main.MsgBar) fixe ses pinceaux à la construction → elle garderait les couleurs
+        // de l'ancien thème. On la reconstruit pour qu'elle suive le nouveau thème, comme les autres surcouches.
+        if (mw.Main?.MsgBar is HudBubble oldBubble)
+        {
+            try { oldBubble.ForceClose(); } catch { }
+            try { oldBubble.Dispose(); } catch { }
+            mw.Main.MsgBar = new HudBubble(mw);
+        }
     }
 
     #region Actions

@@ -20,7 +20,10 @@ def unescape(s):  # inverse de l'échappement LinePutScript (comme ingest.py)
     return (s.replace("/stop", ":|").replace("/id", "#").replace("/com", ",")
              .replace("/n", "\n").replace("/r", "\r").replace("/!", "/"))
 
-def esc_value(s):  # on garde « / », « /n »… littéraux ; on protège juste ce qui casserait la ligne
+def esc_value(s):  # échappement LinePutScript, symétrique d'unescape
+    # « / » est l'introducteur d'échappement LPS : il doit être protégé EN PREMIER (sinon « 20/20 », « eau/riz »…
+    # seraient réinterprétés au chargement). Puis on protège les séquences qui casseraient la ligne.
+    s = s.replace("/", "/!")
     return s.replace(":|", "/stop").replace("#", "/id").replace("\n", "/n").replace("\r", "/r")
 
 def read(p):

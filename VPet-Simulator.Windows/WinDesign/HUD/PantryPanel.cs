@@ -81,8 +81,10 @@ public sealed class PantryPanel : HudSidePanel
     public void ShowCategory(FoodType type)
     {
         category = type;
+        // FirstOrDefault : un FoodType hors de nos catégories (ex. FoodType.Food via un mod) ne doit pas faire planter l'ouverture
+        var label = Categories.FirstOrDefault(x => x.type == type).label;
         foreach (RadioButton c in chips.Children)
-            c.IsChecked = (string)c.Content == Categories.First(x => x.type == type).label;
+            c.IsChecked = label != null && (string)c.Content == label;
         if (!IsVisible)
             Toggle();
     }

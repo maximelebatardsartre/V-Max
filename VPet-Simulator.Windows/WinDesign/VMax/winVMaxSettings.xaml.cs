@@ -102,6 +102,9 @@ public partial class winVMaxSettings : Window
     {
         mw.Topmost = mw.Set.TopMost;
         mw.winVMaxSetting = null;
+        // V-Max : fiabilise la persistance des réglages modifiés ici (sinon ils dépendaient de la sauvegarde à la
+        // fermeture de la fenêtre principale — perdus si le process est tué entre-temps).
+        try { mw.Save(); } catch { }
     }
 
     private void Minimize_Click(object sender, RoutedEventArgs e) => WindowState = WindowState.Minimized;
@@ -1312,10 +1315,13 @@ public partial class winVMaxSettings : Window
         }
         SetStatus();
         if (mw.LocalAi != null)
-            mw.LocalAi.Progress += (text, frac) => Dispatcher.BeginInvoke(() =>
-            {
-                status.Text = frac >= 0 && frac < 1 ? text : text;
-            });
+        {
+            // handler nommé + désabonnement à Unloaded : sinon chaque rendu de la catégorie IA (ou frappe dans la
+            // recherche) empilait un abonnement supplémentaire pointant un TextBlock devenu obsolète (fuite).
+            void OnProgress(string text, double frac) => Dispatcher.BeginInvoke(() => status.Text = text);
+            mw.LocalAi.Progress += OnProgress;
+            root.Unloaded += (_, _) => { if (mw.LocalAi != null) mw.LocalAi.Progress -= OnProgress; };
+        }
         toggle.Checked += async (_, _) =>
         {
             if (mw.LocalAi == null) return;

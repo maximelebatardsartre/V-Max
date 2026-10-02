@@ -127,6 +127,11 @@ namespace VPet_Simulator.Windows
 
             Task.Run(async () =>
             {
+              // V-Max : garde-fou global du démarrage. Sans ce try/catch, toute exception pendant le chargement
+              // (téléchargement, thème, plugin/mod, ressource manquante…) remontait dans un Task non observé et
+              // laissait l'écran d'accueil figé à l'infini. On transforme désormais tout échec en message FR + fermeture.
+              try
+              {
                 // V-Max « Web Installer » : télécharge les gros assets (animations + mods) depuis R2 au premier
                 // lancement, avant de charger le jeu. Ne fait rien en développement (assets déjà présents).
                 var assetErr = await AssetService.EnsureAsync(this);
@@ -296,6 +301,20 @@ namespace VPet_Simulator.Windows
                       }
                       return false;
                   }]);
+              }
+              catch (Exception ex)
+              {
+                  // échec de démarrage : on journalise, on ferme l'écran d'accueil et on prévient en français
+                  ReportStartupError(ex.ToString(), "Démarrage");
+                  await Dispatcher.InvokeAsync(() =>
+                  {
+                      try { splash?.Close(); } catch { }
+                      VDialog.Show(
+                          "Maxine n'a pas réussi à démarrer. Relance-la ; si le souci persiste, réinstalle Maxine.\n\nDétail : " + ex.Message,
+                          "Erreur au démarrage", System.Windows.MessageBoxButton.OK, Panuon.WPF.UI.MessageBoxIcon.Error);
+                      Close();
+                  });
+              }
             });
         }
 
@@ -334,6 +353,8 @@ namespace VPet_Simulator.Windows
                 var psi = new ProcessStartInfo
                 {
                     FileName = System.IO.Path.ChangeExtension(System.Reflection.Assembly.GetExecutingAssembly().Location, "exe"),
+                    // V-Max : marqueur pour que le nouveau processus attende que celui-ci libère le verrou d'instance unique
+                    Arguments = "vmax-restart:|",
                     UseShellExecute = true
                 };
                 Process.Start(psi);

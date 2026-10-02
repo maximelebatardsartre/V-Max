@@ -407,7 +407,13 @@ public sealed class HabitatMode
         desktopTopmost = false;
         mw.Topmost = false;
         if (Window != null)
+        {
+            // Win+D a pu réduire la fenêtre habitat ; une fenêtre « owned » par une fenêtre réduite est masquée, donc
+            // le compagnon disparaîtrait au retour sur le bureau. On restaure d'abord la fenêtre habitat.
+            if (Window.WindowState == System.Windows.WindowState.Minimized)
+                Window.WindowState = System.Windows.WindowState.Normal;
             mw.Owner = Window;
+        }
         if (!sameMap)
         {
             petX = double.NaN;

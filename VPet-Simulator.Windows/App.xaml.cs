@@ -1,9 +1,10 @@
-﻿using LinePutScript.Localization.WPF;
+using LinePutScript.Localization.WPF;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Threading;
 using System.Windows;
 using System.Windows.Interop;
 using VPet_Simulator.Windows.Interface;
@@ -39,9 +40,19 @@ namespace VPet_Simulator.Windows
 
         public static HashSet<string> MODType { get; set; } = new HashSet<string>();
 
+        /// <summary>V-Max : marqueur d'instance unique (conservé pour toute la vie du processus)</summary>
+        private static Mutex? singleInstance;
+
         protected override void OnStartup(StartupEventArgs e)
         {
             Args = e.Args;
+
+            // V-Max : une seule instance de Maxine à la fois. Deux processus écriraient la même sauvegarde et se
+            // disputeraient le téléchargement des assets au premier lancement (corruption / conflit). Le redémarrage
+            // interne (Restart) relance un processus marqué « vmax-restart » : celui-ci attend que l'ancien libère le
+            // verrou plutôt que de ressortir. Un simple double-clic en trop ressort silencieusement.
+            if (!EnsureSingleInstance())
+                return;
 
             // V-Max : toutes les boîtes de dialogue (application, mods, plugins) passent par la fenêtre V-Max
             VDialog.Handler = (owner, text, caption, buttons, icon) =>
@@ -79,6 +90,35 @@ namespace VPet_Simulator.Windows
             }
 
         }
+
+        /// <summary>
+        /// V-Max : garantit l'unicité du processus. Renvoie false si une autre instance tourne déjà (l'appelant
+        /// doit alors sortir sans rien faire). Ne bloque jamais le lancement si le verrou ne peut pas être créé.
+        /// </summary>
+        private bool EnsureSingleInstance()
+        {
+            bool isRestart = Args.Any(a => a.Contains("vmax-restart"));
+            try
+            {
+                singleInstance = new Mutex(false, @"VMax-Maxine-SingleInstance");
+                bool acquired;
+                try
+                {
+                    // un redémarrage interne attend que l'ancien processus libère le verrou ; sinon, pas d'attente
+                    acquired = singleInstance.WaitOne(isRestart ? TimeSpan.FromSeconds(15) : TimeSpan.Zero);
+                }
+                catch (AbandonedMutexException) { acquired = true; } // l'instance précédente est partie : on reprend
+                if (!acquired)
+                {
+                    singleInstance = null;
+                    Shutdown();
+                    return false;
+                }
+            }
+            catch { /* impossible de créer le verrou (droits, etc.) : on ne bloque pas le lancement */ }
+            return true;
+        }
+
         HashSet<string> ErrorReport = new HashSet<string>();
         private void UnhandledException(Exception e, bool isFatality)
         {
@@ -94,31 +134,35 @@ namespace VPet_Simulator.Windows
                 ) && ((expt.ToLowerInvariant().Contains("value") && expt.ToLowerInvariant().Contains("nan")) ||
                 expt.Contains("System.OverflowException") || expt.Contains("System.DivideByZeroException")))
             {
-                VDialog.Show("由于修改游戏数据导致数据溢出,存档可能会出错\n开发者提醒您请不要使用过于超模的MOD".Translate());
+                VDialog.Show("Des données du jeu ont débordé : ta sauvegarde pourrait être affectée.\n"
+                    + "Évite les mods qui trichent trop sur les montants (argent, expérience).");
                 return;
             }
             else if (expt.Contains("System.IO.FileNotFoundException") && expt.Contains("cache"))
             {
-                VDialog.Show("缓存被其他软件删除,游戏无法继续运行\n请重启游戏重新生成缓存".Translate());
+                VDialog.Show("Le cache des animations a été supprimé par un autre logiciel.\n"
+                    + "Relance Maxine pour le régénérer.");
                 return;
             }
             else if (expt.Contains("0x80070008"))
             {
-                VDialog.Show("游戏内存不足,请修改设置中渲染分辨率以便降低内存使用".Translate());
+                VDialog.Show("Mémoire insuffisante. Baisse la résolution de rendu dans les paramètres "
+                    + "pour réduire l'utilisation mémoire.");
                 return;
             }
             else if (expt.Contains("UnauthorizedAccessException"))
             {
-                VDialog.Show("游戏权限不足,无法写入游戏存档和设置,请检查设置文件是否被其他软件占用".Translate());
+                VDialog.Show("Maxine n'a pas pu écrire ses fichiers (sauvegarde et paramètres).\n"
+                    + "Vérifie qu'aucun autre logiciel ne les bloque et que le dossier est accessible en écriture.");
                 return;
             }
             else if (expt.Contains("VPet.Plugin"))
             {
                 var exptin = expt.Split('\n').First(x => x.Contains("VPet.Plugin"));
                 exptin = exptin.Substring(exptin.IndexOf("VPet.Plugin") + 12).Split('.')[0];
-                VDialog.Show("游戏发生错误,可能是".Translate() + $"MOD({exptin.Translate()})" +
-                    "导致的\n如有可能请发送 错误信息截图和引发错误之前的操作给相应MOD作者\n感谢您对MOD开发的支持\n".Translate()
-                     + expt, "游戏发生错误,可能是".Translate() + exptin);
+                VDialog.Show("Une erreur est survenue, probablement causée par le mod « " + exptin + " ».\n"
+                    + "Si tu peux, envoie une capture de l'erreur et ce que tu faisais juste avant à l'auteur du mod.\n\n"
+                     + expt, "Erreur — mod « " + exptin + " »");
                 return;
             }
 
@@ -127,21 +171,20 @@ namespace VPet_Simulator.Windows
                 if (expt.Contains(modname))
                 {
                     var exptin = modname.Split('.').Last();
-                    VDialog.Show("游戏发生错误,可能是".Translate() + $"MOD({modname})" +
-                        "导致的\n如有可能请发送 错误信息截图和引发错误之前的操作给相应MOD作者\n感谢您对MOD开发的支持\n".Translate()
-                         + expt, "游戏发生错误,可能是".Translate() + exptin);
+                    VDialog.Show("Une erreur est survenue, probablement causée par le mod « " + modname + " ».\n"
+                        + "Si tu peux, envoie une capture de l'erreur et ce que tu faisais juste avant à l'auteur du mod.\n\n"
+                         + expt, "Erreur — mod « " + exptin + " »");
                     return;
                 }
             }
 
 
-            string errstr = "游戏发生错误,可能是".Translate() + (string.IsNullOrWhiteSpace(CoreMOD.NowLoading) ?
-                "游戏或者MOD".Translate() : $"MOD({CoreMOD.NowLoading})") +
-                "导致的\n如有可能请发送 错误信息截图和引发错误之前的操作 给开发者:service@exlb.net\n感谢您对游戏开发的支持\n".Translate()
-                + expt;
+            string errstr = "Une erreur est survenue dans Maxine"
+                + (string.IsNullOrWhiteSpace(CoreMOD.NowLoading) ? "" : $" (pendant le chargement du mod « {CoreMOD.NowLoading} »)")
+                + ".\n\n" + expt;
             if (isFatality || MainWindow == null)
             {
-                VDialog.Show(errstr, "游戏致命性错误".Translate());
+                VDialog.Show(errstr, "Erreur critique");
                 return;
             }
             else

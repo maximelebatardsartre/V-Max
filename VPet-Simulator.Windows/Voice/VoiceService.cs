@@ -81,6 +81,7 @@ public sealed class VoiceService : IDisposable
         {// consentement non donné : rien n'écoute (ni touche, ni micro, ni mot d'activation)
             ptt.Disable();
             wake.Pause();
+            AbortCapture(); // si on décoche « Voix » en pleine capture, on coupe le micro et la transcription sur-le-champ
             return;
         }
         if (ReplyMode == "always")
@@ -109,6 +110,19 @@ public sealed class VoiceService : IDisposable
             return;
         agentHooked = true;
         mw.AgentPlugin.Orchestrator.AssistantFinished += text => mw.Dispatcher.BeginInvoke(() => OnAnswer(text));
+    }
+
+    /// <summary>
+    /// Coupe immédiatement toute capture/transcription en cours (consentement retiré, ou arrêt forcé). L'audio déjà
+    /// capté est jeté sans être transcrit ni envoyé ; une transcription cloud éventuellement en vol est annulée.
+    /// </summary>
+    private void AbortCapture()
+    {
+        try { if (state == State.Listening) mic.Stop(); } catch { }
+        try { cts?.Cancel(); } catch { }
+        try { tts.Stop(); } catch { }
+        state = State.Idle;
+        try { overlay?.HideAnimated(); } catch { }
     }
 
     private void Begin(bool fromWake)

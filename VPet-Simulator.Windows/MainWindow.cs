@@ -1502,7 +1502,15 @@ namespace VPet_Simulator.Windows
             List<DirectoryInfo> Path = new(new DirectoryInfo(ModPath).EnumerateDirectories());
 
 
-            Task.Run(() => GameLoad(Path));
+            Task.Run(async () =>
+            {// V-Max : garde-fou (comme au 1er lancement) pour ne pas laisser un compagnon supplémentaire figé
+                try { await GameLoad(Path); }
+                catch (Exception ex)
+                {
+                    ReportStartupError(ex.ToString(), "Démarrage (compagnon)");
+                    await Dispatcher.InvokeAsync(() => Close());
+                }
+            });
         }
         /// <summary>
         /// MOD地址
@@ -1528,8 +1536,8 @@ namespace VPet_Simulator.Windows
             {
                 if (!File.Exists(di.FullName + @"\info.lps"))
                     continue;
-                if (ModBlocklist.IsBlocked(di))
-                {// V-Max : mod refusé (voir ModBlocklist)
+                if (ModBlocklist.IsBlocked(di) || ModBlocklist.IsSexualContent(di))
+                {// V-Max : mod refusé (identifiant bloqué OU contenu à caractère sexuel dans sa fiche — voir ModBlocklist)
                     Console.WriteLine("Mod bloqué, non chargé : " + di.FullName);
                     continue;
                 }
@@ -1582,7 +1590,18 @@ namespace VPet_Simulator.Windows
 
             //当前桌宠动画
             var petloader = Pets.Find(x => x.Name == Set.PetGraph);
-            petloader ??= Pets[0];
+            petloader ??= Pets.Count > 0 ? Pets[0] : null;
+            if (petloader == null)
+            {// V-Max : aucun personnage chargé (Core absent/corrompu) → message clair plutôt qu'un crash
+                await Dispatcher.InvokeAsync(() =>
+                {
+                    VDialog.Show(
+                        "Les animations de Maxine n'ont pas pu être chargées. Relance Maxine ; si le souci persiste, réinstalle-la.",
+                        "Erreur au démarrage", System.Windows.MessageBoxButton.OK, Panuon.WPF.UI.MessageBoxIcon.Error);
+                    Close();
+                });
+                return;
+            }
             //去除其他语言内容
             var tag = petloader!.Config.Data.GetString("tag", "all")!.Split(',');
             LowDrinkText.RemoveAll(x => !x.FindTag(tag));

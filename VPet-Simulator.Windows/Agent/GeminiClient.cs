@@ -123,6 +123,10 @@ public sealed class GeminiClient
     {
         using var req = new HttpRequestMessage(HttpMethod.Get, BaseUrl + "models?pageSize=200");
         req.Headers.Add("x-goog-api-key", apiKey);
+        // borne la vérification de clé : sans ça, sur réseau instable, « Vérifier la clé » tourne indéfiniment
+        using var cts = CancellationTokenSource.CreateLinkedTokenSource(ct);
+        cts.CancelAfter(TimeSpan.FromSeconds(15));
+        ct = cts.Token;
         using var resp = await Http.SendAsync(req, ct).ConfigureAwait(false);
         if (!resp.IsSuccessStatusCode)
             throw await ToException(resp).ConfigureAwait(false);
