@@ -52,7 +52,8 @@ public static class AssetService
         JsonNode? manifest = null;
         try
         {
-            manifest = JsonNode.Parse(await Http.GetStringAsync(BaseUrl.TrimEnd('/') + "/" + ManifestName, cancel));
+            var json = (await Http.GetStringAsync(BaseUrl.TrimEnd('/') + "/" + ManifestName, cancel)).TrimStart('﻿');
+            manifest = JsonNode.Parse(json);
         }
         catch (Exception e)
         {

@@ -66,7 +66,7 @@ $size = (Get-Item $zipPath).Length
 $sha = (Get-FileHash $zipPath -Algorithm SHA256).Hash
 $manifest = [ordered]@{ version = "$Version"; zip = $zipName; sha256 = $sha; size = $size }
 $manifestPath = Join-Path $out "assets.json"
-$manifest | ConvertTo-Json | Set-Content -Path $manifestPath -Encoding utf8
+[System.IO.File]::WriteAllText($manifestPath, ($manifest | ConvertTo-Json), (New-Object System.Text.UTF8Encoding $false))
 
 Write-Host ""
 Write-Host "Pack d'assets pret :" -ForegroundColor Green

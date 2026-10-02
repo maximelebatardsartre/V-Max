@@ -374,3 +374,7 @@ VPet-Simulator.Windows/mod/0001_ModMaker
 # V-Max : sorties de packaging
 /packaging/publish/
 /packaging/releases/
+
+# V-Max : sorties du pack d'assets (volumineuses)
+/packaging/assets-out/
+/packaging/assets-stage/
