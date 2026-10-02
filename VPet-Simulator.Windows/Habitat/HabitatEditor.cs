@@ -74,28 +74,20 @@ internal sealed class HabitatEditor
         caps = new HabitatPilot(mode.MW, mode).Capabilities();
         ghost.Source = mode.Metrics.Standing;
 
-        var row = new StackPanel { Orientation = Orientation.Horizontal };
-        foreach (var (t, glyph, label, tip) in new[]
-        {
-            (Tool.Select, "", "Sélection", "Sélectionner, déplacer, supprimer (1)"),
-            (Tool.Floor, "", "Sol", "Tracer un sol : glisser horizontalement (2)"),
-            (Tool.Climb, "", "Escalade", "Tracer une échelle ou un pilier : glisser verticalement entre deux sols (3)"),
-            (Tool.Drop, "", "Chute", "Cliquer sur un sol à l'endroit d'où le compagnon peut sauter vers le sol du dessous (4)"),
-            (Tool.Room, "", "Pièce", "Encadrer une pièce puis la nommer (5)"),
-            (Tool.Spot, "", "Emplacement", "Cliquer sur un sol pour y placer une activité (dormir, manger…) (6)"),
-        })
-        {
-            var chip = ToolChip(glyph, label, tip, t);
-            toolChips[t] = chip;
-            row.Children.Add(chip);
-        }
-        row.Children.Add(Separator());
+        // outils préremplis dans toolChips, puis assemblés par groupes thématiques (barre structurée)
+        toolChips[Tool.Select] = ToolChip("", "Sélection", "Sélectionner, déplacer, supprimer (1)", Tool.Select);
+        toolChips[Tool.Floor] = ToolChip("", "Sol", "Tracer un sol : glisser horizontalement (2)", Tool.Floor);
+        toolChips[Tool.Climb] = ToolChip("", "Escalade", "Tracer une échelle ou un pilier : glisser verticalement entre deux sols (3)", Tool.Climb);
+        toolChips[Tool.Drop] = ToolChip("", "Chute", "Cliquer sur un sol d'où le compagnon peut sauter vers le sol du dessous (4)", Tool.Drop);
+        toolChips[Tool.Room] = ToolChip("", "Pièce", "Encadrer une pièce puis la nommer (5)", Tool.Room);
+        toolChips[Tool.Spot] = ToolChip("", "Emplacement", "Cliquer sur un sol pour y placer une activité (dormir, manger…) (6)", Tool.Spot);
+
         size = new Slider
         {
             Minimum = Math.Round(work.Image.Height * 0.04),
             Maximum = Math.Round(work.Image.Height * 0.6),
             Value = work.PetHeight,
-            Width = 110,
+            Width = 104,
             VerticalAlignment = VerticalAlignment.Center,
             ToolTip = "Taille du compagnon dans ce décor",
         };
@@ -107,21 +99,41 @@ internal sealed class HabitatEditor
             work.PetHeight = Math.Round(e.NewValue);
             Render();
         };
-        row.Children.Add(new TextBlock { Text = "", FontFamily = Font("HudIcons"), FontSize = 14, Foreground = Res("HudTextMuted"), VerticalAlignment = VerticalAlignment.Center, Margin = new Thickness(0, 0, 8, 0), ToolTip = "Taille du compagnon" });
-        row.Children.Add(size);
-        row.Children.Add(Separator());
-        row.Children.Add(IconButton("", "Annuler (Ctrl+Z)", Undo));
-        row.Children.Add(IconButton("", "Rétablir (Ctrl+Y)", Redo));
-        row.Children.Add(IconButton("", "Ajuster la vue (F)", FitView));
-        row.Children.Add(IconButton("", "Détecter les sols automatiquement", DetectFloors));
-        row.Children.Add(IconButton("", "Suggérer les pièces avec l'IA (vision)", AskRoomSuggestions));
-        row.Children.Add(Separator());
+        var sizeIcon = new TextBlock { Text = "", FontFamily = Font("HudIcons"), FontSize = 14, Foreground = Res("HudTextMuted"), VerticalAlignment = VerticalAlignment.Center, Margin = new Thickness(0, 0, 6, 0), ToolTip = "Taille du compagnon" };
+
         var cancel = new Button { Style = (Style)win.FindResource("HudGhostButton"), Content = "Annuler", Margin = new Thickness(0, 0, 6, 0), ToolTip = "Quitter sans enregistrer" };
         cancel.Click += (_, _) => win.StopEditing(null);
         var done = new Button { Style = (Style)win.FindResource("HudPrimaryButton"), Content = "Terminer", ToolTip = "Enregistrer la carte (Entrée)" };
         done.Click += (_, _) => Finish();
-        row.Children.Add(cancel);
-        row.Children.Add(done);
+
+        // un groupe = petit intitulé + rangée d'éléments ; séparateurs verticaux entre groupes
+        StackPanel Grp(string? label, params UIElement[] items)
+        {
+            var col = new StackPanel { Margin = new Thickness(7, 0, 7, 0), VerticalAlignment = VerticalAlignment.Center };
+            if (label != null)
+                col.Children.Add(new TextBlock { Text = label, FontSize = 9, FontWeight = FontWeights.SemiBold, Foreground = Res("HudTextMuted"), Margin = new Thickness(3, 0, 0, 3), Opacity = 0.75 });
+            var rr = new StackPanel { Orientation = Orientation.Horizontal };
+            foreach (var it in items)
+                rr.Children.Add(it);
+            col.Children.Add(rr);
+            return col;
+        }
+        Border Div() => new Border { Width = 1, Margin = new Thickness(3, 10, 3, 6), Background = new SolidColorBrush(Color.FromArgb(0x33, 0x9A, 0xA2, 0xB4)) };
+
+        var row = new StackPanel { Orientation = Orientation.Horizontal, VerticalAlignment = VerticalAlignment.Center };
+        row.Children.Add(Grp(null, toolChips[Tool.Select]));
+        row.Children.Add(Div());
+        row.Children.Add(Grp("STRUCTURE", toolChips[Tool.Floor], toolChips[Tool.Climb], toolChips[Tool.Drop]));
+        row.Children.Add(Div());
+        row.Children.Add(Grp("ZONES", toolChips[Tool.Room], toolChips[Tool.Spot]));
+        row.Children.Add(Div());
+        row.Children.Add(Grp("TAILLE", sizeIcon, size));
+        row.Children.Add(Div());
+        row.Children.Add(Grp("ASSISTANTS", IconButton("", "Détecter les sols automatiquement", DetectFloors), IconButton("", "Suggérer les pièces avec l'IA (vision)", AskRoomSuggestions)));
+        row.Children.Add(Div());
+        row.Children.Add(Grp("VUE", IconButton("", "Annuler (Ctrl+Z)", Undo), IconButton("", "Rétablir (Ctrl+Y)", Redo), IconButton("", "Ajuster la vue (F)", FitView)));
+        row.Children.Add(Div());
+        row.Children.Add(Grp(null, cancel, done));
 
         issueText = new TextBlock { FontSize = 12, Foreground = Res("HudAmber"), Margin = new Thickness(4, 6, 4, 0), TextWrapping = TextWrapping.Wrap, MaxWidth = 640, HorizontalAlignment = HorizontalAlignment.Center, TextAlignment = TextAlignment.Center, Cursor = Cursors.Hand, ToolTip = "Cliquer pour sélectionner l'élément concerné" };
         issueText.MouseLeftButtonUp += (_, e) =>
