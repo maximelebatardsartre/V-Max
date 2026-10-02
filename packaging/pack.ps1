@@ -79,14 +79,10 @@ vpk pack `
     --outputDir $releases
 if ($LASTEXITCODE -ne 0) { throw "vpk pack a échoué." }
 
-# nom de fichier d'installeur plus parlant pour les amis (l'auto-update utilise le .nupkg, pas ce fichier)
+# NB : on NE renomme PAS le Setup.exe ici — vpk garde le nom d'origine dans son manifeste et « vpk upload » ne
+# retrouverait plus le fichier. Le nom de fichier reste Maxine-win-Setup.exe (interne) ; l'app installée s'appelle
+# « V-Max Compagnon » via packTitle. Pour un nom de téléchargement plus joli, renommer l'asset sur GitHub après coup.
 $setup = Get-ChildItem $releases -Filter "*Setup.exe" | Select-Object -First 1
-if ($setup) {
-    $nice = Join-Path $releases "V-Max-Compagnon-Setup.exe"
-    if (Test-Path $nice) { Remove-Item $nice -Force }
-    Rename-Item $setup.FullName $nice
-    $setup = Get-Item $nice
-}
 Write-Host "Installeur prêt : $($setup.FullName)" -ForegroundColor Green
 
 if ($Upload) {
