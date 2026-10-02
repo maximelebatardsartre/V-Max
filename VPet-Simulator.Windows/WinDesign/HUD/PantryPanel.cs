@@ -95,7 +95,7 @@ public sealed class PantryPanel : HudSidePanel
         Fill();
     }
 
-    private void RefreshMoney() => money.Text = Pet.Core.Save!.Money.ToString("N0", Fr) + " $";
+    private void RefreshMoney() => money.Text = Pet.Sandbox?.MoneyText(Fr) ?? Pet.Core.Save!.Money.ToString("N0", Fr) + " $";
 
     private void Fill()
     {

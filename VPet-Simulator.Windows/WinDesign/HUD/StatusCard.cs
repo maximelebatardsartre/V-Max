@@ -144,7 +144,7 @@ public sealed class StatusCard : HudSidePanel
         if (expTrack.ActualWidth > 0)
             expFill.Width = expTrack.ActualWidth * expRatio;
         expText.Text = $"{s.Exp.ToString("N0", Fr)} / {need.ToString("N0", Fr)} XP · bonus ×{s.ExpBonus.ToString("0.00", Fr)}";
-        moneyText.Text = s.Money.ToString("N2", Fr) + " $";
+        moneyText.Text = Pet.Sandbox?.MoneyText(Fr, "N2") ?? s.Money.ToString("N2", Fr) + " $";
     }
 
     private void SetGauge(Gauge g, double value, double store, double max, double change)

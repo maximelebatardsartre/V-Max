@@ -24,6 +24,8 @@ public sealed class LifeBrain
     private Func<bool>? nativeMove;
     private CancellationTokenSource? cts;
     private HabitatPilot? pilot;
+    /// <summary>Portion de sol de la pièce d'arrivée (pour y traîner un peu après un repas)</summary>
+    private (double left, double right)? roomLeash;
 
     public LifeBrain(MainWindow mw)
     {
@@ -90,6 +92,10 @@ public sealed class LifeBrain
         Changed?.Invoke();
     }
 
+    /// <summary>Fin de la dernière intention et pause choisie avant la suivante (pas d'enchaînement mécanique)</summary>
+    private DateTime breatherUntil = DateTime.MinValue;
+    private DateTime lastEarn = DateTime.MinValue;
+
     /// <summary>Vérifie toutes les 20 s si une routine doit démarrer</summary>
     private void Tick()
     {
@@ -99,12 +105,37 @@ public sealed class LifeBrain
         var o = due.FirstOrDefault();
         if (o == null)
             return;
+        // il souffle un peu entre deux routines, sauf si la plage se termine bientôt
+        if (DateTime.Now < breatherUntil && o.WindowEnd - DateTime.Now > TimeSpan.FromMinutes(3))
+            return;
         Book.Played.Add(o.Key);
+        if (o.Routine.OnlyIfNeeded && !Needs(o.Routine.Action))
+        {
+            // pas faim, pas soif, pas fatigué : la routine est passée pour aujourd'hui
+            SaveBook();
+            return;
+        }
         // les autres occurrences en retard de la même vague sont abandonnées (pas d'enchaînement mécanique)
         foreach (var skipped in due.Skip(1).Where(d => d.Start < DateTime.Now.AddMinutes(-30)))
             Book.Played.Add(skipped.Key);
         SaveBook();
         _ = StartAsync(o.Routine.Place, o.Routine.Action, o.Duration, "routine");
+    }
+
+    /// <summary>A-t-il besoin de cette action (jauge sous 80 %, 90 % pour le sommeil) ?</summary>
+    private bool Needs(string action)
+    {
+        var s = mw.Core.Save!;
+        if (!mw.Set.EnableFunction)
+            return true;
+        double max = Math.Max(1, s.StrengthMax);
+        return action switch
+        {
+            "eat" => s.StrengthFood / max < 0.8,
+            "drink" => s.StrengthDrink / max < 0.8,
+            "sleep" => s.Strength / max < 0.9,
+            _ => true,
+        };
     }
 
     /// <summary>Le compagnon est-il libre (pas tenu, pas occupé à la demande de l'utilisateur) ?</summary>
@@ -125,6 +156,7 @@ public sealed class LifeBrain
     public async Task<string> StartAsync(string? place, string activity, TimeSpan duration, string source)
     {
         Cancel(null);
+        roomLeash = null;
         var habitat = mw.Habitat;
         string label = Describe(activity, place);
         var until = DateTime.Now + (duration > TimeSpan.Zero ? duration : DefaultDuration(activity));
@@ -176,7 +208,8 @@ public sealed class LifeBrain
             }
             // pour flâner, il reste dans la pièce
             var seg = habitat.Map.FloorsIn(room).FirstOrDefault(s => s.floor.Id == target.Value.floor.Id);
-            habitat.Leash = activity == "relax" && seg.floor != null ? (seg.left, seg.right) : null;
+            roomLeash = seg.floor != null ? (seg.left, seg.right) : null;
+            habitat.Leash = activity == "relax" ? roomLeash : null;
         }
         else if (source == "routine")
             Announce(activity, place);
@@ -269,8 +302,46 @@ public sealed class LifeBrain
                 }
                 break;
         }
-        if (over || grabbed)
+        if (grabbed)
+        {
             Cancel(null);
+            return;
+        }
+        if (!over)
+            return;
+        // après un repas ou une boisson, il ne repart pas aussitôt : il traîne un peu dans la pièce
+        if (c.Activity is "eat" or "drink" && c.Source != "linger" && roomLeash is { } leash && mw.Habitat?.IsActive == true)
+        {
+            mw.Habitat.Leash = leash;
+            Current = c with { Activity = "relax", Source = "linger", Until = DateTime.Now.AddMinutes(1 + Random.Shared.NextDouble() * 3) };
+            Changed?.Invoke();
+            return;
+        }
+        bool wasWork = c.Activity.StartsWith("work:");
+        Cancel(null);
+        breatherUntil = DateTime.Now.AddMinutes(3 + Random.Shared.NextDouble() * 7);
+        if (!wasWork)
+            EarnIfBroke();
+    }
+
+    /// <summary>
+    /// Autonomie financière : à court d'argent, il part travailler (l'occupation la plus rentable qu'il sait faire)
+    /// </summary>
+    private void EarnIfBroke()
+    {
+        var s = mw.Core.Save!;
+        if (!Book.Enabled || !Book.EarnWhenBroke || !mw.Set.EnableFunction || mw.Sandbox?.UnlimitedMoney == true || s.Money >= 50
+            || DateTime.Now - lastEarn < TimeSpan.FromHours(2) || s.Mode == VPet_Simulator.Core.IGameSave.ModeType.Ill)
+            return;
+        mw.Main.WorkList(out var ws, out _, out _);
+        var best = ws.Where(w => w.LevelLimit <= s.Level).Select(w => ActivitiesPanel.Prepare(mw, w))
+            .OrderByDescending(w => VPet_Simulator.Windows.Interface.ExtensionFunction.Get(w)).FirstOrDefault();
+        if (best == null)
+            return;
+        lastEarn = DateTime.Now;
+        var office = mw.Habitat?.IsActive == true ? mw.Habitat.Map.Rooms.FirstOrDefault(r => r.Tag == "office")?.Name : null;
+        try { mw.Main.MsgBar?.Show(s.Name, "Je suis presque à sec… je vais gagner un peu d'argent."); } catch { }
+        _ = StartAsync(office, "work:" + best.Name, TimeSpan.Zero, "autonomy");
     }
 
     private static TimeSpan DefaultDuration(string activity) => activity switch

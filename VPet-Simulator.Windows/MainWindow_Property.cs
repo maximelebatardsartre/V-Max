@@ -100,6 +100,10 @@ public partial class MainWindow
     /// V-Max : comportement (intentions, routines de vie, activités)
     /// </summary>
     public Habitat.LifeBrain? Life { get; private set; }
+    /// <summary>
+    /// V-Max : options « bac à sable » (argent illimité, jauges figées, objets gratuits)
+    /// </summary>
+    public SandboxRules? Sandbox { get; private set; }
     public winBetterBuy? winBetterBuy { get; set; }
     public winGallery? winGallery { get; set; } 
     public winInventory? winInventory { get; set; }

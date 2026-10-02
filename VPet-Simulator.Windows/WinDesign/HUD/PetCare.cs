@@ -26,7 +26,8 @@ public static class PetCare
         var save = mw.Core.Save!;
         if (mw.Set.EnableFunction)
         {
-            if ((item.Price >= 1000 || item.Exp >= 1000) && item.Price >= save.Money)
+            bool paid = mw.Sandbox?.FreeItems != true && mw.Sandbox?.UnlimitedMoney != true;
+            if (paid && (item.Price >= 1000 || item.Exp >= 1000) && item.Price >= save.Money)
                 return $"Il manque {(item.Price - save.Money).ToString("N2", Fr)} $ pour {item.TranslateName}.";
             if (mw.HashCheck && item.IsOverLoad())
             {
@@ -37,7 +38,9 @@ public static class PetCare
                     return "";
                 mw.HashCheck = false;
             }
-            save.Money -= item.Price;
+            if (mw.Sandbox?.FreeItems != true)
+                save.Money -= item.Price;
+            mw.Sandbox?.AfterSpending();
             mw.TakeItem(item);
             mw.TakeItemHandle(item, 1, interactive ? "betterbuy" : "vmax_routine");
         }
@@ -55,7 +58,8 @@ public static class PetCare
         var save = mw.Core.Save!;
         var candidates = mw.Foods.Where(f => f.Type == type && f.Visibility && f.CanUse
                 && !(mw.HashCheck && f.IsOverLoad())
-                && (!mw.Set.EnableFunction || f.Price < 1000 && f.Exp < 1000 || f.Price < save.Money))
+                && (!mw.Set.EnableFunction || mw.Sandbox?.FreeItems == true || mw.Sandbox?.UnlimitedMoney == true
+                    || f.Price < 1000 && f.Exp < 1000 || f.Price < save.Money))
             .Select(f =>
             {
                 var eat = mw.GameSavesData["buytime"].GetDateTime(f.Name, now);

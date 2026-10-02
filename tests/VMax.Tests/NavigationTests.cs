@@ -174,4 +174,18 @@ public class RoutinePlannerTests
         Assert.Equal(today.Key, RoutinePlanner.Next(r, Monday.AddHours(8), _ => false)!.Key);
         Assert.Equal(Monday.AddDays(1), RoutinePlanner.Next(r, Monday.AddHours(8), k => k == today.Key)!.Day);
     }
+
+    [Fact]
+    public void Frequence_certains_jours_seulement_et_stable()
+    {
+        var r = new LifeRoutine { Id = "sport", From = "18:00", To = "19:00", Chance = 50 };
+        var days = Enumerable.Range(0, 200).Select(i => Monday.AddDays(i)).ToList();
+        int count = days.Count(d => RoutinePlanner.Occurrence(r, d) != null);
+        Assert.InRange(count, 70, 130);
+        Assert.All(days.Take(20), d => Assert.Equal(RoutinePlanner.Occurrence(r, d) != null, RoutinePlanner.Occurrence(r, d) != null));
+        r.Chance = 100;
+        Assert.All(days.Take(20), d => Assert.NotNull(RoutinePlanner.Occurrence(r, d)));
+        r.Chance = 0;
+        Assert.All(days.Take(20), d => Assert.Null(RoutinePlanner.Occurrence(r, d)));
+    }
 }

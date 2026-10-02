@@ -157,7 +157,35 @@ internal sealed class RoutineEditor
         durationPanel.Children.Add(max);
         durationPanel.Children.Add(Label("min"));
         line2.Children.Add(durationPanel);
-        void UpdateDurationVisibility() => durationPanel.Visibility = r.Action is "eat" or "drink" ? Visibility.Collapsed : Visibility.Visible;
+        // ligne 2 bis : fréquence et besoin
+        var chances = new[] { (100, "Chaque jour actif"), (75, "3 fois sur 4"), (50, "1 fois sur 2"), (25, "1 fois sur 4") };
+        var chance = new ComboBox { Width = 170, VerticalAlignment = VerticalAlignment.Center, Margin = new Thickness(0, 0, 12, 0), ToolTip = "Le tirage est fait pour chaque jour : certains jours, la routine n'a simplement pas lieu" };
+        if (res.TryFindResource("VMaxComboBox") is Style chs)
+            chance.Style = chs;
+        foreach (var (_, label) in chances)
+            chance.Items.Add(label);
+        chance.SelectedIndex = Math.Max(0, Array.FindIndex(chances, c => c.Item1 == r.Chance));
+        if (chance.SelectedIndex == 0 && r.Chance != 100)
+            chance.SelectedIndex = r.Chance >= 63 ? 1 : r.Chance >= 38 ? 2 : 3;
+        chance.SelectionChanged += (_, _) =>
+        {
+            if (chance.SelectedIndex < 0) return;
+            r.Chance = chances[chance.SelectedIndex].Item1;
+            Changed();
+        };
+        var need = new CheckBox { Content = "Seulement s'il en a besoin", IsChecked = r.OnlyIfNeeded, VerticalAlignment = VerticalAlignment.Center, Foreground = B("PrimaryText"), ToolTip = "Il ne mange pas sans faim, ne boit pas sans soif, ne se couche pas en pleine forme" };
+        need.Checked += (_, _) => { r.OnlyIfNeeded = true; Changed(); };
+        need.Unchecked += (_, _) => { r.OnlyIfNeeded = false; Changed(); };
+        var line2b = new WrapPanel { Margin = new Thickness(0, 10, 0, 0) };
+        line2b.Children.Add(Label("Fréquence"));
+        line2b.Children.Add(chance);
+        line2b.Children.Add(need);
+
+        void UpdateDurationVisibility()
+        {
+            durationPanel.Visibility = r.Action is "eat" or "drink" ? Visibility.Collapsed : Visibility.Visible;
+            need.Visibility = r.Action is "eat" or "drink" or "sleep" ? Visibility.Visible : Visibility.Collapsed;
+        }
         UpdateDurationVisibility();
 
         action.SelectionChanged += (_, _) =>
@@ -189,6 +217,7 @@ internal sealed class RoutineEditor
         var sp = new StackPanel();
         sp.Children.Add(line1);
         sp.Children.Add(line2);
+        sp.Children.Add(line2b);
         sp.Children.Add(line3);
         UpdateStatus();
         return new Border

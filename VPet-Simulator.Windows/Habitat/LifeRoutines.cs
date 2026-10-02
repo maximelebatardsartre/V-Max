@@ -29,6 +29,10 @@ public sealed class LifeRoutine
     public int MinMinutes { get; set; }
     /// <summary>Durée maximale en minutes</summary>
     public int MaxMinutes { get; set; }
+    /// <summary>Chance (%) que la routine ait lieu un jour actif donné : 100 = toujours, 50 = un jour sur deux en moyenne</summary>
+    public int Chance { get; set; } = 100;
+    /// <summary>Seulement s'il en a besoin : il ne mange pas sans faim, ne boit pas sans soif, ne se couche pas en pleine forme</summary>
+    public bool OnlyIfNeeded { get; set; }
 
     public bool OnDay(DayOfWeek d) => (Days & (1 << (int)d)) != 0;
 
@@ -60,6 +64,9 @@ public static class RoutinePlanner
     {
         day = day.Date;
         if (!r.Enabled || !r.OnDay(day.DayOfWeek))
+            return null;
+        // certains jours seulement : tirage stable pour le jour, comme l'heure
+        if (r.Chance < 100 && Unit(r.Id, day, 3) * 100 >= Math.Max(0, r.Chance))
             return null;
         var from = LifeRoutine.ParseTime(r.From);
         var to = LifeRoutine.ParseTime(r.To);
@@ -131,6 +138,8 @@ public sealed class RoutineBook
     public List<LifeRoutine> Routines { get; set; } = new();
     /// <summary>Occurrences déjà jouées (clé routine@jour), purgées après quelques jours</summary>
     public List<string> Played { get; set; } = new();
+    /// <summary>Autonomie financière : à court d'argent après une routine, il part travailler pour en gagner</summary>
+    public bool EarnWhenBroke { get; set; } = true;
 
     public static string PathOf => System.IO.Path.Combine(ExtensionValue.DataDirectory, "routines.json");
 

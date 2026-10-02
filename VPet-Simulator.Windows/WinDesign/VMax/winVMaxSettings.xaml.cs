@@ -602,10 +602,23 @@ public partial class winVMaxSettings : Window
             "Chaque routine a une plage horaire : chaque jour, l'heure réelle est tirée au hasard dedans (12h14 un jour, 13h40 le lendemain). "
             + "Dans l'habitat, le compagnon se rend dans la pièce indiquée avant de commencer.",
             () => Toggle(() => mw.Life?.RoutinesEnabled == true, v => { if (mw.Life != null) mw.Life.RoutinesEnabled = v; }));
+        Add("routines", "Routines de vie", "Autonomie financière",
+            "S'il est presque à sec après une routine, il part de lui-même travailler (l'occupation la plus rentable qu'il sait faire) pour regagner de l'argent.",
+            () => Toggle(() => mw.Life?.Book.EarnWhenBroke != false, v => { if (mw.Life != null) { mw.Life.Book.EarnWhenBroke = v; mw.Life.SaveBook(); } }));
         Add("routines", "Routines de vie", "Mes routines", "Action, lieu, plage de départ, jours et durée. Les modifications sont enregistrées aussitôt.",
             () => new RoutineEditor(mw, this).Build(), fullWidth: true);
 
-        Add("compagnon", "Simulation", "Besoins du compagnon", "Faim, soif, humeur et endurance évoluent avec le temps.",
+        Add("compagnon", "Bac à sable", "Argent illimité",
+            "Le porte-monnaie ne se vide jamais. Ta vraie somme est mise de côté et rendue quand tu désactives l'option.",
+            () => Toggle(() => mw.Sandbox?.UnlimitedMoney == true, v => { if (mw.Sandbox != null) mw.Sandbox.UnlimitedMoney = v; }));
+        Add("compagnon", "Bac à sable", "Jauges qui ne baissent jamais",
+            "Faim, soif, humeur, énergie et santé peuvent remonter, mais ne descendent plus avec le temps.",
+            () => Toggle(() => mw.Sandbox?.FrozenGauges == true, v => { if (mw.Sandbox != null) mw.Sandbox.FrozenGauges = v; }));
+        Add("compagnon", "Bac à sable", "Repas et cadeaux gratuits",
+            "Les objets gardent leurs effets mais ne coûtent rien.",
+            () => Toggle(() => mw.Sandbox?.FreeItems == true, v => { if (mw.Sandbox != null) mw.Sandbox.FreeItems = v; }));
+
+        Add("compagnon", "Simulation", "Besoins du compagnon", "Faim, soif, humeur et endurance évoluent avec le temps. Désactive-les pour un simple fond d'écran animé, sans contrainte.",
             () => Toggle(() => set.EnableFunction, v =>
             {
                 set.EnableFunction = v;

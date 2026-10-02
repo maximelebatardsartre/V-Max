@@ -1742,6 +1742,7 @@ namespace VPet_Simulator.Windows
                   Hud = new HUD.HudController(this);
                   Habitat = new Habitat.HabitatMode(this);
                   Life = new Habitat.LifeBrain(this);
+                  Sandbox = new SandboxRules(this);
                   // V-Max HUD : la bulle de VPet est remplacée par la bulle flottante (même interface IMassageBar)
                   if (Main.MsgBar is MessageBar oldBar)
                   {
