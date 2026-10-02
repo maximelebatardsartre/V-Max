@@ -163,11 +163,12 @@ public sealed class RoutineBook
     {
         Routines =
         {
-            new LifeRoutine { Action = "eat", Place = "Cuisine", From = "07:30", To = "09:00" },
-            new LifeRoutine { Action = "eat", Place = "Cuisine", From = "12:00", To = "14:00" },
-            new LifeRoutine { Action = "relax", Place = "Salon", From = "16:00", To = "18:00", MinMinutes = 20, MaxMinutes = 45 },
-            new LifeRoutine { Action = "eat", Place = "Cuisine", From = "19:00", To = "20:30" },
-            new LifeRoutine { Action = "sleep", Place = "Chambre", From = "23:00", To = "01:30", MinMinutes = 420, MaxMinutes = 510 },
+            // identifiants fixes : l'heure tirée du jour ne change pas d'un lancement à l'autre
+            new LifeRoutine { Id = "petitdej", Action = "eat", Place = "Cuisine", From = "07:30", To = "09:00" },
+            new LifeRoutine { Id = "dejeuner", Action = "eat", Place = "Cuisine", From = "12:00", To = "14:00" },
+            new LifeRoutine { Id = "pause", Action = "relax", Place = "Salon", From = "16:00", To = "18:00", MinMinutes = 20, MaxMinutes = 45 },
+            new LifeRoutine { Id = "diner", Action = "eat", Place = "Cuisine", From = "19:00", To = "20:30" },
+            new LifeRoutine { Id = "nuit", Action = "sleep", Place = "Chambre", From = "23:00", To = "01:30", MinMinutes = 420, MaxMinutes = 510 },
         },
     };
 }

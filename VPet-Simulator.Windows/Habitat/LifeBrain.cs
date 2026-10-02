@@ -58,8 +58,21 @@ public sealed class LifeBrain
         }
     }
 
+    /// <summary>QA : routines en mémoire seulement (rien n'est écrit dans routines.json)</summary>
+    internal bool Transient { get; set; }
+
+    /// <summary>QA : remplace le carnet de routines en mémoire et force une vérification</summary>
+    internal void QaUse(RoutineBook book)
+    {
+        Transient = true;
+        Book = book;
+        Tick();
+    }
+
     public void SaveBook()
     {
+        if (Transient)
+            return;
         try
         {
             Book.Save();

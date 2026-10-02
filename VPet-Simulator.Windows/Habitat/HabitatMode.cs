@@ -35,6 +35,9 @@ public sealed class HabitatMode
 
     private ILine Cfg => mw.Set["vmax_habitat"];
 
+    /// <summary>Fenêtre principale (compagnon)</summary>
+    internal MainWindow MW => mw;
+
     public bool IsActive => Window != null;
     public HabitatWindow? Window { get; private set; }
     public HabitatMap Map { get; private set; } = new();

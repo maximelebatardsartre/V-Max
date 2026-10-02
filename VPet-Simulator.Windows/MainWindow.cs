@@ -2644,7 +2644,7 @@ namespace VPet_Simulator.Windows
                               if (qaHabitat.GetString("edit") != null)
                               {
                                   Habitat.Window?.StartEditing();
-                                  Habitat.Window?.QaHover(new Point(560, 520), "f2");
+                                  Habitat.Window?.QaHover(new Point(560, 520), qaHabitat.GetString("sel") ?? "f2");
                               }
                           }).Task.Unwrap();
                           var trace = new System.Text.StringBuilder();
@@ -2661,6 +2661,14 @@ namespace VPet_Simulator.Windows
                               });
                               if (int.TryParse(qaHabitat.GetString("snapat"), out var snapAt) && qi == snapAt)
                                   Dispatcher.Invoke(() => QaSnapshotComposite(Habitat!.Window!, new Window[] { this }, System.IO.Path.Combine(System.IO.Path.GetTempPath(), "vmax-qa-mid.png")));
+                              if (qi == 2 && qaHabitat.GetString("routine") is string qaRoutine)
+                                  Dispatcher.Invoke(() =>
+                                  {// routine dont la plage contient maintenant : elle doit partir d'elle-même
+                                      var now = DateTime.Now;
+                                      var book = new Habitat.RoutineBook { Enabled = true };
+                                      book.Routines.Add(new Habitat.LifeRoutine { Id = "qa", Action = qaRoutine, Place = qaHabitat.GetString("place"), From = now.AddMinutes(-30).ToString("HH:mm"), To = now.AddMinutes(1).ToString("HH:mm"), MinMinutes = 1, MaxMinutes = 2 });
+                                      Life!.QaUse(book);
+                                  });
                               if (qi == 2 && qaHabitat.GetString("goto") is string qaPlace)
                                   Dispatcher.Invoke(() => _ = Life!.StartAsync(qaPlace, qaHabitat.GetString("act") ?? "relax", TimeSpan.Zero, "routine")
                                       .ContinueWith(t => trace.AppendLine("intention : " + t.Result)));

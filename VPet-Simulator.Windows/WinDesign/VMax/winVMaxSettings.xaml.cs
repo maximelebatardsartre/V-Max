@@ -349,7 +349,7 @@ public partial class winVMaxSettings : Window
     private FrameworkElement Combo(IList<string> items, Func<int> getIndex, Action<int> setIndex, bool restart = false, double width = 240)
     {
         var cb = new ComboBox { Width = width };
-        if (TryFindResource("StandardComboBoxStyle") is Style s)
+        if (TryFindResource("VMaxComboBox") is Style s)
             cb.Style = s;
         foreach (var i in items)
             cb.Items.Add(i);
@@ -395,6 +395,7 @@ public partial class winVMaxSettings : Window
         categories.Add(new("general", T("Général"), "", T("Démarrage, comportement de la fenêtre et langue.")));
         categories.Add(new("apparence", T("Apparence"), "", T("Thème, taille et rendu du compagnon.")));
         categories.Add(new("compagnon", T("Compagnon"), "", T("Identité, déplacements et comportement de ton compagnon.")));
+        categories.Add(new("routines", T("Routines de vie"), "", T("Le rythme de vie de ton compagnon, avec des horaires qui varient comme les tiens.")));
         categories.Add(new("ia", T("Intelligence artificielle"), "", T("Discussion et agent IA.")));
         categories.Add(new("sauvegardes", T("Sauvegardes"), "", T("Enregistrement automatique et copies de secours.")));
         categories.Add(new("extensions", T("Extensions"), "", T("Mods, plugins et raccourcis personnalisés.")));
@@ -587,6 +588,13 @@ public partial class winVMaxSettings : Window
             }));
         Add("compagnon", "Habitat (mode autonome)", "Habitat toujours au premier plan", "Garde la fenêtre habitat au-dessus des autres fenêtres.",
             () => Toggle(() => mw.Habitat?.AlwaysOnTop == true, v => { if (mw.Habitat != null) mw.Habitat.AlwaysOnTop = v; }), advancedOnly: true);
+
+        Add("routines", "Routines de vie", "Activer les routines de vie avancées",
+            "Chaque routine a une plage horaire : chaque jour, l'heure réelle est tirée au hasard dedans (12h14 un jour, 13h40 le lendemain). "
+            + "Dans l'habitat, le compagnon se rend dans la pièce indiquée avant de commencer.",
+            () => Toggle(() => mw.Life?.RoutinesEnabled == true, v => { if (mw.Life != null) mw.Life.RoutinesEnabled = v; }));
+        Add("routines", "Routines de vie", "Mes routines", "Action, lieu, plage de départ, jours et durée. Les modifications sont enregistrées aussitôt.",
+            () => new RoutineEditor(mw, this).Build(), fullWidth: true);
 
         Add("compagnon", "Simulation", "Besoins du compagnon", "Faim, soif, humeur et endurance évoluent avec le temps.",
             () => Toggle(() => set.EnableFunction, v =>
@@ -786,7 +794,7 @@ public partial class winVMaxSettings : Window
         var agent = mw.AgentPlugin?.Orchestrator;
         var line = new StackPanel { Orientation = Orientation.Horizontal };
         var combo = new ComboBox { Width = 260, IsEditable = true, Text = agent?.ModelOf(p.Id) ?? "" };
-        if (TryFindResource("StandardComboBoxStyle") is Style s)
+        if (TryFindResource("VMaxComboBox") is Style s)
             combo.Style = s;
         if (p.Id == "gemini")
             combo.Items.Add(Agent.GeminiClient.DefaultModel);
