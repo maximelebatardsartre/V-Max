@@ -408,15 +408,15 @@ public partial class MainWindow : IMainWindow
                         IsTrue = false;
                         break;
                     case 68:
-                        Question = string.Format(ConvertQuestionText("{name}已经移动了足足{0}".Translate()), winCharacterPanel.px_tocm(stats[(gi64)"stat_move_length"]));
+                        Question = string.Format(ConvertQuestionText("{name}已经移动了足足{0}".Translate()), Units.PxToDistance(stats[(gi64)"stat_move_length"]));
                         IsTrue = true;
                         break;
                     case 69:
-                        Question = string.Format(ConvertQuestionText("{name}已经移动了足足{0}".Translate()), winCharacterPanel.px_tocm(stats[(gi64)"stat_move_length"] * 100));
+                        Question = string.Format(ConvertQuestionText("{name}已经移动了足足{0}".Translate()), Units.PxToDistance(stats[(gi64)"stat_move_length"] * 100));
                         IsTrue = false;
                         break;
                     case 70:
-                        Question = string.Format(ConvertQuestionText("{name}已经移动了足足{0}".Translate()), winCharacterPanel.px_tocm(stats[(gi64)"stat_move_length"] / 100));
+                        Question = string.Format(ConvertQuestionText("{name}已经移动了足足{0}".Translate()), Units.PxToDistance(stats[(gi64)"stat_move_length"] / 100));
                         IsTrue = false;
                         break;
                     case 71:

@@ -34,7 +34,7 @@ public sealed class ActivitiesPanel : HudSidePanel
 
     public ActivitiesPanel(MainWindow pet) : base(pet, "OCCUPATIONS", "Que fait-on ?", 420, 620)
     {
-        AddHeaderButton("", "Planning et réglages avancés", () => { HideAnimated(); Pet.ShowWorkMenu(category); });
+        AddHeaderButton("", "Planning et réglages avancés", () => { HideAnimated(); PlanningWindow.Open(Pet, category); });
         foreach (var (type, label) in Categories)
         {
             var chip = new RadioButton { Style = (Style)FindResource("HudChip"), Content = label, GroupName = "activities", Margin = new Thickness(0, 0, 6, 6), IsChecked = type == category };

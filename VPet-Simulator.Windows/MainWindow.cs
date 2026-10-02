@@ -163,7 +163,7 @@ namespace VPet_Simulator.Windows
                     var bg = window.Background is SolidColorBrush scb && scb.Color.A == 0 || window.Background == null
                         ? (Brush)Application.Current.Resources["VMaxWindowFallback"] : window.Background;
                     dc.DrawRectangle(bg, null, new Rect(0, 0, root.ActualWidth, root.ActualHeight));
-                    dc.DrawRectangle(new VisualBrush(root), null, new Rect(0, 0, root.ActualWidth, root.ActualHeight));
+                    dc.DrawRectangle(new VisualBrush(root) { ViewboxUnits = BrushMappingMode.Absolute, Viewbox = new Rect(0, 0, root.ActualWidth, root.ActualHeight) }, null, new Rect(0, 0, root.ActualWidth, root.ActualHeight));
                 }
                 rtb.Render(dv);
                 var enc = new System.Windows.Media.Imaging.PngBitmapEncoder();
@@ -643,8 +643,8 @@ namespace VPet_Simulator.Windows
         }
 
         /// <summary>
-        /// Ouvre les paramètres. V-Max : sans page précise, ouvre la nouvelle fenêtre ;
-        /// avec un numéro de page (API héritée des plugins), ouvre l'interface classique sur cette page.
+        /// Ouvre les paramètres. Un numéro de page (API héritée des plugins VPet) est converti
+        /// vers la catégorie V-Max équivalente.
         /// </summary>
         public void ShowSetting(int page = -1)
         {
@@ -670,45 +670,32 @@ namespace VPet_Simulator.Windows
         }
 
         /// <summary>
-        /// Ouvre l'ancienne fenêtre de paramètres (héritée de VPet) sur une page
+        /// Anciennes pages de paramètres VPet (0 graphismes, 1 système, 2 interactions, 3 raccourcis, 4 diagnostic,
+        /// 5 mods, 6 à propos) : ouvre l'équivalent V-Max
         /// </summary>
         public void ShowLegacySetting(int page = -1)
         {
-            if (page >= 0 && page <= 6)
-                winSetting!.MainTab.SelectedIndex = page;
-            winSetting!.Show();
-            winSetting.Activate();
-        }
-        public void ShowWorkMenu(Work.WorkType type)
-        {
-            if (winWorkMenu == null)
+            switch (page)
             {
-                winWorkMenu = new winWorkMenu(this, type);
-                winWorkMenu.Show();
-            }
-            else
-            {
-                winWorkMenu.LsbCategory.SelectedIndex = (int)type;
-                winWorkMenu.Focus();
-                winWorkMenu.Topmost = true;
+                case 3: HUD.ShortcutsWindow.Open(this); break;
+                case 5: HUD.ModsWindow.Open(this); break;
+                default:
+                    ShowSetting(page switch { 0 => "apparence", 1 => "general", 2 => "compagnon", 4 or 6 => "apropos", _ => "general" });
+                    break;
             }
         }
-        public void ShowBetterBuy(Food.FoodType type)
+        public void ShowWorkMenu(Work.WorkType type) => HUD.PlanningWindow.Open(this, type);
+        public void ShowBetterBuy(Food.FoodType type) => Hud?.OpenPantry(type);
+        public void ShowGallery() => HUD.GalleryWindow.Open(this);
+        /// <summary>Panneau du compagnon (0 statistiques, 1 bilan de l'année, 2 carte d'anniversaire, 3 journal)</summary>
+        public void ShowCharacter(int tab = 0) => HUD.CharacterWindow.Open(this, tab);
+        /// <summary>Fenêtre « Signaler un problème », éventuellement pré-remplie avec une erreur</summary>
+        public void ShowReport(string? error = null, string? description = null)
         {
-            winBetterBuy!.Show(type);
-        }
-        public void ShowGallery()
-        {
-            if (winGallery != null)
-            {
-                winGallery.Show();
-                winGallery.Focus();
-            }
-            else
-            {
-                winGallery = new winGallery(this);
-                winGallery.Show();
-            }
+            var w = new HUD.ReportWindow(this, error);
+            if (description != null)
+                w.Description = description;
+            w.Present();
         }
         int lowstrengthAskCountFood = 20;
         int lowstrengthAskCountDrink = 20;
@@ -1865,8 +1852,7 @@ namespace VPet_Simulator.Windows
                   m.Click += (x, y) =>
                   {
                       Main.ToolBar.Visibility = Visibility.Collapsed;
-                      winSetting!.MainTab.SelectedIndex = 5;
-                      winSetting.Show();
+                      HUD.ModsWindow.Open(this);
                   };
                   Main.FunctionSpendHandle += lowStrength;
                   if (Main.WorkTimer != null)
@@ -2010,9 +1996,6 @@ namespace VPet_Simulator.Windows
                           break;
                   }
 
-                  //窗口部件
-                  winSetting = new winGameSetting(this);
-                  winBetterBuy = new winBetterBuy(this);
 
                   Main.DefaultClickAction = () =>
                   {
@@ -2074,12 +2057,11 @@ namespace VPet_Simulator.Windows
                   {
                       ExtensionFunction.StartURL(ExtensionValue.RepositoryURL + "#readme");// V-Max : documentation du projet
                   });
-                  Main.ToolBar.AddMenuButton(ToolBar.MenuType.Setting, "反馈中心".Translate(), () => { Main.ToolBar.Visibility = Visibility.Collapsed; new winReport(this).Show(); });
+                  Main.ToolBar.AddMenuButton(ToolBar.MenuType.Setting, "反馈中心".Translate(), () => { Main.ToolBar.Visibility = Visibility.Collapsed; ShowReport(); });
                   Main.ToolBar.AddMenuButton(ToolBar.MenuType.Setting, "设置面板".Translate(), () =>
                   {
                       Main.ToolBar.Visibility = Visibility.Collapsed;
-                      winSetting.Show();
-                      winSetting.Activate();
+                      ShowSetting();
                   });
 
                   //this.Background = new ImageBrush(new BitmapImage(new Uri("pack://application:,,,/Res/TopLogo2019.PNG")));
@@ -2094,33 +2076,27 @@ namespace VPet_Simulator.Windows
                   //);
                   Main.ToolBar.AddMenuButton(ToolBar.MenuType.Feed, "吃饭".Translate(), () =>
                   {
-                      winBetterBuy.Show(Food.FoodType.Meal);
+                      ShowBetterBuy(Food.FoodType.Meal);
                   });
                   Main.ToolBar.AddMenuButton(ToolBar.MenuType.Feed, "喝水".Translate(), () =>
                   {
-                      winBetterBuy.Show(Food.FoodType.Drink);
+                      ShowBetterBuy(Food.FoodType.Drink);
                   });
                   Main.ToolBar.AddMenuButton(ToolBar.MenuType.Feed, "收藏".Translate(), () =>
                   {
-                      winBetterBuy.Show(Food.FoodType.Star);
+                      ShowBetterBuy(Food.FoodType.Star);
                   });
                   Main.ToolBar.AddMenuButton(ToolBar.MenuType.Feed, "药品".Translate(), () =>
                   {
-                      winBetterBuy.Show(Food.FoodType.Drug);
+                      ShowBetterBuy(Food.FoodType.Drug);
                   });
                   Main.ToolBar.AddMenuButton(ToolBar.MenuType.Feed, "礼品".Translate(), () =>
                   {
-                      winBetterBuy.Show(Food.FoodType.Gift);
+                      ShowBetterBuy(Food.FoodType.Gift);
                   });
                   Main.ToolBar.AddMenuButton(ToolBar.MenuType.Feed, "背包".Translate(), () =>
                   {
-                      if (winInventory != null && !winInventory.IsClosed)
-                          winInventory.Show();
-                      else
-                      {
-                          winInventory = new winInventory(this);
-                          winInventory.Show();
-                      }
+                      Hud?.OpenInventory();
                   });
                   Main.SetMoveMode(Set.AllowMove, Set.SmartMove, Set.SmartMoveInterval * 1000);
                   Main.SetLogicInterval((int)(Set.LogicInterval * 1000));
@@ -2176,7 +2152,7 @@ namespace VPet_Simulator.Windows
                       Top = (SystemParameters.PrimaryScreenHeight - Height) / 2;
                   })
                   { Name = "NotifyIcon_Reset" });
-                  m_menu.Items.Add(new MenuItem("反馈中心".Translate(), null, (x, y) => { new winReport(this).Show(); }) { Name = "NotifyIcon_Report" });
+                  m_menu.Items.Add(new MenuItem("反馈中心".Translate(), null, (x, y) => ShowReport()) { Name = "NotifyIcon_Report" });
                   if (Set.DeBug)
                       m_menu.Items.Add(new MenuItem("开发控制台".Translate(), null, (x, y) => { new winConsole(this).Show(); }) { Name = "NotifyIcon_Console" });
 
@@ -2209,7 +2185,7 @@ namespace VPet_Simulator.Windows
                   {//更新到最新版开机启动方式
                       try
                       {
-                          winSetting.GenStartUP();
+                          StartupShortcut.Apply(this);
                           Set["v"][(gbol)"newverstartup"] = true;
                       }
                       catch
@@ -2279,9 +2255,7 @@ namespace VPet_Simulator.Windows
                               };
                               button.Click += (x, y) =>
                               {
-                                  var panelWindow = new winCharacterPanel(this);
-                                  panelWindow.MainTab.SelectedIndex = 1;
-                                  panelWindow.Show();
+                                  ShowCharacter(HUD.CharacterWindow.TabReport);
                                   Main.MsgBar?.ForceClose();
                               };
                               return button;
@@ -2519,9 +2493,7 @@ namespace VPet_Simulator.Windows
                       if (errstr.Contains("0000_core"))
                       {
                           VDialog.Show("动画加载错误,请尝试以下解决方法修复问题:\n\t1. 删除游戏根目录`Cache`文件夹\n\t2. 删除游戏根目录`mod\\0000_core\\pet`文件夹".Translate(), "动画加载错误".Translate());
-                          var winrep = new winReport(this, errstr);
-                          winrep.tDescription.Text = "动画加载错误".Translate();
-                          winrep.Show();
+                          ShowReport(errstr, "动画加载错误".Translate());
                       }
                       else
                           VDialog.Show("动画加载错误\n虚拟桌宠模拟器未能成功加载该动画\n请联系MOD作者修复该问题".Translate() + '\n' + errstr, "动画加载错误".Translate());
@@ -2783,6 +2755,36 @@ namespace VPet_Simulator.Windows
                           Dispatcher.Invoke(() => { if (TrayMenu.Current != null) QaSnapshot(TrayMenu.Current, System.IO.Path.Combine(System.IO.Path.GetTempPath(), "vmax-qa-settings.png")); });
                       });
                   }
+                  if (Args.FindLine("vmax-open-window") is ILine qaWin)
+                  {// QA : fenêtre V-Max (gallery, character, planning, saves, report, inventory, mods, shortcuts, input) rendue dans %TEMP%\vmax-qa-settings.png
+                      int tab = Args.FindLine("vmax-window-tab")?.InfoToInt ?? 0;
+                      Task.Run(async () =>
+                      {
+                          await Task.Delay(5000);
+                          Dispatcher.Invoke(() =>
+                          {
+                              switch (qaWin.info)
+                              {
+                                  case "gallery": ShowGallery(); break;
+                                  case "character": ShowCharacter(tab); break;
+                                  case "planning": HUD.PlanningWindow.Open(this, null, tab); break;
+                                  case "saves": HUD.SavesWindow.Open(this); break;
+                                  case "report": ShowReport(); break;
+                                  case "inventory": Hud?.OpenInventory(); break;
+                                  case "mods": HUD.ModsWindow.Open(this); break;
+                                  case "shortcuts": HUD.ShortcutsWindow.Open(this); break;
+                                  case "input": Dispatcher.BeginInvoke(() => ShowInputBox("Nom du compagnon", "Comment veux-tu l'appeler ?", "Max", _ => { })); break;
+                              }
+                          });
+                          await Task.Delay(3500);
+                          Dispatcher.Invoke(() =>
+                          {
+                              var target = Application.Current.Windows.OfType<Window>().LastOrDefault(w => w.IsVisible && w != this && w.GetType().Namespace == "VPet_Simulator.Windows.HUD" && w is not HUD.HudToast);
+                              if (target != null)
+                                  QaSnapshot(target, System.IO.Path.Combine(System.IO.Path.GetTempPath(), "vmax-qa-settings.png"));
+                          });
+                      });
+                  }
                   if (Args.FindLine("vmax-open-settings") is ILine qaSettings)
                   {
                       // -1 : nouvelle fenêtre (catégorie via « vmax-settings-page#apparence:| », mode avancé via « vmax-settings-advanced#1:| »)
@@ -2794,7 +2796,7 @@ namespace VPet_Simulator.Windows
                       Task.Run(async () =>
                       {
                           await Task.Delay(4000);
-                          Dispatcher.Invoke(() => QaSnapshot(qaPage < 0 ? winVMaxSetting! : winSetting!, System.IO.Path.Combine(System.IO.Path.GetTempPath(), "vmax-qa-settings.png")));
+                          Dispatcher.Invoke(() => QaSnapshot(winVMaxSetting!, System.IO.Path.Combine(System.IO.Path.GetTempPath(), "vmax-qa-settings.png")));
                       });
                   }
 
@@ -2962,9 +2964,7 @@ namespace VPet_Simulator.Windows
                 Main.Say(sbv_trans, "bday");
                 Dispatcher.Invoke(() =>
                 {
-                    var panelWindow = new winCharacterPanel(this);
-                    panelWindow.MainTab.SelectedIndex = 2;
-                    panelWindow.Show();
+                    ShowCharacter(HUD.CharacterWindow.TabBirthday);
                 });
             }
         }

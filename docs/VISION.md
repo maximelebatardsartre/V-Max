@@ -304,6 +304,20 @@ Micro ─► WASAPI 16 kHz ─► Silero VAD ─(voix?)─► openWakeWord ─(�
 - **Repli** : un raccourci global de type *push-to-talk* (`RegisterHotKey`, via `Win32.cs`), utile aussi quand le micro est partagé. Aujourd'hui, l'application n'a **aucun** raccourci global (audit UX A4).
 - **Risque principal** : la qualité du modèle « Hey Max » en français (faux positifs). Il faudra un jeu de test enregistré, un seuil réglable dans les paramètres avancés et, si nécessaire, une vérification en deux temps (mot d'activation local, puis confirmation par la reconnaissance vocale).
 
+### 6.3 Ce qui est livré (2026-10-02)
+
+Première version, sans modèle à entraîner, pour avancer avant openWakeWord :
+
+| Étage | Implémentation livrée |
+|---|---|
+| Capture | NAudio `WaveInEvent`, 16 kHz mono, uniquement pendant l'écoute |
+| *Push-to-talk* | Touche maintenue (par défaut « ² », réglable), via un crochet clavier bas niveau ; bulle d'écoute à côté du compagnon |
+| Reconnaissance | Groq Whisper (`whisper-large-v3-turbo`) si une clé Groq est enregistrée, sinon audio direct dans Gemini, sinon dictée Windows **hors ligne** ; option « hors ligne uniquement » |
+| « Hey Max » | Grammaire System.Speech fr-FR (reconnaissance locale, seuil de confiance réglable), désactivé par défaut |
+| Réponses parlées | Voix OneCore fr-FR (Julie, Paul, Hortense) par SAPI, choix de la voix et du débit dans Paramètres › Voix |
+
+Le remplacement de la grammaire par un modèle openWakeWord reste prévu (critère : moins d'un faux positif par heure).
+
 ---
 
 ## 7. Socle technique préalable (repris de l'audit)
@@ -344,7 +358,7 @@ L'agent ne doit pas être branché sur les fondations actuelles sans ces correct
 |---|---|---|
 | **v1.0 (étape 4)** | Interface 2026 (overlays en verre dépoli, paramètres Basic/Advanced, micro-animations, thème système), corrections de performances au repos, socle P0/P1 (hôte, bus, secrets, données dans `%APPDATA%`), `PetStateController`, `IChatProvider` Gemini en texte avec streaming, 5 outils à faible risque (média, applications, web, minuteur, état du compagnon) | CPU au repos inférieur à 1 %, première réponse visible en moins de 1,5 s, aucune action sensible sans confirmation |
 | **v1.1** | ~~`MetricsService` et `StatsBridge`~~ (abandonné), notifications Windows, palette de commandes, journal d'audit ✅ | — |
-| **v1.2** | Voix : raccourci *push-to-talk*, Whisper, TTS fr-FR ; puis « Hey Max » (openWakeWord) en bêta | Moins d'un faux positif par heure sur le jeu de test |
+| **v1.2** | Voix : raccourci *push-to-talk*, Whisper, TTS fr-FR ✅ ; « Hey Max » en bêta ✅ (grammaire locale, openWakeWord à venir) | Moins d'un faux positif par heure sur le jeu de test |
 | **v1.3** | Routines PowerShell déclarées, recherche de fichiers, mémoire, vision d'écran, client MCP | Sécurité revue, tests d'injection de prompt |
 | **v2** | Animations dédiées (`listen`, `search`, `act`, `confused`), Gemini Live (conversation continue), marketplace de packs | — |
 

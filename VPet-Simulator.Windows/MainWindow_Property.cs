@@ -79,7 +79,6 @@ public partial class MainWindow
     public List<Window> Windows { get; set; } = new List<Window>();
     public Main Main { get; set; } = null!;
     public UIElement? TalkBox;
-    public winGameSetting? winSetting { get; set; }
     /// <summary>
     /// V-Max : nouvelle fenêtre de paramètres (créée à la demande)
     /// </summary>
@@ -109,11 +108,7 @@ public partial class MainWindow
     /// </summary>
     public Voice.VoiceService? Voice { get; private set; }
 
-    public winBetterBuy? winBetterBuy { get; set; }
-    public winGallery? winGallery { get; set; } 
-    public winInventory? winInventory { get; set; }
 
-    public winWorkMenu? winWorkMenu { get; set; }
     //public ChatGPTClient CGPTClient;
     public ImageResources ImageSources { get; set; } = new ImageResources();
     public Resources FileSources { get; set; } = new Resources();

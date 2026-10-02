@@ -108,18 +108,6 @@ public partial class winVMaxSettings : Window
     private void Close_Click(object sender, RoutedEventArgs e) => Close();
     private void Restart_Click(object sender, RoutedEventArgs e) => mw.Restart();
 
-    private void Legacy_Click(object sender, RoutedEventArgs e)
-    {
-        int page = currentCategory switch
-        {
-            "compagnon" => 2,
-            "sauvegardes" or "general" => 1,
-            "extensions" => 5,
-            "apropos" => 6,
-            _ => 0,
-        };
-        mw.ShowLegacySetting(page);
-    }
     #endregion
 
     #region Navigation, mode, recherche
@@ -720,7 +708,7 @@ public partial class winVMaxSettings : Window
         Add("sauvegardes", "Copies de secours", "Nombre de copies conservées", "Copies de secours gardées pour restaurer une ancienne sauvegarde.",
             () => SliderRow(1, 100, 1, () => set.BackupSaveMaxNum, v => set.BackupSaveMaxNum = (int)v, v => $"{v:0}"), advancedOnly: true);
         Add("sauvegardes", "Copies de secours", "Gestionnaire de sauvegardes", "Parcourir et restaurer les sauvegardes et leurs copies.",
-            () => ActionButton(T("Ouvrir"), () => new winSaveManager(mw).ShowDialog()));
+            () => ActionButton(T("Ouvrir"), () => HUD.SavesWindow.Open(mw)));
         Add("sauvegardes", "Copies de secours", "Dossier des données", ExtensionValue.DataDirectory,
             () => ActionButton(T("Ouvrir le dossier"), () => Process.Start(new ProcessStartInfo(ExtensionValue.DataDirectory) { UseShellExecute = true })?.Dispose()),
             advancedOnly: true);
@@ -734,9 +722,9 @@ public partial class winVMaxSettings : Window
 
         // ---------------- Extensions
         Add("extensions", "Mods", "Gestion des mods", "Activer, désactiver et autoriser les mods et leurs plugins de code.",
-            () => ActionButton(T("Gérer les mods"), () => mw.ShowLegacySetting(5), accent: true));
+            () => ActionButton(T("Gérer les mods"), () => HUD.ModsWindow.Open(mw), accent: true));
         Add("extensions", "Mods", "Raccourcis personnalisés", "Boutons du menu « Personnalisé » (liens, programmes, raccourcis clavier).",
-            () => ActionButton(T("Modifier"), () => mw.ShowLegacySetting(3)), advancedOnly: true);
+            () => ActionButton(T("Modifier"), () => HUD.ShortcutsWindow.Open(mw)), advancedOnly: true);
         Add("extensions", "Maintenance", "Vider le cache des animations", "Reconstruit le cache au prochain démarrage (utile après une mise à jour de mod).",
             () => ActionButton(T("Vider"), () => { set.LastCacheDate = DateTime.MinValue; NeedRestart(); }), advancedOnly: true);
 
@@ -744,7 +732,7 @@ public partial class winVMaxSettings : Window
         Add("apropos", "V-Max", "Version", $"V-Max {mw.Version}  ·  .NET {Environment.Version}  ·  {(ExtensionValue.IsPortable ? T("mode portable") : T("installation standard"))}",
             () => Link(T("Dépôt GitHub"), ExtensionValue.RepositoryURL));
         Add("apropos", "V-Max", "Signaler un problème", "Prépare un rapport et ouvre un ticket GitHub.",
-            () => ActionButton(T("Signaler"), () => new winReport(mw).Show()));
+            () => ActionButton(T("Signaler"), () => mw.ShowReport()));
         Add("apropos", "Diagnostic", "Calcul automatique des prix équitables",
             "Corrige les objets et occupations des mods trop généreux. À désactiver seulement pour tester un mod.",
             () => Toggle(() => !set["gameconfig"].GetBool("noAutoCal"), v => { set["gameconfig"].SetBool("noAutoCal", !v); NeedRestart(); }), advancedOnly: true);

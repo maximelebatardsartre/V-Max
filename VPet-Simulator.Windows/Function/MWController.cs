@@ -105,9 +105,6 @@ namespace VPet_Simulator.Windows
             try
             {
                 if (mw.Dispatcher.HasShutdownStarted || mw.Dispatcher.HasShutdownFinished) return false;
-                if (mw.winSetting != null && mw.winSetting.Visibility == Visibility.Visible) return false;
-                if (mw.winBetterBuy != null && mw.winBetterBuy.Visibility == Visibility.Visible) return false;
-                if (mw.winWorkMenu != null && mw.winWorkMenu.Visibility == Visibility.Visible) return false;
                 for (int i = 0; i < mw.Windows.Count; i++)
                 {
                     if (mw.Windows[i] != null && mw.Windows[i].Visibility == Visibility.Visible) return false;
@@ -144,9 +141,6 @@ namespace VPet_Simulator.Windows
             mw.Dispatcher.Invoke(() =>
             {
                 if (!mw.IsLoaded) return;
-                if (mw.winSetting != null && mw.winSetting.Visibility == Visibility.Visible) return;
-                if (mw.winBetterBuy != null && mw.winBetterBuy.Visibility == Visibility.Visible) return;
-                if (mw.winWorkMenu != null && mw.winWorkMenu.Visibility == Visibility.Visible) return;
                 var helper = new WindowInteropHelper(mw);
                 var currentScreen = Screen.FromHandle(helper.Handle);
                 var hwndSource = HwndSource.FromHwnd(helper.Handle);
@@ -196,8 +190,7 @@ namespace VPet_Simulator.Windows
 
         public void ShowPanel()
         {
-            var panelWindow = new winCharacterPanel(mw);
-            panelWindow.Show();
+            mw.ShowCharacter();
         }
 
         public void ResetPosition()

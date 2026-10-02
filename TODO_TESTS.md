@@ -55,3 +55,22 @@ Légende : **[B]** bloquant pour une version publique · **[N]** normal · **[C]
 ## 8. Partage
 - [ ] **[N]** Exporter un habitat `.vmaxhome`, l'importer sur une autre session (ou après avoir supprimé la carte locale).
 - [ ] **[C]** Importer un paquet abîmé : message clair, rien d'installé.
+
+## 9. Voix
+- [ ] **[B]** Vrai micro : maintenir « ² », parler, relâcher → bulle d'écoute, texte transcrit dans la discussion, réponse du compagnon.
+- [ ] **[B]** Réponse lue à voix haute en français (Julie, Paul, Hortense) ; changer de voix et de débit dans Paramètres › Voix.
+- [ ] **[N]** Transcription avec une vraie clé Groq (Whisper), puis avec Gemini seul, puis hors ligne (option « hors ligne uniquement »).
+- [ ] **[N]** « Hey Max » activé : déclenche l'écoute ; pas de déclenchement intempestif pendant une heure de musique ou de vidéo.
+- [ ] **[N]** Autre touche de *push-to-talk* choisie dans les paramètres ; la touche n'est pas « avalée » dans les autres applications quand la voix est coupée.
+- [ ] **[C]** Micro débranché ou refusé par Windows : message clair, pas de plantage.
+
+## 10. Fenêtres V-Max (remplacent celles de VPet)
+- [ ] **[B]** Plus aucune fenêtre de l'ancien moteur : menus du compagnon, zone de notification, paramètres, plugins tiers (`ShowSetting(page)`).
+- [ ] **[N]** Planning : démarrer une occupation, construire un emploi du temps avec pauses, signer un contrat (niveau 15+).
+- [ ] **[N]** Galerie : débloquer une photo payante, favoris, export d'une et de plusieurs photos, visionneuse (← →, GIF animés).
+- [ ] **[N]** Panneau du compagnon : générer le bilan de l'année et l'enregistrer en PNG ; carte d'anniversaire avec image et date ; journal qui se met à jour en direct.
+- [ ] **[N]** Sac : utiliser un objet, favoris, tri ; garde-manger ouvert depuis les anciens boutons « Manger », « Boire »…
+- [ ] **[N]** Sauvegardes : revenir à une sauvegarde automatique, puis à une copie de secours.
+- [ ] **[N]** Mods : activer, désactiver, autoriser le code d'un mod, redémarrer ; raccourcis personnalisés (programme, site, capture de touches), enregistrement et apparition dans « Plus ».
+- [ ] **[N]** Signaler un problème : le rapport est copié, le ticket GitHub s'ouvre ; sauvegarde jointe avec clés et mots de passe masqués.
+- [ ] **[C]** Saisie de texte demandée par un plugin (`ShowInputBox`) : Entrée valide, Échap annule.

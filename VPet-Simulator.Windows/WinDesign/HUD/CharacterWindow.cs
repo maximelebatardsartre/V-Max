@@ -224,10 +224,27 @@ public sealed class CharacterWindow : HudWindow
         if (statId.StartsWith("eval_study_project_", StringComparison.Ordinal))
             return "eval_study_project".Translate() + '_' + Uri.UnescapeDataString(statId.Substring(19)).Translate();
         if (statId.StartsWith("buy_"))
-            return "购买次数".Translate() + '_' + statId.Substring(4).Translate();
+            return "Achats · " + statId.Substring(4).Translate();
         if (statId.StartsWith("stat_"))
-            return "统计".Translate() + '_' + statId.Substring(5).Translate();
+        {
+            // V-Max : le nom seul suffit (« Nombre de lancements du jeu » plutôt que « Statistiques_… »)
+            var n = statId.Substring(5);
+            var t = n.Translate();
+            return t != n ? t : statId.Translate();
+        }
         return statId.Translate();
+    }
+
+    /// <summary>Valeur affichée : les jours enregistrés en aaaammjj (ex. dernier jour actif) deviennent des dates</summary>
+    private static string StatValue(string id, double v)
+    {
+        if (id.EndsWith("_day", StringComparison.Ordinal) && v >= 19000101 && v <= 29991231 && v == Math.Floor(v))
+        {
+            int d = (int)v;
+            try { return new DateTime(d / 10000, d / 100 % 100, d % 100).ToString("d MMM yyyy", Fr); }
+            catch (ArgumentOutOfRangeException) { }
+        }
+        return StatValue(v);
     }
 
     private static string StatValue(double v) => Math.Round(v, 2).ToString("#,##0.##", Fr);
@@ -384,7 +401,7 @@ public sealed class CharacterWindow : HudWindow
     private FrameworkElement StatRow(StatInfo s)
     {
         var name = new TextBlock { Text = s.Name, FontSize = 13.5, Foreground = Res("HudText"), TextTrimming = TextTrimming.CharacterEllipsis, VerticalAlignment = VerticalAlignment.Center };
-        var value = new TextBlock { Text = StatValue(s.Value), FontFamily = Display, FontWeight = FontWeights.SemiBold, FontSize = 14.5, Foreground = Res("HudText"), VerticalAlignment = VerticalAlignment.Center, Margin = new Thickness(16, 0, 0, 0) };
+        var value = new TextBlock { Text = StatValue(s.Id, s.Value), FontFamily = Display, FontWeight = FontWeights.SemiBold, FontSize = 14.5, Foreground = Res("HudText"), VerticalAlignment = VerticalAlignment.Center, Margin = new Thickness(16, 0, 0, 0) };
         s.ValueText = value;
         var grid = new Grid();
         grid.ColumnDefinitions.Add(new ColumnDefinition());
@@ -414,7 +431,7 @@ public sealed class CharacterWindow : HudWindow
                 {
                     s.Value = v;
                     if (s.ValueText != null)
-                        s.ValueText.Text = StatValue(v);
+                        s.ValueText.Text = StatValue(s.Id, v);
                 }
                 else
                 {

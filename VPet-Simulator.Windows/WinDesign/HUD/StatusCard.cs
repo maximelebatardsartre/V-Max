@@ -28,7 +28,7 @@ public sealed class StatusCard : HudSidePanel
     public StatusCard(MainWindow pet) : base(pet, "ÉTAT", pet.Core.Save?.Name ?? "V-Max", 380)
     {
         CloseOnDeactivate = true;
-        AddHeaderButton("", "Statistiques détaillées", () => { HideAnimated(); Pet.MWController.ShowPanel(); });
+        AddHeaderButton("", "Statistiques détaillées", () => { HideAnimated(); CharacterWindow.Open(Pet); });
 
         var root = new StackPanel();
         modeNote = new TextBlock { Style = (Style)FindResource("HudBodyText"), FontSize = 13, Foreground = Res("HudTextMuted"), Margin = new Thickness(0, 0, 0, 6) };

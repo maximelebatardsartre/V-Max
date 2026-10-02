@@ -338,10 +338,6 @@ namespace VPet_Simulator.Windows
                     AutoSaveTimer?.Stop();
                     MusicTimer?.Stop();
                     petHelper?.Close();
-                    winSetting?.Close();
-                    winBetterBuy?.Close();
-                    winWorkMenu?.Close();
-                    winGallery?.Close();
 
                     if (notifyIcon != null)
                     {
@@ -380,10 +376,6 @@ namespace VPet_Simulator.Windows
                 AutoSaveTimer?.Stop();
                 MusicTimer?.Stop();
                 petHelper?.Close();
-                winSetting?.Close();
-                winBetterBuy?.Close();
-                winWorkMenu?.Close();
-                winGallery?.Close();
                 App.MainWindows.Remove(this);
                 if (notifyIcon != null)
                 {
@@ -670,7 +662,7 @@ namespace VPet_Simulator.Windows
         /// <param name="CanHide">能否隐藏</param>
         public void ShowInputBox(string title, string text, string defaulttext, Action<string> ENDAction, bool AllowMutiLine = false, bool TextCenter = true, bool CanHide = false)
         {
-            winInputBox.Show(this, title, text, defaulttext, ENDAction, AllowMutiLine, TextCenter, CanHide);
+            HUD.HudInputDialog.Show(this, title, text, defaulttext, ENDAction, AllowMutiLine, TextCenter);
         }
     }
 }

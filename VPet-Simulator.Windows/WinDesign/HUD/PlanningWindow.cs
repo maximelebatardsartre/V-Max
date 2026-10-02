@@ -171,7 +171,10 @@ public sealed class PlanningWindow : HudWindow
         var title = new StackPanel { VerticalAlignment = VerticalAlignment.Center };
         title.Children.Add(new TextBlock { Text = w.Type switch { Work.WorkType.Study => "ÉTUDES", Work.WorkType.Play => "LOISIRS", _ => "TRAVAIL" }, Style = St("HudEyebrow") });
         title.Children.Add(new TextBlock { Text = w.NameTrans, Style = St("HudTitle"), FontSize = 24, TextWrapping = TextWrapping.Wrap });
-        var star = new Button { Style = St("HudGhostButton"), Content = IsStar(w) ? "  Favori" : "  Ajouter aux favoris", Margin = new Thickness(0, 10, 0, 0), HorizontalAlignment = HorizontalAlignment.Left, FontFamily = (FontFamily)FindResource("HudBody") };
+        var starLabel = new StackPanel { Orientation = Orientation.Horizontal };
+        starLabel.Children.Add(new TextBlock { Text = IsStar(w) ? "\uE735" : "\uE734", FontFamily = (FontFamily)FindResource("HudIcons"), FontSize = 13, Foreground = IsStar(w) ? Res("HudAmber") : Res("HudTextMuted"), VerticalAlignment = VerticalAlignment.Center, Margin = new Thickness(0, 0, 8, 0) });
+        starLabel.Children.Add(new TextBlock { Text = IsStar(w) ? "Favori" : "Ajouter aux favoris", VerticalAlignment = VerticalAlignment.Center });
+        var star = new Button { Style = St("HudGhostButton"), Content = starLabel, Margin = new Thickness(0, 10, 0, 0), HorizontalAlignment = HorizontalAlignment.Left };
         star.Click += (_, _) =>
         {
             MW.Set["work_star"].SetBool(w.Name, !IsStar(w));

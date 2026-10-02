@@ -143,7 +143,7 @@ namespace VPet_Simulator.Windows
             }
             else
             {
-                new winReport(((MainWindow)MainWindow), errstr).Show();
+                ((MainWindow)MainWindow).ShowReport(errstr);
                 return;
             }
         }
