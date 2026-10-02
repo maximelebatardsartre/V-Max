@@ -2646,6 +2646,8 @@ namespace VPet_Simulator.Windows
                               {
                                   Habitat.Window?.StartEditing();
                                   Habitat.Window?.QaHover(new Point(560, 520), qaHabitat.GetString("sel") ?? "f2");
+                                  if (qaHabitat.GetString("detect") != null)
+                                      Habitat.Window?.QaDetect();
                               }
                           }).Task.Unwrap();
                           var trace = new System.Text.StringBuilder();

@@ -171,6 +171,7 @@ public sealed class HabitatWindow : Window
     public bool IsEditing => editor != null;
 
     internal void QaHover(Point image, string? select) => editor?.QaHover(image, select);
+    internal void QaDetect() => editor?.DetectFloors();
 
     public void StartEditing()
     {

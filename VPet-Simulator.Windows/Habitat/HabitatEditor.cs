@@ -113,6 +113,7 @@ internal sealed class HabitatEditor
         row.Children.Add(IconButton("", "Annuler (Ctrl+Z)", Undo));
         row.Children.Add(IconButton("", "Rétablir (Ctrl+Y)", Redo));
         row.Children.Add(IconButton("", "Ajuster la vue (F)", FitView));
+        row.Children.Add(IconButton("", "Détecter les sols automatiquement", DetectFloors));
         row.Children.Add(Separator());
         var cancel = new Button { Style = (Style)win.FindResource("HudGhostButton"), Content = "Annuler", Margin = new Thickness(0, 0, 6, 0), ToolTip = "Quitter sans enregistrer" };
         cancel.Click += (_, _) => win.StopEditing(null);
@@ -587,6 +588,30 @@ internal sealed class HabitatEditor
     {
         HasCustomView = false;
         win.SetView(win.FitView());
+    }
+    #endregion
+
+    #region Assistants
+    /// <summary>Propose des sols en analysant l'image (annulable d'un Ctrl+Z)</summary>
+    internal async void DetectFloors()
+    {
+        if (mode.Image == null)
+            return;
+        Flash("Analyse de l'image…");
+        var image = mode.Image;
+        var copy = work.Clone();
+        var found = await System.Threading.Tasks.Task.Run(() => FloorDetector.Suggest(image, copy));
+        if (found.Count == 0)
+        {
+            Flash("Aucun sol évident dans cette image : trace-les avec l'outil Sol.");
+            return;
+        }
+        Checkpoint();
+        work.Floors.AddRange(found);
+        selected = new Sel(Kind.Floor, found[0].Id);
+        SetTool(Tool.Select);
+        Render();
+        Flash($"{found.Count} sol(s) proposé(s) : vérifie-les, ajuste ou supprime ceux qui ne vont pas (Ctrl+Z pour tout annuler).");
     }
     #endregion
 
