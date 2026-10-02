@@ -52,7 +52,7 @@ public sealed class ChatPanel : HudOverlay
         titles.Children.Add(status);
         var buttons = new StackPanel { Orientation = Orientation.Horizontal, HorizontalAlignment = HorizontalAlignment.Right, VerticalAlignment = VerticalAlignment.Center };
         buttons.Children.Add(IconButton("", "Nouvelle conversation", () => { agent.ResetConversation(); Rebuild(); }));
-        buttons.Children.Add(IconButton("", "Choisir les IA", () => ShowOnboarding(force: true)));
+        buttons.Children.Add(IconButton("", "Réglages de l'IA", () => Pet.ShowSetting("ia")));
         buttons.Children.Add(IconButton("", "Fermer (Échap)", () => HideAnimated()));
         var header = new Grid { Margin = new Thickness(20, 16, 12, 10), Background = Brushes.Transparent };
         header.ColumnDefinitions.Add(new ColumnDefinition());
@@ -421,25 +421,22 @@ public sealed class ChatPanel : HudOverlay
     #endregion
 
     #region Accueil : choisir le cerveau
+    // V-Max : la discussion ne liste plus les connecteurs (ça vit dans Paramètres › IA) ; elle invite juste à s'y rendre.
     private void ShowOnboarding(bool force)
     {
         if (force)
             list.Children.Clear();
-        var name = Pet.Core.Save?.Name ?? "V-Max";
+        var name = Pet.Core.Save?.Name ?? "Maxine";
         var box = new StackPanel { Margin = new Thickness(0, 10, 0, 8), Tag = "onboarding" };
-        box.Children.Add(new TextBlock { Text = "Choisis le cerveau de " + name, FontFamily = (FontFamily)FindResource("HudDisplay"), FontWeight = FontWeights.SemiBold, FontSize = 24, TextWrapping = TextWrapping.Wrap, Foreground = (Brush)FindResource("HudText") });
+        box.Children.Add(new TextBlock { Text = "Donne un cerveau à " + name, FontFamily = (FontFamily)FindResource("HudDisplay"), FontWeight = FontWeights.SemiBold, FontSize = 24, TextWrapping = TextWrapping.Wrap, Foreground = (Brush)FindResource("HudText") });
         box.Children.Add(new TextBlock
         {
-            Text = "Toutes ces IA sont gratuites. Connecte-en plusieurs : si l'une atteint son quota du jour, la suivante prend le relais automatiquement.",
+            Text = "Pour que je puisse te répondre, connecte-moi une IA — gratuite en 30 secondes, ou l'IA locale qui tourne sur ton PC. Tout ça se règle dans les paramètres.",
             Style = (Style)FindResource("HudBodyText"), FontSize = 13, Foreground = (Brush)FindResource("HudTextMuted"), Margin = new Thickness(0, 6, 0, 14),
         });
-        foreach (var p in ProviderRouter.Catalog)
-            box.Children.Add(ProviderRow(p));
-        box.Children.Add(new TextBlock
-        {
-            Text = "Les clés sont gardées dans le Gestionnaire d'identification Windows. Avec une IA locale, rien ne quitte ton PC ; sinon, tes messages sont envoyés au service choisi.",
-            Style = (Style)FindResource("HudEyebrow"), FontWeight = FontWeights.Normal, TextWrapping = TextWrapping.Wrap, Margin = new Thickness(0, 10, 0, 0),
-        });
+        var b = new Button { Style = (Style)FindResource("HudPrimaryButton"), Content = "Ouvrir les réglages IA", HorizontalAlignment = HorizontalAlignment.Left };
+        b.Click += (_, _) => Pet.ShowSetting("ia");
+        box.Children.Add(b);
         list.Children.Add(box);
         UiMotionSlide(box);
         if (force)
