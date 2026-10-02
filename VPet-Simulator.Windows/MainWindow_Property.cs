@@ -49,6 +49,9 @@ public partial class MainWindow
     public GameSave_v2 GameSavesData { get; set; } = new GameSave_v2("VPET");
 
     public static readonly string ModPath = ExtensionValue.BaseDirectory + @"\mod";
+
+    /// <summary>V-Max : nom du compagnon pour une nouvelle partie (valeur de base, modifiable ensuite par l'utilisateur)</summary>
+    public const string DefaultPetName = "Maxine";
     /// <summary>
     /// V-Max: Steam retiré. Conservé pour compatibilité des plugins (toujours false).
     /// </summary>

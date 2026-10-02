@@ -626,6 +626,9 @@ public partial class winVMaxSettings : Window
             () => Toggle(() => mw.Habitat?.AlwaysOnTop == true, v => { if (mw.Habitat != null) mw.Habitat.AlwaysOnTop = v; }), advancedOnly: true);
 
         // ---------------- Voix
+        Add("voix", "Micro", "Activer le micro",
+            "Rien n'écoute tant que tu ne l'as pas activé. Une fois activé, tu peux parler à ton compagnon avec la touche ci-dessous, et éventuellement avec « Hey Max ».",
+            () => Toggle(() => mw.Voice?.Enabled == true, v => { if (mw.Voice != null) mw.Voice.Enabled = v; }));
         Add("voix", "Parler", "Touche à maintenir pour parler",
             "Maintiens la touche, parle, relâche : ta phrase part au compagnon, qui te répond. Fonctionne depuis n'importe quelle application.",
             () => Toggle(() => mw.Voice?.PushToTalk == true, v => { if (mw.Voice != null) mw.Voice.PushToTalk = v; }));

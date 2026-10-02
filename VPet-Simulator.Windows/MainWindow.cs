@@ -2126,7 +2126,7 @@ namespace VPet_Simulator.Windows
 
                   //加载图标
                   notifyIcon = new NotifyIcon();
-                  notifyIcon.Text = "虚拟桌宠模拟器".Translate() + PrefixSave;
+                  notifyIcon.Text = (Core.Save?.Name is { Length: > 0 } petName ? petName : DefaultPetName) + PrefixSave;
                   ContextMenu m_menu;
 
                   if (Set.PetHelper)
@@ -2815,6 +2815,7 @@ namespace VPet_Simulator.Windows
                                   case "mods": HUD.ModsWindow.Open(this); break;
                                   case "shortcuts": HUD.ShortcutsWindow.Open(this); break;
                                   case "studio": HUD.StudioWindow.Open(this); break;
+                                  case "welcome": new HUD.WelcomeWindow(this).Show(); break;
                                   case "input": Dispatcher.BeginInvoke(() => ShowInputBox("Nom du compagnon", "Comment veux-tu l'appeler ?", "Max", _ => { })); break;
                               }
                           });
@@ -3226,6 +3227,10 @@ namespace VPet_Simulator.Windows
                 t.Tick += (_, _) => { t.Stop(); HUD.HudToast.Show(this, text, kind, seconds); };
                 t.Start();
             }
+            // V-Max : carte d'accueil au tout premier lancement (après le fondu du compagnon)
+            var welcome = new System.Windows.Threading.DispatcherTimer { Interval = TimeSpan.FromMilliseconds(700) };
+            welcome.Tick += (_, _) => { welcome.Stop(); HUD.WelcomeWindow.ShowIfFirstRun(this); };
+            welcome.Start();
         }
 
         /// <summary>

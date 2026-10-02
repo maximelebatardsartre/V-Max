@@ -428,7 +428,8 @@ namespace VPet_Simulator.Windows
                 }
 
             }
-            GameSavesData = new GameSave_v2(petname.Translate());
+            // V-Max : une nouvelle partie commence avec « Maxine » (le nom du personnage du mod est ignoré)
+            GameSavesData = new GameSave_v2(DefaultPetName);
             //看看有没有备份,和备份对比下 (新建游戏)
             CheckBackupConsistency(GameSavesData, "New Game");
             Core.Save = GameSavesData.GameSave;

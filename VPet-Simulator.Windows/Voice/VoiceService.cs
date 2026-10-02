@@ -55,6 +55,12 @@ public sealed class VoiceService : IDisposable
     #region Réglages
     private ILine Cfg => mw.Set["vmax_voice"];
 
+    /// <summary>
+    /// V-Max : verrou de consentement. Tant qu'il est faux (défaut), aucun micro ni crochet clavier : ni touche
+    /// maintenue, ni « Hey Max ». L'utilisateur l'active dans l'accueil ou dans Paramètres › Voix.
+    /// </summary>
+    public bool Enabled { get => Cfg.GetBool("enabled"); set { Cfg.SetBool("enabled", value); Apply(); } }
+
     public bool PushToTalk { get => !Cfg.GetBool("ptt_off"); set { Cfg.SetBool("ptt_off", !value); Apply(); } }
     public int PttKey { get => Cfg.GetInt("ptt_key", 0xDE); set { Cfg.SetInt("ptt_key", value); ptt.VirtualKey = value; } }
     /// <summary>« voice » : répond à voix haute quand on lui parle ; « always » ; « never »</summary>
@@ -71,6 +77,12 @@ public sealed class VoiceService : IDisposable
     /// <summary>Active ou coupe la touche et le mot d'activation selon les réglages</summary>
     public void Apply()
     {
+        if (!Enabled)
+        {// consentement non donné : rien n'écoute (ni touche, ni micro, ni mot d'activation)
+            ptt.Disable();
+            wake.Pause();
+            return;
+        }
         if (ReplyMode == "always")
             HookAgent();
         if (PushToTalk) ptt.Enable(); else ptt.Disable();
