@@ -586,6 +586,9 @@ public partial class winVMaxSettings : Window
                 mw.Habitat.Window?.StartEditing();
                 mw.Habitat.Window?.Activate();
             }));
+        Add("compagnon", "Habitat (mode autonome)", "Partager",
+            "Un fichier .vmaxhome réunit l'image du décor et sa carte (sols, échelles, pièces, emplacements). Ne partage que des images dont tu as les droits.",
+            HabitatSharing, fullWidth: true);
         Add("compagnon", "Habitat (mode autonome)", "Sortir sur le bureau",
             "Quand tu affiches le bureau (Win+D), le compagnon quitte l'habitat et vit sur ton fond d'écran, si une carte a été tracée pour cette image.",
             () => Toggle(() => mw.Habitat?.DesktopEnabled != false, v => { if (mw.Habitat != null) mw.Habitat.DesktopEnabled = v; }));
@@ -850,6 +853,64 @@ public partial class winVMaxSettings : Window
         refresh.Margin = new Thickness(8, 0, 0, 0);
         line.Children.Add(combo);
         line.Children.Add(refresh);
+        return line;
+    }
+
+    private FrameworkElement HabitatSharing()
+    {
+        var line = new StackPanel { Orientation = Orientation.Horizontal };
+        var export = (Button)ActionButton(T("Exporter cet habitat…"), () =>
+        {
+            var h = mw.Habitat;
+            if (h?.IsActive != true || h.ImagePath == null)
+            {
+                Pulse(T("Active d'abord le mode habitat avec le décor à partager"));
+                return;
+            }
+            var dlg = new Microsoft.Win32.SaveFileDialog
+            {
+                Title = T("Exporter l'habitat"),
+                FileName = Habitat.HabitatPackage.SuggestedName(h.WindowMap),
+                Filter = T("Habitat V-Max") + " (*.vmaxhome)|*.vmaxhome",
+                DefaultExt = ".vmaxhome",
+            };
+            if (dlg.ShowDialog(this) != true)
+                return;
+            try
+            {
+                Habitat.HabitatPackage.Export(h.ImagePath, h.WindowMap, dlg.FileName, mw.GameSavesData.GameSave.HostName);
+                Pulse(T("Habitat exporté"));
+            }
+            catch (Exception e)
+            {
+                MessageBox.Show(this, e.Message, T("Exporter l'habitat"), MessageBoxButton.OK, MessageBoxImage.Warning);
+            }
+        });
+        var import = (Button)ActionButton(T("Importer un habitat…"), async () =>
+        {
+            var dlg = new Microsoft.Win32.OpenFileDialog
+            {
+                Title = T("Importer un habitat"),
+                Filter = T("Habitat V-Max") + " (*.vmaxhome)|*.vmaxhome",
+            };
+            if (dlg.ShowDialog(this) != true || mw.Habitat == null)
+                return;
+            try
+            {
+                var image = Habitat.HabitatPackage.Import(dlg.FileName);
+                var err = await mw.Habitat.UseImageAsync(image);
+                if (err == null && !mw.Habitat.IsActive)
+                    err = await mw.Habitat.EnableAsync();
+                Pulse(err ?? T("Habitat importé"));
+            }
+            catch (Exception e)
+            {
+                MessageBox.Show(this, e.Message, T("Importer un habitat"), MessageBoxButton.OK, MessageBoxImage.Warning);
+            }
+        });
+        import.Margin = new Thickness(8, 0, 0, 0);
+        line.Children.Add(export);
+        line.Children.Add(import);
         return line;
     }
 
