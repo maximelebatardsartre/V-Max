@@ -74,3 +74,12 @@ Légende : **[B]** bloquant pour une version publique · **[N]** normal · **[C]
 - [ ] **[N]** Mods : activer, désactiver, autoriser le code d'un mod, redémarrer ; raccourcis personnalisés (programme, site, capture de touches), enregistrement et apparition dans « Plus ».
 - [ ] **[N]** Signaler un problème : le rapport est copié, le ticket GitHub s'ouvre ; sauvegarde jointe avec clés et mots de passe masqués.
 - [ ] **[C]** Saisie de texte demandée par un plugin (`ShowInputBox`) : Entrée valide, Échap annule.
+
+## 11. Mods, Studio et démarrage
+- [ ] **[B]** Démarrage normal (cache déjà construit) : compagnon visible en 2 s environ ; relevé dans `%APPDATA%\V-Max\logs\demarrage-temps.log`.
+- [ ] **[N]** Premier démarrage après « Vider le cache des animations » : compagnon visible en moins de 5 s, puis aucune animation figée ou sautée pendant le préchauffage (caresses, occupations, repas, Habitat).
+- [ ] **[N]** Studio : 7 clics sur la version (Paramètres › À propos) → message « Studio débloqué », Ctrl+Maj+F12 l'ouvre depuis n'importe quelle application ; « Masquer le Studio » retire le raccourci.
+- [ ] **[N]** Studio : lire chaque type d'animation (enchaînement, humeurs, ×0,5 / ×2, image par image), donner un verdict à la souris et au clavier (1 à 4, ↑/↓), le retrouver après redémarrage.
+- [ ] **[N]** Traduction réelle avec ta clé Gemini (`python tools/mods/translate.py --verdicts garder,integrer`) : relire un échantillon dans le Studio (Max, tutoiement, pas de « maître »).
+- [ ] **[C]** Un mod de la liste d'exclusion copié dans `mod\` n'est pas chargé.
+
