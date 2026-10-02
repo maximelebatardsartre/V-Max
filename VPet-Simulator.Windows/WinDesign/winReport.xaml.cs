@@ -83,7 +83,7 @@ namespace VPet_Simulator.Windows
         {
             if (tDescription.Text == "" && tType.SelectedIndex != 0)
             {
-                MessageBoxX.Show("问题详细描述是反馈具体问题\n例如如何触发这个报错,游戏有什么地方不合理等".Translate(), "请填写问题描述".Translate());
+                VDialog.Show("问题详细描述是反馈具体问题\n例如如何触发这个报错,游戏有什么地方不合理等".Translate(), "请填写问题描述".Translate());
                 return;
             }
             // V-Max : le rapport n'est plus envoyé au serveur d'origine de VPet.
@@ -117,7 +117,7 @@ namespace VPet_Simulator.Windows
             }
             string title = HttpUtility.UrlEncode("[" + tType.Text + "] " + (tDescription.Text.Split('\n')[0].Trim() is { Length: > 0 } t ? t[..System.Math.Min(t.Length, 80)] : "Rapport"));
             ExtensionFunction.StartURL(ExtensionValue.IssueURL + "?title=" + title);
-            MessageBoxX.Show("Le rapport a été copié dans le presse-papiers.\nCollez-le dans le ticket GitHub qui vient de s'ouvrir.".Translate(),
+            VDialog.Show("Le rapport a été copié dans le presse-papiers.\nCollez-le dans le ticket GitHub qui vient de s'ouvrir.".Translate(),
                 "Rapport prêt".Translate());
             Close();
         }

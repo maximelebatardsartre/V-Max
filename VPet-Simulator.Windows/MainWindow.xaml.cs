@@ -105,6 +105,24 @@ namespace VPet_Simulator.Windows
             _hwnd = new WindowInteropHelper(this).EnsureHandle();
             RegisterActivityGate();
 
+            // V-Max : écran d'accueil moderne pendant le chargement
+            if (!Args_NoSplash())
+            {
+                splash = new HUD.SplashWindow();
+                splash.Show();
+                if (Environment.GetCommandLineArgs().Any(a => a.Contains("vmax-qa-splash")))
+                {// QA : rendu de l'écran d'accueil
+                    var qaSplash = splash;
+                    var t = new System.Windows.Threading.DispatcherTimer { Interval = TimeSpan.FromMilliseconds(1600) };
+                    t.Tick += (_, _) => { t.Stop(); QaSnapshot(qaSplash, System.IO.Path.Combine(System.IO.Path.GetTempPath(), "vmax-qa-settings.png")); };
+                    t.Start();
+                }
+            }
+            VDialog.NoticeHandler = (text, caption, icon) => Toast(
+                string.IsNullOrWhiteSpace(caption) || caption == "V-Max" || text.StartsWith(caption) ? text : caption + " : " + text,
+                icon is Panuon.WPF.UI.MessageBoxIcon.Warning or Panuon.WPF.UI.MessageBoxIcon.Error ? HUD.HudToast.Kind.Warning
+                : icon == Panuon.WPF.UI.MessageBoxIcon.Success ? HUD.HudToast.Kind.Success : HUD.HudToast.Kind.Info, 6);
+
             GameInitialization();
 
             Task.Run(async () =>
@@ -113,7 +131,7 @@ namespace VPet_Simulator.Windows
                 List<DirectoryInfo> Path = new(new DirectoryInfo(ModPath).EnumerateDirectories());
 
 
-                Dispatcher.InvokeAsync(new Action(() => LoadingText.Content = "Chargement des traductions")).Wait();
+                Dispatcher.InvokeAsync(new Action(() => LoadingStatus = "Chargement des traductions")).Wait();
                 //加载语言
                 LocalizeCore.StoreTranslation = Set.DeBug;// V-Max : liste des clés manquantes seulement en mode développeur
                 if (Set.Language == "null")
@@ -442,7 +460,7 @@ namespace VPet_Simulator.Windows
             }
             catch (Exception ex)
             {
-                MessageBoxX.Show("存档损毁,无法加载该存档\n可能是数据溢出/超模导致的".Translate() + '\n' + ex.Message, "存档损毁".Translate());
+                VDialog.Show("存档损毁,无法加载该存档\n可能是数据溢出/超模导致的".Translate() + '\n' + ex.Message, "存档损毁".Translate());
             }
 #endif
             return false;
@@ -469,7 +487,7 @@ namespace VPet_Simulator.Windows
                             gs2.GameSave.Money == gs.GameSave.Money))
                         {
                             //和备份不一样,说明可能有问题, 提示用户
-                            MessageBox.Show("检测到存档和备份不一致\n当前存档:{0} Lv{1} ${4:f0}\n备份存档:{2} Lv{3} ${5:f0}\n如需还原请在设置中加载备份还原存档"
+                            VDialog.Show("检测到存档和备份不一致\n当前存档:{0} Lv{1} ${4:f0}\n备份存档:{2} Lv{3} ${5:f0}\n如需还原请在设置中加载备份还原存档"
                                 .Translate(currentName, gs.GameSave.Level, bks.Name, gs2.GameSave.Level, gs.GameSave.Money, gs2.GameSave.Money)
                                 , "存档不一致提示".Translate());
 

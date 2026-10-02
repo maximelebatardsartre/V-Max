@@ -729,7 +729,7 @@ namespace VPet_Simulator.Core
             if (NotifyHandler != null)
                 NotifyHandler(text);
             else
-                MessageBoxX.Show(text, title);
+                VDialog.Show(text, title);
         }
         /// <summary>
         /// 任务开始时调用该参数

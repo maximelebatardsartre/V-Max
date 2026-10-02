@@ -4,6 +4,7 @@ using System.IO;
 using System.Windows;
 using VPet_Simulator.Windows.Interface;
 using static VPet_Simulator.Windows.Win32;
+using VPet_Simulator.Core;
 
 namespace VPet_Simulator.Windows;
 
@@ -39,7 +40,7 @@ public static class StartupShortcut
         }
         catch
         {
-            MessageBox.Show("创建快捷方式失败,权限不足\n请以管理员身份运行后重试".Translate(), "权限不足".Translate());
+            VDialog.Show("创建快捷方式失败,权限不足\n请以管理员身份运行后重试".Translate(), "权限不足".Translate());
         }
     }
 }

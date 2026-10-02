@@ -427,7 +427,7 @@ namespace VPet_Simulator.Windows
             }
             catch (Exception e)
             {
-                MessageBox.Show(e.ToString(), "由于插件引起的保存错误".Translate());
+                VDialog.Show(e.ToString(), "由于插件引起的保存错误".Translate());
             }
             //游戏存档
             if (Set != null)
@@ -564,7 +564,7 @@ namespace VPet_Simulator.Windows
                 }
                 catch (Exception e)
                 {
-                    MessageBoxX.Show(e.ToString(), "由于插件引起的自定按钮加载错误".Translate() + '-' + mp.PluginName);
+                    VDialog.Show(e.ToString(), "由于插件引起的自定按钮加载错误".Translate() + '-' + mp.PluginName);
                 }
             Main.ToolBar.LoadDIY();
         }
@@ -585,7 +585,7 @@ namespace VPet_Simulator.Windows
                 {
                     if (!Set["v"][(gbol)"rundiy"])
                     {
-                        MessageBoxX.Show("由于操作系统的设计，通过我们软件启动的程序可能会在任务管理器中归类为我们软件的子进程，这可能导致CPU/内存占用显示较高".Translate(),
+                        VDialog.Show("由于操作系统的设计，通过我们软件启动的程序可能会在任务管理器中归类为我们软件的子进程，这可能导致CPU/内存占用显示较高".Translate(),
                             "关于CPU/内存占用显示较高的一次性提示".Translate());
                         Set["v"][(gbol)"rundiy"] = true;
                     }
@@ -1357,7 +1357,7 @@ namespace VPet_Simulator.Windows
             {
                 if (Set["gameconfig"].GetBool("noAutoCal"))
                 {
-                    if (MessageBoxX.Show("当前工作数据属性超模,是否继续工作?\n超模工作可能会导致游戏发生不可预料的错误\n超模工作不影响大部分成就解锁\n可以在设置中开启自动计算自动为工作设置合理数值"
+                    if (VDialog.Show("当前工作数据属性超模,是否继续工作?\n超模工作可能会导致游戏发生不可预料的错误\n超模工作不影响大部分成就解锁\n可以在设置中开启自动计算自动为工作设置合理数值"
                         .Translate(), "超模工作提醒".Translate(), MessageBoxButton.YesNo) != MessageBoxResult.Yes)
                     {
                         return false;
@@ -1366,7 +1366,7 @@ namespace VPet_Simulator.Windows
                 }
                 else
                 {
-                    MessageBoxX.Show("当前工作数据属性超模,已自动取消".Translate(), "超模工作提醒".Translate());
+                    VDialog.Show("当前工作数据属性超模,已自动取消".Translate(), "超模工作提醒".Translate());
                     return false;
                 }
             }
@@ -1470,7 +1470,7 @@ namespace VPet_Simulator.Windows
                 var modpath = new DirectoryInfo(ModPath + @"\0000_core\pet\vup");
                 if (!modpath.Exists)
                 {
-                    MessageBoxX.Show("缺少模组Core,无法启动桌宠\nMissing module Core, can't start up", "启动错误 boot error", Panuon.WPF.UI.MessageBoxIcon.Error);
+                    VDialog.Show("缺少模组Core,无法启动桌宠\nMissing module Core, can't start up", "启动错误 boot error", Panuon.WPF.UI.MessageBoxIcon.Error);
                     Close();
                     return;
                 }
@@ -1482,7 +1482,7 @@ namespace VPet_Simulator.Windows
               "游戏或者MOD".Translate() : $"MOD({CoreMOD.NowLoading})") +
               "导致的\n如有可能请发送 错误信息截图和引发错误之前的操作 给开发者:service@exlb.net\n感谢您对游戏开发的支持\n".Translate()
               + e.ToString();
-                MessageBoxX.Show(errstr, "游戏致命性错误".Translate() + ' ' + "启动错误".Translate(), Panuon.WPF.UI.MessageBoxIcon.Error);
+                VDialog.Show(errstr, "游戏致命性错误".Translate() + ' ' + "启动错误".Translate(), Panuon.WPF.UI.MessageBoxIcon.Error);
                 Close();
             }
         }
@@ -1540,13 +1540,13 @@ namespace VPet_Simulator.Windows
             Path = Path.GroupBy(x => x.FullName, StringComparer.OrdinalIgnoreCase)
                 .Select(group => group.First()).ToList();
             MODPath = Path;
-            await Dispatcher.InvokeAsync(new Action(() => LoadingText.Content = "Chargement des mods"));
+            await Dispatcher.InvokeAsync(new Action(() => LoadingStatus = "Chargement des mods"));
             //加载mod
             foreach (DirectoryInfo di in Path)
             {
                 if (!File.Exists(di.FullName + @"\info.lps"))
                     continue;
-                await Dispatcher.InvokeAsync(new Action(() => LoadingText.Content = $"Chargement du mod : {di.Name}"));
+                await Dispatcher.InvokeAsync(new Action(() => LoadingStatus = $"Chargement du mod : {di.Name}"));
                 CoreMODs.Add(new CoreMOD(di, this));
             }
 
@@ -1572,7 +1572,7 @@ namespace VPet_Simulator.Windows
                 MessageBoxXSettings.Setting.YesButtonContent = "是".Translate();
                 MessageBoxXSettings.Setting.NoButtonContent = "否".Translate();
                 PendingBoxSettings.Setting.CancelButtonContent = "取消".Translate();
-                LoadingText.Content = "尝试加载游戏MOD".Translate();
+                LoadingStatus = "Préparation des mods";
             });
 
             //旧版本设置兼容
@@ -1589,7 +1589,7 @@ namespace VPet_Simulator.Windows
             ClickTexts.RemoveAll(x => !x.FindTag(tag));
             SelectTexts.RemoveAll(x => !x.FindTag(tag));
 
-            await Dispatcher.InvokeAsync(new Action(() => LoadingText.Content = "尝试加载游戏存档".Translate()));
+            await Dispatcher.InvokeAsync(new Action(() => LoadingStatus = "Ouverture de la sauvegarde"));
             //加载存档
             if (File.Exists(ExtensionValue.DataDirectory + @"\Save.lps")) //有老的旧存档,优先旧存档
                 try
@@ -1603,7 +1603,7 @@ namespace VPet_Simulator.Windows
                 }
                 catch (Exception ex)
                 {
-                    MessageBoxX.Show("存档损毁,无法加载该存档\n可能是数据溢出/超模导致的".Translate() + '\n' + ex.Message, "存档损毁".Translate());
+                    VDialog.Show("存档损毁,无法加载该存档\n可能是数据溢出/超模导致的".Translate() + '\n' + ex.Message, "存档损毁".Translate());
                     //如果加载存档失败了,试试加载备份,如果没备份,就新建一个
                     LoadLatestSave(petloader.PetName);
                 }
@@ -1718,16 +1718,16 @@ namespace VPet_Simulator.Windows
             MusicTimer.Elapsed += MusicTimer_Elapsed;
 
 
-            //await Dispatcher.InvokeAsync(new Action(() => LoadingText.Content = "尝试加载游戏动画".Translate()));
-            await Dispatcher.InvokeAsync(new Action(() => LoadingText.Content = "尝试加载动画和生成缓存\n该步骤可能会耗时比较长\n请耐心等待".Translate()));
+            //await Dispatcher.InvokeAsync(new Action(() => LoadingStatus = "尝试加载游戏动画".Translate()));
+            await Dispatcher.InvokeAsync(new Action(() => LoadingStatus = "Préparation des animations"));
             Core.Graph = petloader.Graph(Set.Resolution, Dispatcher);
 
             Main = await Dispatcher.InvokeAsync(() => new Main(Core));
 
             Main.LoadALL((c) =>
             {
-                Dispatcher.Invoke(() => LoadingText.Content = "尝试加载动画和生成缓存\n该步骤可能会耗时比较长\n请耐心等待".Translate()
-                + $"\n  {c} / {petloader.GraphCount}");
+                // la première fois, le cache des animations se construit : on montre l'avancement
+                Dispatcher.Invoke(() => LoadingStatus = $"Préparation des animations · {c * 100 / Math.Max(1, petloader.GraphCount)} %");
             }
             //#if NewYear
             //            , Core.Graph!.FindGraph("newyear", AnimatType.Single, Core.Save!.Mode)
@@ -1831,7 +1831,7 @@ namespace VPet_Simulator.Windows
                   //加载字体
                   LoadFont(Set.Font);
 
-                  LoadingText.Content = "正在加载游戏\n该步骤可能会耗时比较长\n请耐心等待".Translate();
+                  LoadingStatus = "Réveil du compagnon";
 
 
                   //加载数据合理化:工作
@@ -1877,7 +1877,7 @@ namespace VPet_Simulator.Windows
                       }
                       catch (Exception e)
                       {
-                          NoticeBox.Show("由于插件引起的游戏启动错误".Translate() + "\n" + e.ToString(), "由于插件引起的游戏启动错误".Translate() + '-' + mp.PluginName);
+                          ReportStartupError($"Le plugin « {mp.PluginName} » n'a pas pu démarrer.", e.ToString());
                       }
                   Foods.ForEach(item => item.LoadImageSource(this));
                   Photos.ForEach(item => item.LoadUserInfo(this));
@@ -2054,14 +2054,7 @@ namespace VPet_Simulator.Windows
                       {
                           Thread.Sleep(100);
                       }
-                      await Dispatcher.InvokeAsync(async () =>
-                      {
-                          while (LoadingText.Visibility != Visibility.Collapsed)
-                          {
-                              LoadingText.Visibility = Visibility.Collapsed;
-                              await Task.Delay(1000);
-                          }
-                      });
+                      await Dispatcher.InvokeAsync(UiReady);
                   });
 
                   Main.ToolBar.AddMenuButton(ToolBar.MenuType.Setting, "退出桌宠".Translate(), () => { Main.ToolBar.Visibility = Visibility.Collapsed; Close(); });
@@ -2506,24 +2499,24 @@ namespace VPet_Simulator.Windows
                   foreach (CoreMOD cm in CoreMODs)
                       if (!cm.SuccessLoad)
                           if (cm.Tag.Contains("该模组已损坏"))
-                              MessageBoxX.Show("模组 {0} 插件损坏\n虚拟桌宠模拟器未能成功加载该插件\n请联系MOD作者修复该问题".Translate(cm.Name) + '\n' + cm.ErrorMessage, "该模组已损坏".Translate());
+                              ReportStartupError($"Le mod « {cm.Name} » est abîmé et n'a pas été chargé.", cm.ErrorMessage);
                           else if (cm.IsPassMOD(this) || !string.IsNullOrEmpty(cm.ErrorMessage))
-                              MessageBoxX.Show("模组 {0} 的代码插件损坏\n虚拟桌宠模拟器未能成功加载该插件\n请联系MOD作者修复该问题".Translate(cm.Name) + '\n' + cm.ErrorMessage, "{0} 未加载代码插件".Translate(cm.Name));
+                              ReportStartupError($"Le code du mod « {cm.Name} » n'a pas été chargé.", cm.ErrorMessage);
                           else if (Set.IsMSGMOD(cm.Name))
-                              MessageBoxX.Show("由于 {0} 包含代码插件\n虚拟桌宠模拟器已自动停止加载该插件\n请手动前往设置允许启用该mod 代码插件".Translate(cm.Name), "{0} 未加载代码插件".Translate(cm.Name));
+                              Toast($"Le mod « {cm.Name} » contient du code : il attend ton autorisation dans Paramètres › Extensions.", HUD.HudToast.Kind.Info, 8);
                   //动画错误
                   if (Main.ErrorMessage.Count != 0)
                   {
                       var errstr = string.Join("\n------\n", Main.ErrorMessage);
                       if (errstr.Contains("0000_core"))
                       {
-                          MessageBoxX.Show("动画加载错误,请尝试以下解决方法修复问题:\n\t1. 删除游戏根目录`Cache`文件夹\n\t2. 删除游戏根目录`mod\\0000_core\\pet`文件夹".Translate(), "动画加载错误".Translate());
+                          VDialog.Show("动画加载错误,请尝试以下解决方法修复问题:\n\t1. 删除游戏根目录`Cache`文件夹\n\t2. 删除游戏根目录`mod\\0000_core\\pet`文件夹".Translate(), "动画加载错误".Translate());
                           var winrep = new winReport(this, errstr);
                           winrep.tDescription.Text = "动画加载错误".Translate();
                           winrep.Show();
                       }
                       else
-                          MessageBoxX.Show("动画加载错误\n虚拟桌宠模拟器未能成功加载该动画\n请联系MOD作者修复该问题".Translate() + '\n' + errstr, "动画加载错误".Translate());
+                          VDialog.Show("动画加载错误\n虚拟桌宠模拟器未能成功加载该动画\n请联系MOD作者修复该问题".Translate() + '\n' + errstr, "动画加载错误".Translate());
 
                       Main.ErrorMessage.Clear();
                   }
@@ -2535,7 +2528,7 @@ namespace VPet_Simulator.Windows
                       }
                       catch (Exception e)
                       {
-                          NoticeBox.Show("由于插件引起的游戏启动错误".Translate() + "\n" + e.ToString(), "由于插件引起的游戏启动错误".Translate() + '-' + mp.PluginName);
+                          ReportStartupError($"Le plugin « {mp.PluginName} » n'a pas pu démarrer.", e.ToString());
                       }
 
                   // V-Max (QA) : ouvre directement une page des paramètres, ex. argument « vmax-open-settings#0:| »
@@ -2697,6 +2690,42 @@ namespace VPet_Simulator.Windows
                           Dispatcher.Invoke(() => QaSnapshotComposite(Habitat!.Window!, new Window[] { this }, System.IO.Path.Combine(System.IO.Path.GetTempPath(), "vmax-qa-settings.png")));
                       });
                   }
+                  if (Args.FindLine("vmax-qa-dialog") is ILine qaDialog)
+                  {// QA : boîte de dialogue V-Max (rendue pendant qu'elle est ouverte)
+                      Task.Run(async () =>
+                      {
+                          await Task.Delay(9000);
+                          await Dispatcher.InvokeAsync(() =>
+                          {
+                              var snap = new System.Windows.Threading.DispatcherTimer { Interval = TimeSpan.FromMilliseconds(900) };
+                              snap.Tick += (_, _) =>
+                              {
+                                  snap.Stop();
+                                  var d = Application.Current.Windows.OfType<HUD.HudDialog>().FirstOrDefault();
+                                  System.IO.File.WriteAllText(System.IO.Path.Combine(System.IO.Path.GetTempPath(), "vmax-qa-debug.txt"),
+                                      "fenêtres=" + string.Join(",", Application.Current.Windows.OfType<Window>().Select(w => w.GetType().Name)) + " erreur=" + VDialog.LastError);
+                                  if (d != null)
+                                      QaSnapshot(d, System.IO.Path.Combine(System.IO.Path.GetTempPath(), "vmax-qa-settings.png"));
+                                  d?.Close();
+                              };
+                              snap.Start();
+                              if (qaDialog.Info == "error")
+                                  VDialog.Show("System.InvalidOperationException: Le fichier de sauvegarde est verrouillé.\n   at VPet_Simulator.Windows.MainWindow.Save()\n   at VPet_Simulator.Windows.MainWindow.GameLoad()", "Impossible d'enregistrer", Panuon.WPF.UI.MessageBoxIcon.Error);
+                              else
+                                  VDialog.Show("Cet objet semble déséquilibré par rapport à son prix. L'utiliser quand même ?", "Objet déséquilibré", MessageBoxButton.YesNo, Panuon.WPF.UI.MessageBoxIcon.Warning);
+                          });
+                      });
+                  }
+                  if (Args.FindLine("vmax-qa-label") != null)
+                  {// QA : pastille de message du compagnon
+                      Task.Run(async () =>
+                      {
+                          await Task.Delay(9000);
+                          Dispatcher.Invoke(() => Main.LabelDisplayShow("Satiété +12 · Humeur +4", 6000));
+                          await Task.Delay(700);
+                          Dispatcher.Invoke(() => QaSnapshot(this, System.IO.Path.Combine(System.IO.Path.GetTempPath(), "vmax-qa-settings.png")));
+                      });
+                  }
                   if (Args.FindLine("vmax-toast") is ILine qaToast)
                   {// QA : notification rendue dans %TEMP%\vmax-qa-settings.png
                       Task.Run(async () =>
@@ -2760,7 +2789,7 @@ namespace VPet_Simulator.Windows
             //{
             //    await Dispatcher.InvokeAsync(new Action(() =>
             //    {
-            //        MessageBoxX.Show("检测到您开启了开机启动, 以下是开机启动相关提示信息: (仅显示一次)".Translate() + "\n------\n" +
+            //        VDialog.Show("检测到您开启了开机启动, 以下是开机启动相关提示信息: (仅显示一次)".Translate() + "\n------\n" +
             //             "游戏开机启动的实现方式是创建快捷方式,不是注册表,更健康,所以游戏卸了也不知道\n如果游戏打不开,可以去这里手动删除游戏开机启动快捷方式:\n%appdata%\\Microsoft\\Windows\\Start Menu\\Programs\\Startup\\".Translate()
             //          , "关于卸载不掉的问题是因为开启了开机启动".Translate(), Panuon.WPF.UI.MessageBoxIcon.Info);
             //        Set["SingleTips"][(gint)"open"] = 1;
@@ -3068,11 +3097,66 @@ namespace VPet_Simulator.Windows
         {
             Dispatcher.BeginInvoke(() =>
             {
-                if (Hud != null && IsLoaded)
+                if (uiReady && Hud != null && IsLoaded)
                     HUD.HudToast.Show(this, text, kind, seconds);
                 else
-                    NoticeBox.Show(text, "V-Max", kind == HUD.HudToast.Kind.Warning ? Panuon.WPF.UI.MessageBoxIcon.Warning : Panuon.WPF.UI.MessageBoxIcon.Info, true, (int)(seconds * 1000));
+                    pendingToasts.Add((text, kind, seconds));
             });
+        }
+
+        private bool uiReady;
+        private readonly List<(string text, HUD.HudToast.Kind kind, double seconds)> pendingToasts = new();
+        private HUD.SplashWindow? splash;
+
+        /// <summary>Étape de chargement affichée dans l'écran d'accueil</summary>
+        public object LoadingStatus
+        {
+            set => Dispatcher.BeginInvoke(() => splash?.SetStatus(value?.ToString() ?? ""));
+        }
+
+        private bool Args_NoSplash() => Environment.GetCommandLineArgs().Any(a => a.Contains("vmax-nosplash"));
+
+        /// <summary>
+        /// Le compagnon est prêt : l'écran d'accueil s'efface en fondu, le compagnon apparaît en fondu,
+        /// puis les notifications reçues pendant le chargement s'affichent (au plus 3, les plus récentes)
+        /// </summary>
+        private void UiReady()
+        {
+            if (uiReady)
+                return;
+            uiReady = true;
+            LoadingText.Visibility = Visibility.Collapsed;
+            splash?.FadeOut();
+            splash = null;
+            if (Content is UIElement root && VPet_Simulator.Core.UiMotion.Enabled)
+                root.BeginAnimation(OpacityProperty, new System.Windows.Media.Animation.DoubleAnimation(0, 1, TimeSpan.FromMilliseconds(420)) { BeginTime = TimeSpan.FromMilliseconds(120) });
+            var queued = pendingToasts.TakeLast(3).ToList();
+            pendingToasts.Clear();
+            int i = 0;
+            foreach (var (text, kind, seconds) in queued)
+            {
+                var delay = TimeSpan.FromMilliseconds(900 + 600 * i++);
+                var t = new System.Windows.Threading.DispatcherTimer { Interval = delay };
+                t.Tick += (_, _) => { t.Stop(); HUD.HudToast.Show(this, text, kind, seconds); };
+                t.Start();
+            }
+        }
+
+        /// <summary>
+        /// Erreur de démarrage d'un plugin ou d'un mod : notification courte, détails complets dans
+        /// %APPDATA%\V-Max\logs\demarrage.log (plus de grande fenêtre de trace au lancement)
+        /// </summary>
+        public void ReportStartupError(string summary, string details)
+        {
+            try
+            {
+                var dir = System.IO.Path.Combine(ExtensionValue.DataDirectory, "logs");
+                System.IO.Directory.CreateDirectory(dir);
+                System.IO.File.AppendAllText(System.IO.Path.Combine(dir, "demarrage.log"),
+                    $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] {summary}{Environment.NewLine}{details}{Environment.NewLine}{Environment.NewLine}");
+            }
+            catch { }
+            Toast(summary + " Détails dans le journal de démarrage.", HUD.HudToast.Kind.Warning, 8);
         }
 
         /// <summary>

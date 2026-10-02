@@ -91,7 +91,7 @@ namespace VPet_Simulator.Windows.Interface
                         catch (Exception e)
                         {
                             HashCheck = false;
-                            MessageBoxX.Show(e.ToString(), "当前存档Hash验证信息".Translate() + ":" + "失败".Translate());
+                            VDialog.Show(e.ToString(), "当前存档Hash验证信息".Translate() + ":" + "失败".Translate());
                         }
                     }
                 }

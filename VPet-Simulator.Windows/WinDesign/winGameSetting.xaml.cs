@@ -750,7 +750,7 @@ namespace VPet_Simulator.Windows
                 return;
             if (selectedModInfo.Name == "Core")
             {
-                MessageBoxX.Show("模组 Core 为<虚拟桌宠模拟器>核心文件,无法停用".Translate(), "停用失败".Translate());
+                VDialog.Show("模组 Core 为<虚拟桌宠模拟器>核心文件,无法停用".Translate(), "停用失败".Translate());
                 return;
             }
             else if (CoreMOD.OnModDefList.Contains(selectedModInfo.Name))
@@ -772,7 +772,7 @@ namespace VPet_Simulator.Windows
 
             // V-Max : avertissement de sécurité volontairement NON traduisible par les mods (anti-usurpation, AUDIT S-05)
             var dlls = string.Join("\n", PluginTrustStore.PluginDlls(modInfo.Path).Select(d => "  • " + d.Name + "  (SHA-256 " + PluginTrustStore.ComputeHash(d.FullName)[..16] + "…)"));
-            if (MessageBoxX.Show($"Autoriser le code du mod « {modInfo.Name} » ?\n\n"
+            if (VDialog.Show($"Autoriser le code du mod « {modInfo.Name} » ?\n\n"
                 + "Un plugin de code s'exécute avec tous vos droits : il peut lire vos fichiers, accéder au réseau et lancer des programmes.\n"
                 + "N'autorisez que des mods de confiance. L'autorisation est liée à la version exacte des fichiers ci-dessous ; "
                 + "toute modification demandera une nouvelle autorisation.\n\n" + dlls,
@@ -786,7 +786,7 @@ namespace VPet_Simulator.Windows
 
         private void ButtonRestart_Click(object sender, RoutedEventArgs e)
         {
-            if (MessageBoxX.Show("是否退出游戏<虚拟桌宠模拟器>?\n请注意保存游戏".Translate(), "重启游戏".Translate(), MessageBoxButton.YesNo, MessageBoxIcon.Warning) == MessageBoxResult.Yes)
+            if (VDialog.Show("是否退出游戏<虚拟桌宠模拟器>?\n请注意保存游戏".Translate(), "重启游戏".Translate(), MessageBoxButton.YesNo, MessageBoxIcon.Warning) == MessageBoxResult.Yes)
             {
                 mw.Restart();
             }
@@ -981,7 +981,7 @@ namespace VPet_Simulator.Windows
             if (!AllowChange)
                 return;
             if (StartUpBox.IsChecked == true)
-                if (MessageBoxX.Show("该游戏随着开机启动该程序\r如需卸载游戏\r请关闭该选项".Translate() + "\n------\n" + "我已确认,并在卸载游戏前会关闭该功能".Translate(), "开机启动重要消息".Translate(),
+                if (VDialog.Show("该游戏随着开机启动该程序\r如需卸载游戏\r请关闭该选项".Translate() + "\n------\n" + "我已确认,并在卸载游戏前会关闭该功能".Translate(), "开机启动重要消息".Translate(),
                     MessageBoxButton.YesNo, MessageBoxIcon.Warning) != MessageBoxResult.Yes)
                 {
                     StartUpBox.IsChecked = false;
@@ -990,7 +990,7 @@ namespace VPet_Simulator.Windows
             //else
             //{
             //    mf.Set["SingleTips"][(gint)"open"] = 1;
-            //    MessageBoxX.Show("游戏开机启动的实现方式是创建快捷方式,不是注册表,更健康,所以游戏卸了也不知道\n如果游戏打不开,可以去这里手动删除游戏开机启动快捷方式:\n%appdata%\\Microsoft\\Windows\\Start Menu\\Programs\\Startup\\".Translate()
+            //    VDialog.Show("游戏开机启动的实现方式是创建快捷方式,不是注册表,更健康,所以游戏卸了也不知道\n如果游戏打不开,可以去这里手动删除游戏开机启动快捷方式:\n%appdata%\\Microsoft\\Windows\\Start Menu\\Programs\\Startup\\".Translate()
             //        , "关于卸载不掉的问题是因为开启了开机启动".Translate(), MessageBoxIcon.Info);
             //}
 
@@ -1028,7 +1028,7 @@ namespace VPet_Simulator.Windows
 
             if (mw.PrefixSave == "" && petloader.PetName != mw.Pets[PetBox.SelectedIndex].PetName)
             {//多一个名称判断, 如果宠物名称一致,则切换皮肤不提示多开
-                switch (MessageBoxX.Show("是否多开一个新的桌宠使用 {0} 皮肤\n各自存档独立保存,互不影响\n支持同时显示多个宠物".Translate(mw.Pets[PetBox.SelectedIndex].Name.Translate()),
+                switch (VDialog.Show("是否多开一个新的桌宠使用 {0} 皮肤\n各自存档独立保存,互不影响\n支持同时显示多个宠物".Translate(mw.Pets[PetBox.SelectedIndex].Name.Translate()),
                     "是否多开".Translate(), MessageBoxButton.YesNoCancel))
                 {
                     case MessageBoxResult.Yes:
@@ -1039,7 +1039,7 @@ namespace VPet_Simulator.Windows
                         {
                             if (App.MainWindows.FirstOrDefault(x => x.PrefixSave.Trim('-') == savename) != null)
                             {
-                                MessageBoxX.Show("当前多开已经加载".Translate());
+                                VDialog.Show("当前多开已经加载".Translate());
                             }
                             else
                                 new MainWindow(savename, mw).Show();
@@ -1048,7 +1048,7 @@ namespace VPet_Simulator.Windows
                         foreach (var c in @"()#:|/\?*<>-")
                             if (savename.Contains(c))
                             {
-                                MessageBoxX.Show("存档名不能包括特殊符号".Translate());
+                                VDialog.Show("存档名不能包括特殊符号".Translate());
                                 return;
                             }
                         var lps = new LPS(mw.Set.ToString());
@@ -1120,7 +1120,7 @@ namespace VPet_Simulator.Windows
                     //    if (((TalkBox)mf.TalkBox).ChatGPT_Reset())
                     //    {
                     //        ((TalkBox)mf.TalkBox).btn_startup.Visibility = Visibility.Visible;
-                    //        MessageBoxX.Show("桌宠重置成功".Translate());
+                    //        VDialog.Show("桌宠重置成功".Translate());
                     //    }
                     //});
                     //((TalkSelect)mf.TalkBox).RelsTime
@@ -1245,7 +1245,7 @@ namespace VPet_Simulator.Windows
         {
             if (!AllowChange)
                 return;
-            //MessageBoxX.Show("由于没做完,暂不支持数据计算\n敬请期待后续更新", "没做完!", MessageBoxButton.OK, MessageBoxIcon.Warning);
+            //VDialog.Show("由于没做完,暂不支持数据计算\n敬请期待后续更新", "没做完!", MessageBoxButton.OK, MessageBoxIcon.Warning);
             if (CalFunctionBox.IsChecked == true)
             {
                 mw.Set.EnableFunction = true;
@@ -1294,7 +1294,7 @@ namespace VPet_Simulator.Windows
                     list.Add(str.Trim());
             }
             list = list.Distinct().ToList();
-            MessageBoxX.Show(string.Join("\n", list), "感谢以下MOD开发人员".Translate());
+            VDialog.Show(string.Join("\n", list), "感谢以下MOD开发人员".Translate());
         }
 
         private void Using_Click(object sender, RoutedEventArgs e)
@@ -1316,7 +1316,7 @@ namespace VPet_Simulator.Windows
                     : $"> {name}.dll")
                 .ToList();
 
-            MessageBoxX.Show(string.Join("\n", rows), "DLL引用名单".Translate());
+            VDialog.Show(string.Join("\n", rows), "DLL引用名单".Translate());
         }
 
         private void combCalFunState_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -1402,7 +1402,7 @@ namespace VPet_Simulator.Windows
         private void cleancache_click(object sender, RoutedEventArgs e)
         {
             mw.Set.LastCacheDate = DateTime.MinValue;
-            MessageBoxX.Show("清理指令已下达,下次启动桌宠时生效".Translate());
+            VDialog.Show("清理指令已下达,下次启动桌宠时生效".Translate());
         }
 
         private void SliderResolution_MouseUp(object sender, MouseButtonEventArgs e)
@@ -1414,7 +1414,7 @@ namespace VPet_Simulator.Windows
         private void save_click(object sender, RoutedEventArgs e)
         {
             mw.Save();
-            MessageBoxX.Show("保存成功".Translate());
+            VDialog.Show("保存成功".Translate());
         }
 
         private void swAutoCal_Checked(object sender, RoutedEventArgs e)
@@ -1426,7 +1426,7 @@ namespace VPet_Simulator.Windows
 
         private void restart_click(object sender, RoutedEventArgs e)
         {
-            if (MessageBoxX.Show("是否重置游戏数据重新开始?".Translate(), "重新开始".Translate(), MessageBoxButton.YesNo) == MessageBoxResult.Yes)
+            if (VDialog.Show("是否重置游戏数据重新开始?".Translate(), "重新开始".Translate(), MessageBoxButton.YesNo) == MessageBoxResult.Yes)
             {
                 var oldsave = mw.GameSavesData;
                 mw.GameSavesData = new GameSave_v2(mw.Core.Save!.Name);
@@ -1443,7 +1443,7 @@ namespace VPet_Simulator.Windows
                     }
                 }
                 mw.HashCheck = true;
-                MessageBoxX.Show("重置成功".Translate());
+                VDialog.Show("重置成功".Translate());
             }
         }
 
@@ -1466,7 +1466,7 @@ namespace VPet_Simulator.Windows
             var str = App.MutiSaves[LBHave.SelectedIndex];
             if (str.EndsWith(")") || App.MainWindows.FirstOrDefault(x => x.PrefixSave.Trim('-') == str) != null)
             {
-                MessageBoxX.Show("当前多开已经加载".Translate());
+                VDialog.Show("当前多开已经加载".Translate());
                 return;
             }
             new MainWindow(str, mw).Show();
@@ -1478,12 +1478,12 @@ namespace VPet_Simulator.Windows
             foreach (var c in @"()#:|/\?*<>-")
                 if (savename.Contains(c))
                 {
-                    MessageBoxX.Show("存档名不能包括特殊符号".Translate());
+                    VDialog.Show("存档名不能包括特殊符号".Translate());
                     return;
                 }
             if (App.MutiSaves.FirstOrDefault(x => x.ToLowerInvariant() == savename.ToLowerInvariant()) != null)
             {
-                MessageBoxX.Show("存档名重复".Translate());
+                VDialog.Show("存档名重复".Translate());
                 return;
             }
 
@@ -1501,12 +1501,12 @@ namespace VPet_Simulator.Windows
             var str = App.MutiSaves[LBHave.SelectedIndex];
             if (str == "默认存档".Translate())
             {
-                MessageBoxX.Show("默认存档无法删除,请使用重新开始功能重新开始游戏".Translate());
+                VDialog.Show("默认存档无法删除,请使用重新开始功能重新开始游戏".Translate());
                 return;
             }
             if (str.EndsWith(")") || App.MainWindows.FirstOrDefault(x => x.PrefixSave.Trim('-') == str) != null)
             {
-                MessageBoxX.Show("当前多开已经加载,请先关闭改多开后重试".Translate());
+                VDialog.Show("当前多开已经加载,请先关闭改多开后重试".Translate());
                 return;
             }
             if (!App.MutiSaves.Contains(str))
@@ -1514,7 +1514,7 @@ namespace VPet_Simulator.Windows
                 LoadMutiUI();
                 return;
             }
-            if (MessageBoxX.Show("是否删除当前选择({0})的多开存档?".Translate(str), "删除前确认".Translate(), MessageBoxButton.YesNo) == MessageBoxResult.Yes)
+            if (VDialog.Show("是否删除当前选择({0})的多开存档?".Translate(str), "删除前确认".Translate(), MessageBoxButton.YesNo) == MessageBoxResult.Yes)
             {
                 File.Delete(ExtensionValue.DataDirectory + @$"\Setting-{str}.lps");
                 App.MutiSaves.Remove(str);
@@ -1533,7 +1533,7 @@ namespace VPet_Simulator.Windows
             }
             if (str != "")
                 File.Create(ExtensionValue.DataDirectory + @"\startup_" + str).Close();
-            MessageBoxX.Show("已将当前选择 {0} 设为默认启动存档".Translate(str.Translate()));
+            VDialog.Show("已将当前选择 {0} 设为默认启动存档".Translate(str.Translate()));
         }
 
 

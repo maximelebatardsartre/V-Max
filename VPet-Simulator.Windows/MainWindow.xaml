@@ -12,9 +12,8 @@
     </WindowChrome.WindowChrome>
     <Grid x:Name="MGHost" x:FieldModifier="public">
         <Grid x:Name="MGrid" Width="250" Height="Auto" x:FieldModifier="public">
-            <Label x:Name="LoadingText" HorizontalAlignment="Center" VerticalAlignment="Center"
-                    Background="{DynamicResource DARKPrimaryLight}" Foreground="{DynamicResource DARKPrimaryText}"
-                    Content="Loading" />
+            <!-- V-Max : le chargement s'affiche dans l'écran d'accueil (HUD.SplashWindow) ; étiquette conservée pour les mods -->
+            <Label x:Name="LoadingText" Visibility="Collapsed" Content="" />
             <Border x:Name="DisplayGrid" />
         </Grid>
     </Grid>

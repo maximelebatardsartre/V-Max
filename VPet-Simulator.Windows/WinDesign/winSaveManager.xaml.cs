@@ -176,14 +176,14 @@ namespace VPet_Simulator.Windows
             string lpsText;
             if (!File.Exists(selected.FullPath))
             {
-                MessageBoxX.Show("存档文件不存在,请刷新后重试".Translate(), "加载失败".Translate(), MessageBoxIcon.Warning);
+                VDialog.Show("存档文件不存在,请刷新后重试".Translate(), "加载失败".Translate(), MessageBoxIcon.Warning);
                 return;
             }
             lpsText = File.ReadAllText(selected.FullPath);
 
             var message = "存档名称:{0}\n保存时间:{1}\n存档等级:{2}\n存档金钱:{3}\nHashCheck:{4}\n是否加载该备份存档? 当前游戏数据会丢失"
                 .Translate(selected.PetName, selected.SaveTimeText, selected.LevelText, selected.MoneyText, selected.HashCheck);
-            if (MessageBoxX.Show(message, "是否加载该备份存档? 当前游戏数据会丢失".Translate(), MessageBoxButton.YesNo, MessageBoxIcon.Info) != MessageBoxResult.Yes)
+            if (VDialog.Show(message, "是否加载该备份存档? 当前游戏数据会丢失".Translate(), MessageBoxButton.YesNo, MessageBoxIcon.Info) != MessageBoxResult.Yes)
                 return;
 
             try
@@ -195,13 +195,13 @@ namespace VPet_Simulator.Windows
                 }
 
                 if (!mw.SavesLoad(new LPS(lpsText)))
-                    MessageBoxX.Show("存档损毁,无法加载该存档\n可能是上次储存出错或Steam云同步导致的\n请在设置中加载备份还原存档".Translate(), "存档损毁".Translate());
+                    VDialog.Show("存档损毁,无法加载该存档\n可能是上次储存出错或Steam云同步导致的\n请在设置中加载备份还原存档".Translate(), "存档损毁".Translate());
                 else
-                    MessageBoxX.Show("加载成功".Translate());
+                    VDialog.Show("加载成功".Translate());
             }
             catch (Exception ex)
             {
-                MessageBoxX.Show("存档损毁,无法加载该存档\n可能是数据溢出/超模导致的".Translate() + '\n' + ex.Message, "存档损毁".Translate());
+                VDialog.Show("存档损毁,无法加载该存档\n可能是数据溢出/超模导致的".Translate() + '\n' + ex.Message, "存档损毁".Translate());
             }
         }
 

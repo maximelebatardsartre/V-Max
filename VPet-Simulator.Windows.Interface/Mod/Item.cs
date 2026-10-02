@@ -66,7 +66,7 @@ public class Item : NotifyPropertyChangedBase
             }
             return;
         }
-        MessageBoxX.Show("物品 {0} 使用失败".Translate(TranslateName), "该物品无法使用".Translate());
+        VDialog.Show("物品 {0} 使用失败".Translate(TranslateName), "该物品无法使用".Translate());
     }
     /// <summary>
     /// 消耗该物品, 如果物品数量小于等于0时则销毁物品(从背包中移除) (不会主动调用)

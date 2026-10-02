@@ -169,7 +169,7 @@ namespace VPet_Simulator.Core
             ig ??= Core.Graph!.FindGraph(Core.Graph!.FindName(GraphType.Default), AnimatType.Single, Core.Save!.Mode);
             if (ig == null)
             {
-                MessageBox.Show("Animation par défaut introuvable, vérifiez la configuration des animations.".Translate(), "Erreur".Translate(), MessageBoxButton.OK, MessageBoxImage.Error);
+                VDialog.Show("Animation par défaut introuvable, vérifiez la configuration des animations.".Translate(), "Erreur".Translate(), MessageBoxButton.OK, MessageBoxIcon.Error);
                 return;
             }
             Task.Run(() =>
@@ -351,7 +351,7 @@ namespace VPet_Simulator.Core
         {
             windowMediaPlayerAvailable = false;
             PlayingVoice = false;
-            MessageBoxX.Show("音频播放失败,已尝试自动切换到备用播放器. 如果问题持续,请检查是否已安装WindowsMediaPlayer".Translate(), "音频错误".Translate(), MessageBoxIcon.Warning);
+            VDialog.Show("音频播放失败,已尝试自动切换到备用播放器. 如果问题持续,请检查是否已安装WindowsMediaPlayer".Translate(), "音频错误".Translate(), MessageBoxIcon.Warning);
         }
         private void Clock_Completed(object? sender, EventArgs e)
         {

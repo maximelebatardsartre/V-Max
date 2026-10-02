@@ -11,6 +11,7 @@ using System.Windows.Controls;
 using System.Windows.Documents;
 using System.Windows.Input;
 using VPet_Simulator.Windows.Interface;
+using VPet_Simulator.Core;
 
 namespace VPet_Simulator.Windows
 {
@@ -70,11 +71,11 @@ namespace VPet_Simulator.Windows
             {
                 if (mw.GameSavesData[(gbol)"self"])
                 {
-                    MessageBoxX.Show("更好买老顾客大优惠!桌宠的食物钱我来出!\n更好买提示您:$1000以下的食物/药品等随便赊账\n(不包括大于1000经验值的食物或礼品)".Translate());
+                    VDialog.Show("更好买老顾客大优惠!桌宠的食物钱我来出!\n更好买提示您:$1000以下的食物/药品等随便赊账\n(不包括大于1000经验值的食物或礼品)".Translate());
                 }
                 else
                 {
-                    MessageBoxX.Show("看到您囊中羞涩,{0}拿出了1000块私房钱出来给你".Translate(mw.Core.Save!.Name));
+                    VDialog.Show("看到您囊中羞涩,{0}拿出了1000块私房钱出来给你".Translate(mw.Core.Save!.Name));
                     mw.GameSavesData[(gbol)"self"] = true;
                     mw.Core.Save!.Money += 1000;
                 }
@@ -83,7 +84,7 @@ namespace VPet_Simulator.Windows
             {
                 mw.Core.Save!.Money -= 1000;
                 mw.GameSavesData[(gbol)"self"] = false;
-                MessageBoxX.Show("{0}偷偷藏了1000块私房钱".Translate(mw.Core.Save!.Name));
+                VDialog.Show("{0}偷偷藏了1000块私房钱".Translate(mw.Core.Save!.Name));
             }
 
             Show();
@@ -227,7 +228,7 @@ namespace VPet_Simulator.Windows
                 {                        
                     if ((item!.Price >= 1000 || item.Exp >= 1000) && item.Price >= mw.Core.Save!.Money)
                     {//买不起
-                        MessageBoxX.Show("您没有足够金钱来购买 {0}\n您需要 {1:f2} 金钱来购买\n您当前 {2:f2} 拥有金钱"
+                        VDialog.Show("您没有足够金钱来购买 {0}\n您需要 {1:f2} 金钱来购买\n您当前 {2:f2} 拥有金钱"
                             .Translate(item.TranslateName, item.Price, mw.Core.Save!.Money)
                             , "金钱不足".Translate());
                         return;
@@ -235,7 +236,7 @@ namespace VPet_Simulator.Windows
                     //看看是否超模
                     if (mw.HashCheck && item.IsOverLoad())
                     {
-                        if (MessageBoxX.Show("当前食物/物品属性超模,是否继续使用?\n使用超模食物可能会导致游戏发生不可预料的错误\n使用超模食物不影响大部分成就解锁\n本物品推荐价格为{0:f0}"
+                        if (VDialog.Show("当前食物/物品属性超模,是否继续使用?\n使用超模食物可能会导致游戏发生不可预料的错误\n使用超模食物不影响大部分成就解锁\n本物品推荐价格为{0:f0}"
                             .Translate(item.RealPrice), "超模食物/物品使用提醒".Translate(), MessageBoxButton.YesNo) != MessageBoxResult.Yes)
                         {
                             return;
@@ -372,7 +373,7 @@ namespace VPet_Simulator.Windows
             if (_puswitchautobuy?.IsChecked == true && mw.Core.Save!.Money < 100)
             {
                 _puswitchautobuy.IsChecked = false;
-                MessageBoxX.Show(mw, "余额不足100，无法开启自动购买".Translate(), "更好买".Translate());
+                VDialog.Show(mw, "余额不足100，无法开启自动购买".Translate(), "更好买".Translate());
                 return;
             }
             if (_puswitchautobuy?.IsChecked == true)

@@ -6,6 +6,7 @@ using System.Linq;
 using System.Windows;
 using VPet_Simulator.Windows.Interface;
 using static VPet_Simulator.Windows.Interface.Food;
+using VPet_Simulator.Core;
 
 namespace VPet_Simulator.Windows.HUD;
 
@@ -33,7 +34,7 @@ public static class PetCare
             {
                 if (!interactive)
                     return $"{item.TranslateName} est déséquilibré : ignoré par les routines.";
-                if (MessageBoxX.Show("当前食物/物品属性超模,是否继续使用?\n使用超模食物可能会导致游戏发生不可预料的错误\n使用超模食物不影响大部分成就解锁\n本物品推荐价格为{0:f0}"
+                if (VDialog.Show("当前食物/物品属性超模,是否继续使用?\n使用超模食物可能会导致游戏发生不可预料的错误\n使用超模食物不影响大部分成就解锁\n本物品推荐价格为{0:f0}"
                     .Translate(item.RealPrice), "超模食物/物品使用提醒".Translate(), MessageBoxButton.YesNo) != MessageBoxResult.Yes)
                     return "";
                 mw.HashCheck = false;

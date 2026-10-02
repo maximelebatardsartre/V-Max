@@ -517,7 +517,7 @@ public partial class MainWindow : IMainWindow
                         break;
                 }
 
-                bool answerTrue = MessageBoxX.Show(Question, "生日蛋糕提问!".Translate(), MessageBoxButton.YesNo) == MessageBoxResult.Yes;
+                bool answerTrue = VDialog.Show(Question, "生日蛋糕提问!".Translate(), MessageBoxButton.YesNo) == MessageBoxResult.Yes;
                 if (answerTrue == IsTrue)
                 {
                     var clone = obj.Clone();

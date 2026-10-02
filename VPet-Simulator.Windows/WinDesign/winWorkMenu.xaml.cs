@@ -368,7 +368,7 @@ public partial class winWorkMenu : WindowX
         {
             if (sworkTime / (double)(sworkTime + srestTime) > 0.71)
             {
-                MessageBoxX.Show("工作时间过长,请添加更多的休息时间".Translate(), "工作时间过长".Translate());
+                VDialog.Show("工作时间过长,请添加更多的休息时间".Translate(), "工作时间过长".Translate());
                 btnStartSchedule.IsChecked = false;
                 return;
             }
@@ -510,14 +510,14 @@ public partial class winWorkMenu : WindowX
         double refound = 0;
         if (package.Price > mw.Core.Save!.Money)
         {
-            MessageBoxX.Show("金钱不足".Translate(), "签署失败".Translate());
+            VDialog.Show("金钱不足".Translate(), "签署失败".Translate());
             return;
         }
         if (nowselefull.WorkType == Work.WorkType.Work)
         {
             if (mw.ScheduleTask.PackageWork?.IsActive() == true)
             {
-                if (MessageBoxX.Show("工作套餐已激活,是否替换?".Translate(), "套餐已激活".Translate(), MessageBoxButton.YesNo) != MessageBoxResult.Yes)
+                if (VDialog.Show("工作套餐已激活,是否替换?".Translate(), "套餐已激活".Translate(), MessageBoxButton.YesNo) != MessageBoxResult.Yes)
                     return;
                 //计算价格,给剩下的退款
                 double lefttime = (mw.ScheduleTask.PackageWork.EndTime - DateTime.Now).TotalDays / 2;
@@ -539,7 +539,7 @@ public partial class winWorkMenu : WindowX
         {
             if (mw.ScheduleTask.PackageStudy?.IsActive() == true)
             {
-                if (MessageBoxX.Show("学习套餐已激活,是否替换?".Translate(), "套餐已激活".Translate(), MessageBoxButton.YesNo) != MessageBoxResult.Yes)
+                if (VDialog.Show("学习套餐已激活,是否替换?".Translate(), "套餐已激活".Translate(), MessageBoxButton.YesNo) != MessageBoxResult.Yes)
                     return;
                 //计算价格,给剩下的退款
                 double lefttime = (mw.ScheduleTask.PackageStudy.EndTime - DateTime.Now).TotalDays / 2;
@@ -559,7 +559,7 @@ public partial class winWorkMenu : WindowX
         }
         tbtnCurrentPlan.IsChecked = true;
         mw.Core.Save!.Money -= package.Price - refound;
-        MessageBoxX.Show("套餐 {0} 签署成功".Translate(package.NameTrans) + (refound == 0 ? "" :
+        VDialog.Show("套餐 {0} 签署成功".Translate(package.NameTrans) + (refound == 0 ? "" :
           '\n' + "获得 {0:f1} 退款".Translate(refound)), "签署成功".Translate());
     }
 
@@ -655,12 +655,12 @@ public partial class winWorkMenu : WindowX
                 case Work.WorkType.Work:
                     if (mw.ScheduleTask.PackageWork?.IsActive() != true)
                     {
-                        MessageBoxX.Show("工作套餐未激活,请前往日程表签署工作中介套餐".Translate(), "套餐未激活".Translate());
+                        VDialog.Show("工作套餐未激活,请前往日程表签署工作中介套餐".Translate(), "套餐未激活".Translate());
                         return;
                     }
                     else if (mw.ScheduleTask.PackageWork.Level < nowworkdisplay.LevelLimit)
                     {
-                        MessageBoxX.Show("工作套餐等级不足({0}/{1}),\n请选择更低等级要求/倍率的工作或前往日程表签署新的工作中介套餐".Translate(mw.ScheduleTask.PackageWork.Level,
+                        VDialog.Show("工作套餐等级不足({0}/{1}),\n请选择更低等级要求/倍率的工作或前往日程表签署新的工作中介套餐".Translate(mw.ScheduleTask.PackageWork.Level,
                             nowworkdisplay.LevelLimit), "套餐等级不足".Translate());
                         return;
                     }
@@ -669,12 +669,12 @@ public partial class winWorkMenu : WindowX
                 case Work.WorkType.Study:
                     if (mw.ScheduleTask.PackageStudy?.IsActive() != true)
                     {
-                        MessageBoxX.Show("学习套餐未激活,请前往日程表签署培训机构套餐".Translate(), "套餐未激活".Translate());
+                        VDialog.Show("学习套餐未激活,请前往日程表签署培训机构套餐".Translate(), "套餐未激活".Translate());
                         return;
                     }
                     else if (mw.ScheduleTask.PackageStudy.Level < nowworkdisplay.LevelLimit)
                     {
-                        MessageBoxX.Show("学习套餐等级不足({0}/{1}),\n请选择更低等级要求/倍率的学习或前往日程表签署新的培训机构套餐".Translate(mw.ScheduleTask.PackageStudy.Level,
+                        VDialog.Show("学习套餐等级不足({0}/{1}),\n请选择更低等级要求/倍率的学习或前往日程表签署新的培训机构套餐".Translate(mw.ScheduleTask.PackageStudy.Level,
                             nowworkdisplay.LevelLimit), "套餐等级不足".Translate());
                         return;
                     }
@@ -683,7 +683,7 @@ public partial class winWorkMenu : WindowX
                 case Work.WorkType.Play:
                     if (mw.Core.Save!.Level < 15)
                     {
-                        MessageBoxX.Show("等级不足15级,无法使用日程表".Translate(), "等级不足".Translate());
+                        VDialog.Show("等级不足15级,无法使用日程表".Translate(), "等级不足".Translate());
                         return;
                     }
                     mw.ScheduleTask.AddPlay(nowwork, (int)wDouble.Value);

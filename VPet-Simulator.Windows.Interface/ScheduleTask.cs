@@ -14,6 +14,7 @@ using System.Windows;
 using System.Windows.Media;
 using static VPet_Simulator.Core.GraphHelper;
 using static VPet_Simulator.Core.GraphHelper.Work;
+using VPet_Simulator.Core;
 
 namespace VPet_Simulator.Windows.Interface;
 
@@ -193,13 +194,13 @@ public class ScheduleTask
                 {
                     if (PackageWork?.IsActive() != true)
                     {
-                        mw.Dispatcher.Invoke(() => MessageBoxX.Show("工作套餐未激活,请前往日程表签署工作中介套餐".Translate(), "套餐未激活".Translate()));
+                        mw.Dispatcher.Invoke(() => VDialog.Show("工作套餐未激活,请前往日程表签署工作中介套餐".Translate(), "套餐未激活".Translate()));
                         IsOn = false;
                         return;
                     }
                     else if (PackageWork.Level < wsi.Work.LevelLimit)
                     {
-                        mw.Dispatcher.Invoke(() => MessageBoxX.Show("工作套餐等级不足({0}/{1}),\n请选择更低等级要求/倍率的工作或前往日程表签署新的工作中介套餐".Translate(PackageWork.Level,
+                        mw.Dispatcher.Invoke(() => VDialog.Show("工作套餐等级不足({0}/{1}),\n请选择更低等级要求/倍率的工作或前往日程表签署新的工作中介套餐".Translate(PackageWork.Level,
                         wsi.Work.LevelLimit), "套餐等级不足".Translate()));
                         IsOn = false;
                         return;
@@ -209,13 +210,13 @@ public class ScheduleTask
                 {
                     if (PackageStudy?.IsActive() != true)
                     {
-                        mw.Dispatcher.Invoke(() => MessageBoxX.Show("学习套餐未激活,请前往日程表签署培训机构套餐".Translate(), "套餐未激活".Translate()));
+                        mw.Dispatcher.Invoke(() => VDialog.Show("学习套餐未激活,请前往日程表签署培训机构套餐".Translate(), "套餐未激活".Translate()));
                         IsOn = false;
                         return;
                     }
                     else if (PackageStudy.Level < wsi.Work.LevelLimit)
                     {
-                        mw.Dispatcher.Invoke(() => MessageBoxX.Show("学习套餐等级不足({0}/{1}),\n请选择更低等级要求/倍率的学习或前往日程表签署新的培训机构套餐".Translate(PackageStudy.Level,
+                        mw.Dispatcher.Invoke(() => VDialog.Show("学习套餐等级不足({0}/{1}),\n请选择更低等级要求/倍率的学习或前往日程表签署新的培训机构套餐".Translate(PackageStudy.Level,
                         wsi.Work.LevelLimit), "套餐等级不足".Translate()));
                         IsOn = false;
                         return;

@@ -15,6 +15,7 @@ using System.Windows.Media.Animation;
 using System.Windows.Threading;
 using VPet_Simulator.Core;
 using VPet_Simulator.Windows.Interface;
+using Panuon.WPF.UI;
 
 namespace VPet_Simulator.Windows;
 
@@ -851,7 +852,7 @@ public partial class winVMaxSettings : Window
             }
             catch (Exception e)
             {
-                MessageBox.Show(this, e.Message, p.Name, MessageBoxButton.OK, MessageBoxImage.Warning);
+                VDialog.Show(this, e.Message, p.Name, MessageBoxButton.OK, MessageBoxIcon.Warning);
             }
         });
         refresh.Margin = new Thickness(8, 0, 0, 0);
@@ -887,7 +888,7 @@ public partial class winVMaxSettings : Window
             }
             catch (Exception e)
             {
-                MessageBox.Show(this, e.Message, T("Exporter l'habitat"), MessageBoxButton.OK, MessageBoxImage.Warning);
+                VDialog.Show(this, e.Message, T("Exporter l'habitat"), MessageBoxButton.OK, MessageBoxIcon.Warning);
             }
         });
         var import = (Button)ActionButton(T("Importer un habitat…"), async () =>
@@ -909,7 +910,7 @@ public partial class winVMaxSettings : Window
             }
             catch (Exception e)
             {
-                MessageBox.Show(this, e.Message, T("Importer un habitat"), MessageBoxButton.OK, MessageBoxImage.Warning);
+                VDialog.Show(this, e.Message, T("Importer un habitat"), MessageBoxButton.OK, MessageBoxIcon.Warning);
             }
         });
         import.Margin = new Thickness(8, 0, 0, 0);
