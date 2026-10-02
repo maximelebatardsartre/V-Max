@@ -35,13 +35,17 @@ $zip = Get-ChildItem $Dir -Filter "maxine-assets-*.zip" | Select-Object -First 1
 $manifest = Join-Path $Dir "assets.json"
 if (-not $zip -or -not (Test-Path $manifest)) { throw "Pack d'assets introuvable dans $Dir (lance pack-assets.ps1 d'abord)." }
 
+# Les assets vivent sous le prefixe "maxine-assets/" dans le bucket (l'app les lit a cette meme adresse :
+# https://pub-....r2.dev/maxine-assets/...). Garde ce prefixe identique a DefaultBaseUrl dans AssetService.cs.
+$prefix = "maxine-assets"
+
 Write-Host "==> Televersement de $($zip.Name) ($([math]::Round($zip.Length/1GB,2)) Go) sur R2..." -ForegroundColor Cyan
-aws s3 cp $zip.FullName "s3://$($env:R2_BUCKET)/$($zip.Name)" --endpoint-url $env:R2_ENDPOINT --no-progress
+aws s3 cp $zip.FullName "s3://$($env:R2_BUCKET)/$prefix/$($zip.Name)" --endpoint-url $env:R2_ENDPOINT --no-progress
 if ($LASTEXITCODE -ne 0) { throw "Televersement du zip echoue." }
 
 # le manifeste en dernier : l'app ne voit la nouvelle version qu'une fois le zip en place
 Write-Host "==> Televersement de assets.json" -ForegroundColor Cyan
-aws s3 cp $manifest "s3://$($env:R2_BUCKET)/assets.json" --endpoint-url $env:R2_ENDPOINT --content-type "application/json" --no-progress
+aws s3 cp $manifest "s3://$($env:R2_BUCKET)/$prefix/assets.json" --endpoint-url $env:R2_ENDPOINT --content-type "application/json" --no-progress
 if ($LASTEXITCODE -ne 0) { throw "Televersement du manifeste echoue." }
 
 Write-Host ""

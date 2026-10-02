@@ -18,7 +18,9 @@ namespace VPet_Simulator.Windows;
 /// </summary>
 public static class AssetService
 {
-    private const string DefaultBaseUrl = "https://pub-fe5cb60ed1c14f82a3895d2bc32929d5.r2.dev";
+    // Les assets sont rangés sous le préfixe « maxine-assets/ » dans le bucket R2 ; l'URL publique les sert donc
+    // depuis https://pub-….r2.dev/maxine-assets/… (voir packaging\upload-assets.ps1, qui téléverse sous ce préfixe).
+    private const string DefaultBaseUrl = "https://pub-fe5cb60ed1c14f82a3895d2bc32929d5.r2.dev/maxine-assets";
 
     /// <summary>Base publique du bucket R2 (lecture seule, aucune clé). Surchargeable par VMAX_ASSETS_BASEURL (tests).</summary>
     public static string BaseUrl =>
