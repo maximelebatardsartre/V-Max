@@ -48,6 +48,38 @@ public static class UpdateService
         });
     }
 
+    /// <summary>Vérification lancée à la main depuis les paramètres, avec un retour visible dans tous les cas</summary>
+    public static void CheckManually(MainWindow mw)
+    {
+        mw.Toast("Recherche d'une mise à jour…", HUD.HudToast.Kind.Info, 4);
+        _ = Task.Run(async () =>
+        {
+            try
+            {
+                var mgr = new UpdateManager(new GithubSource(RepositoryUrl, null, false));
+                if (!mgr.IsInstalled)
+                {
+                    await mw.Dispatcher.InvokeAsync(() => mw.Toast(
+                        "Les mises à jour automatiques fonctionnent sur la version installée (via l'installeur), pas sur ce build de développement.",
+                        HUD.HudToast.Kind.Info, 7));
+                    return;
+                }
+                var update = await mgr.CheckForUpdatesAsync();
+                if (update == null)
+                {
+                    await mw.Dispatcher.InvokeAsync(() => mw.Toast("Maxine est à jour. 🎉", HUD.HudToast.Kind.Success, 5));
+                    return;
+                }
+                var version = update.TargetFullRelease.Version.ToString();
+                await mw.Dispatcher.InvokeAsync(() => Offer(mw, mgr, update, version));
+            }
+            catch (Exception e)
+            {
+                await mw.Dispatcher.InvokeAsync(() => mw.Toast("Impossible de vérifier les mises à jour : " + e.Message, HUD.HudToast.Kind.Warning, 7));
+            }
+        });
+    }
+
     private static void Offer(MainWindow mw, UpdateManager mgr, UpdateInfo update, string version)
     {
         var answer = VDialog.Show(mw,

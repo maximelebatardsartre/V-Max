@@ -368,6 +368,31 @@ public partial class winVMaxSettings : Window
         return b;
     }
 
+    /// <summary>Encart explicatif pleine largeur, avec un bouton d'action facultatif</summary>
+    private FrameworkElement InfoNote(string text, string? buttonText = null, Action? action = null)
+    {
+        var sp = new StackPanel();
+        sp.Children.Add(new TextBlock
+        {
+            Text = text, TextWrapping = TextWrapping.Wrap, Foreground = (Brush)FindResource("PrimaryText"),
+            FontSize = 13, LineHeight = 20,
+        });
+        if (buttonText != null && action != null)
+        {
+            var b = new Button { Style = (Style)FindResource("VMaxAccentButton"), Content = buttonText, HorizontalAlignment = HorizontalAlignment.Left, Margin = new Thickness(0, 12, 0, 0), MinWidth = 120 };
+            b.Click += (_, _) => action();
+            sp.Children.Add(b);
+        }
+        var accent = ((SolidColorBrush)FindResource("DARKPrimary")).Color;
+        return new Border
+        {
+            CornerRadius = new CornerRadius(12), Padding = new Thickness(16, 14, 16, 14),
+            Background = new SolidColorBrush(Color.FromArgb(0x1E, accent.R, accent.G, accent.B)),
+            BorderBrush = new SolidColorBrush(Color.FromArgb(0x55, accent.R, accent.G, accent.B)), BorderThickness = new Thickness(1),
+            Child = sp,
+        };
+    }
+
     private FrameworkElement Link(string text, string url)
     {
         var tb = new TextBlock();
@@ -658,6 +683,17 @@ public partial class winVMaxSettings : Window
         Add("voix", "Réponses", "Débit", "",
             () => SliderRow(-5, 5, 1, () => mw.Voice?.Rate ?? 0, v => { if (mw.Voice != null) mw.Voice.Rate = (int)v; }, v => v == 0 ? T("Normal") : (v > 0 ? "+" : "") + v.ToString("0")));
 
+        Add("routines", "Comment ça marche", "À lire avant",
+            "",
+            () => InfoNote(
+                "Les routines donnent un rythme à Maxine : « à telle heure, va faire telle activité à tel endroit ». "
+                + "Pour que le lieu (Salon, Cuisine, Chambre…) ait un sens, le mode autonome doit être activé et son décor préparé :\n"
+                + "   1.  Active « Mode autonome » dans l'onglet Compagnon.\n"
+                + "   2.  Choisis un décor (ou garde ton fond d'écran).\n"
+                + "   3.  Dans l'éditeur de carte, trace les sols où Maxine marche, puis délimite les pièces et nomme-les.\n\n"
+                + "Sans carte tracée, Maxine suit quand même ses routines, mais sur place : elle ne se déplacera pas vers les pièces.",
+                T("Ouvrir les réglages du mode autonome"), () => OpenCategory("compagnon", false)),
+            fullWidth: true);
         Add("routines", "Routines de vie", "Activer les routines de vie avancées",
             "Chaque routine a une plage horaire : chaque jour, l'heure réelle est tirée au hasard dedans (12h14 un jour, 13h40 le lendemain). "
             + "Dans l'habitat, le compagnon se rend dans la pièce indiquée avant de commencer.",
@@ -762,6 +798,9 @@ public partial class winVMaxSettings : Window
             VersionTapper);
         Add("apropos", "V-Max", "Code source", "Le dépôt GitHub de V-Max.",
             () => Link(T("Dépôt GitHub"), ExtensionValue.RepositoryURL));
+        Add("apropos", "Mises à jour", "Rechercher une mise à jour",
+            "Maxine se met à jour toute seule au démarrage, à partir des versions publiées par Az. Tu peux aussi vérifier maintenant.",
+            () => ActionButton(T("Vérifier maintenant"), () => UpdateService.CheckManually(mw), accent: true));
         if (HUD.StudioWindow.Unlocked(mw))
         {
             Add("apropos", "Développement", "Studio des mods", "Aperçu des animations et tri des mods du catalogue. Raccourci : Ctrl+Maj+F12.",
