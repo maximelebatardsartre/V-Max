@@ -252,6 +252,13 @@ public sealed class HabitatWindow : Window
         if (save != null)
             mode.SaveMap(save);
         mode.SetEditing(false);
+        // bureau : si on annule ou qu'aucun sol n'a été tracé, on QUITTE proprement l'habitat (sinon la fenêtre et
+        // la bulle « Trace les sols » restaient affichées sans moyen de les fermer).
+        if (mode.DesktopDecor && mode.Map.Floors.Count == 0)
+        {
+            mode.Disable();
+            return;
+        }
         mode.Reproject();
         mode.PlacePet();
         RefreshTitle();
