@@ -1757,6 +1757,8 @@ namespace VPet_Simulator.Windows
                   {
                       ReportStartupError("La voix n'a pas pu démarrer.", ve.ToString());
                   }
+                  LocalAi = new Agent.LocalAiService(this);
+                  LocalAi.ResumeIfEnabled(); // relance l'IA locale en arrière-plan si elle était active
                   // V-Max HUD : la bulle de VPet est remplacée par la bulle flottante (même interface IMassageBar)
                   if (Main.MsgBar is MessageBar oldBar)
                   {

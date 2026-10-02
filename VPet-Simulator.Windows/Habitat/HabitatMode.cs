@@ -34,6 +34,7 @@ public sealed class HabitatMode
         {
             Window?.SaveBounds();
             mw.Voice?.Dispose();
+            mw.LocalAi?.Stop();
         };
     }
 

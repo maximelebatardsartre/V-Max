@@ -847,14 +847,19 @@ public partial class winVMaxSettings : Window
         Add("ia", "Agent V-Max", "Nouvelle conversation", "Oublie l'échange en cours (l'agent ne garde aucune mémoire après la fermeture de V-Max).",
             () => ActionButton(T("Effacer"), () => { agent?.ResetConversation(); Pulse(T("Conversation effacée")); }));
 
+        Add("ia", "IA locale", "IA locale (Llama 3.2)",
+            "Une petite IA qui tourne sur ton PC, sans clé et sans connexion. À la première activation, Maxine télécharge le modèle (~0,8 Go). Désactive-la pour libérer le processeur.",
+            LocalAiToggle, fullWidth: true);
         foreach (var provider in Agent.Providers.ProviderRouter.Catalog)
         {
             var p = provider;
+            if (p.Id == Agent.LocalAiService.ProviderId) continue; // géré par « IA locale » ci-dessus
             Add("ia", "IA connectées (bascule automatique)", p.Name, p.Tagline, () => ProviderEditor(p), fullWidth: true);
         }
         foreach (var provider in Agent.Providers.ProviderRouter.Catalog)
         {
             var p = provider;
+            if (p.Id == Agent.LocalAiService.ProviderId) continue;
             Add("ia", "Modèles", p.Name, p.Id == "gemini"
                     ? "« gemini-flash-latest » suit automatiquement le modèle rapide le plus récent."
                     : "Laisse vide pour un choix automatique (modèle gratuit compatible avec les actions).",
@@ -1284,6 +1289,56 @@ public partial class winVMaxSettings : Window
         line.Children.Add(export);
         line.Children.Add(import);
         return line;
+    }
+
+    /// <summary>Interrupteur de l'IA locale, avec le suivi du téléchargement et de l'état</summary>
+    private FrameworkElement LocalAiToggle()
+    {
+        var root = new StackPanel();
+        var toggle = new CheckBox
+        {
+            Style = (Style)FindResource("VMaxToggle"),
+            IsChecked = mw.LocalAi?.Enabled == true,
+            HorizontalAlignment = HorizontalAlignment.Left,
+        };
+        var status = new TextBlock { Margin = new Thickness(0, 10, 0, 0), FontSize = 12.5, Foreground = (Brush)FindResource("VMaxSubtleText"), TextWrapping = TextWrapping.Wrap, MaxWidth = 620 };
+        void SetStatus()
+        {
+            if (mw.LocalAi == null) { status.Text = ""; return; }
+            status.Text = mw.LocalAi.Running ? T("IA locale active — Maxine peut répondre hors ligne.")
+                : mw.LocalAi.Enabled ? T("IA locale en préparation…")
+                : mw.LocalAi.ModelReady ? T("Modèle déjà téléchargé. Active pour l'utiliser.")
+                : T("Non téléchargée. L'activer télécharge ~0,8 Go une seule fois.");
+        }
+        SetStatus();
+        if (mw.LocalAi != null)
+            mw.LocalAi.Progress += (text, frac) => Dispatcher.BeginInvoke(() =>
+            {
+                status.Text = frac >= 0 && frac < 1 ? text : text;
+            });
+        toggle.Checked += async (_, _) =>
+        {
+            if (mw.LocalAi == null) return;
+            toggle.IsEnabled = false;
+            status.Text = T("Préparation de l'IA locale…");
+            var err = await mw.LocalAi.EnableAsync();
+            toggle.IsEnabled = true;
+            if (err != null)
+            {
+                toggle.IsChecked = false;
+                mw.LocalAi.Disable();
+                Pulse(err);
+            }
+            SetStatus();
+        };
+        toggle.Unchecked += (_, _) =>
+        {
+            mw.LocalAi?.Disable();
+            SetStatus();
+        };
+        root.Children.Add(toggle);
+        root.Children.Add(status);
+        return root;
     }
 
     /// <summary>Liste des écrans détectés (nom, résolution, échelle, principal), avec rafraîchissement</summary>

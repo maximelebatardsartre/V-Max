@@ -124,6 +124,9 @@ public partial class MainWindow
     /// </summary>
     public Voice.VoiceService? Voice { get; private set; }
 
+    /// <summary>V-Max : IA locale native (Llama 3.2 via llama.cpp), activable dans Paramètres › IA</summary>
+    public Agent.LocalAiService? LocalAi { get; private set; }
+
 
     //public ChatGPTClient CGPTClient;
     public ImageResources ImageSources { get; set; } = new ImageResources();
