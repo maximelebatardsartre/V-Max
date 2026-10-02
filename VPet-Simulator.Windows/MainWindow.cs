@@ -2648,6 +2648,8 @@ namespace VPet_Simulator.Windows
                                   Habitat.Window?.QaHover(new Point(560, 520), qaHabitat.GetString("sel") ?? "f2");
                                   if (qaHabitat.GetString("detect") != null)
                                       Habitat.Window?.QaDetect();
+                                  if (qaHabitat.GetString("rooms") != null)
+                                      Habitat.Window?.QaSuggestRooms();
                               }
                           }).Task.Unwrap();
                           var trace = new System.Text.StringBuilder();

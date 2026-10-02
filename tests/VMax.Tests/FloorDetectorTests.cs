@@ -48,3 +48,33 @@ public class FloorDetectorTests
         Assert.Empty(FloorDetector.Detect(new byte[4], 2, 2));
     }
 }
+
+public class HabitatVisionTests
+{
+    private static HabitatMap Map() => new() { Image = new HabitatImage { Width = 2000, Height = 1000 }, PetHeight = 200 };
+
+    [Fact]
+    public void Reponse_json_avec_bloc_et_texte_autour()
+    {
+        var text = "Voici :\n```json\n{\"pieces\":[{\"nom\":\"Cuisine\",\"type\":\"kitchen\",\"x\":100,\"y\":500,\"largeur\":300,\"hauteur\":400},"
+                 + "{\"nom\":\"Grenier\",\"type\":\"attic\",\"x\":\"200\",\"y\":50,\"largeur\":600,\"hauteur\":150}]}\n```";
+        var rooms = VPet_Simulator.Windows.Habitat.HabitatVision.Parse(text, Map());
+        Assert.Equal(2, rooms.Count);
+        Assert.Equal(200, rooms[0].X);
+        Assert.Equal(500, rooms[0].Y);
+        Assert.Equal(600, rooms[0].Width);
+        Assert.Equal("kitchen", rooms[0].Tag);
+        Assert.Equal("other", rooms[1].Tag);   // type inconnu
+        Assert.Equal(400, rooms[1].X);         // nombre donné en texte
+    }
+
+    [Fact]
+    public void Reponses_invalides_ou_cadres_minuscules()
+    {
+        Assert.Empty(VPet_Simulator.Windows.Habitat.HabitatVision.Parse("désolé, je ne peux pas", Map()));
+        Assert.Empty(VPet_Simulator.Windows.Habitat.HabitatVision.Parse("{\"pieces\":[{\"nom\":\"X\",\"x\":10,\"y\":10,\"largeur\":3,\"hauteur\":3}]}", Map()));
+        var clamped = VPet_Simulator.Windows.Habitat.HabitatVision.Parse("{\"rooms\":[{\"name\":\"Jardin\",\"x\":900,\"y\":0,\"width\":400,\"height\":2000}]}", Map());
+        Assert.Equal(200, clamped[0].Width);   // ramené dans l'image
+        Assert.Equal(1000, clamped[0].Height);
+    }
+}

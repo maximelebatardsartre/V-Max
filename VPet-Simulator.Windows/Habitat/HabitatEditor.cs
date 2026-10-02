@@ -114,6 +114,7 @@ internal sealed class HabitatEditor
         row.Children.Add(IconButton("", "Rétablir (Ctrl+Y)", Redo));
         row.Children.Add(IconButton("", "Ajuster la vue (F)", FitView));
         row.Children.Add(IconButton("", "Détecter les sols automatiquement", DetectFloors));
+        row.Children.Add(IconButton("", "Suggérer les pièces avec l'IA (vision)", AskRoomSuggestions));
         row.Children.Add(Separator());
         var cancel = new Button { Style = (Style)win.FindResource("HudGhostButton"), Content = "Annuler", Margin = new Thickness(0, 0, 6, 0), ToolTip = "Quitter sans enregistrer" };
         cancel.Click += (_, _) => win.StopEditing(null);
@@ -613,6 +614,68 @@ internal sealed class HabitatEditor
         Render();
         Flash($"{found.Count} sol(s) proposé(s) : vérifie-les, ajuste ou supprime ceux qui ne vont pas (Ctrl+Z pour tout annuler).");
     }
+    private bool askingAi;
+
+    /// <summary>Demande l'accord avant d'envoyer l'image à l'IA</summary>
+    private void AskRoomSuggestions()
+    {
+        if (!HabitatVision.Available)
+        {
+            Flash("La suggestion des pièces utilise Gemini (vision) : ajoute une clé gratuite dans Paramètres › Intelligence artificielle.");
+            return;
+        }
+        selected = null;
+        askingAi = true;
+        Render();
+    }
+
+    /// <summary>Envoie l'image réduite à Gemini et ajoute les pièces proposées (annulable d'un Ctrl+Z)</summary>
+    internal async void SuggestRooms()
+    {
+        askingAi = false;
+        if (mode.Image == null)
+            return;
+        Flash("L'IA observe le décor…");
+        Render(withProps: true);
+        List<HabitatRoom> rooms;
+        try
+        {
+            var model = mode.MW.AgentPlugin?.Orchestrator.ModelOf("gemini");
+            rooms = await HabitatVision.SuggestRoomsAsync(mode.Image, work.Clone(), model, System.Threading.CancellationToken.None);
+        }
+        catch (Exception e)
+        {
+            Flash("Suggestion impossible : " + e.Message);
+            return;
+        }
+        // on n'ajoute pas ce qui recouvre déjà une pièce existante
+        var fresh = rooms.Where(r => !work.Rooms.Any(o => Overlap(o, r) > 0.5)).ToList();
+        if (fresh.Count == 0)
+        {
+            Flash(rooms.Count == 0 ? "L'IA n'a pas repéré de pièces dans ce décor." : "Les pièces proposées existent déjà.");
+            return;
+        }
+        Checkpoint();
+        foreach (var r in fresh)
+        {
+            r.Id = work.NewId("r");
+            work.Rooms.Add(r);
+            foreach (var s in work.Spots.Where(s => s.Room == null && work.Floor(s.Floor) is { } sf && r.Contains(s.X, sf.Y - 2)))
+                s.Room = r.Id;
+        }
+        selected = new Sel(Kind.Room, fresh[0].Id);
+        SetTool(Tool.Select);
+        Render();
+        Flash($"{fresh.Count} pièce(s) proposée(s) par l'IA : vérifie les cadres et les noms (Ctrl+Z pour tout annuler).");
+    }
+
+    /// <summary>Part de la plus petite pièce couverte par l'autre</summary>
+    private static double Overlap(HabitatRoom a, HabitatRoom b)
+    {
+        double w = Math.Max(0, Math.Min(a.X + a.Width, b.X + b.Width) - Math.Max(a.X, b.X));
+        double h = Math.Max(0, Math.Min(a.Y + a.Height, b.Y + b.Height) - Math.Max(a.Y, b.Y));
+        return w * h / Math.Max(1, Math.Min(a.Width * a.Height, b.Width * b.Height));
+    }
     #endregion
 
     #region Création
@@ -962,6 +1025,28 @@ internal sealed class HabitatEditor
 
     private void RenderProps()
     {
+        if (askingAi)
+        {
+            var ask = new StackPanel();
+            ask.Children.Add(new TextBlock { Text = "IA", Style = (Style)win.FindResource("HudEyebrow") });
+            ask.Children.Add(new TextBlock { Text = "Suggérer les pièces", Style = (Style)win.FindResource("HudTitle"), FontSize = 17, Margin = new Thickness(0, 0, 0, 8) });
+            ask.Children.Add(new TextBlock
+            {
+                Text = "Une copie réduite de l'image du décor sera envoyée à Google Gemini pour repérer les pièces. Rien d'autre n'est envoyé ; tu valides ensuite chaque cadre.",
+                FontSize = 12.5, Foreground = Res("HudTextMuted"), TextWrapping = TextWrapping.Wrap, Margin = new Thickness(0, 0, 0, 12),
+            });
+            var buttons = new StackPanel { Orientation = Orientation.Horizontal };
+            var go = new Button { Style = (Style)win.FindResource("HudPrimaryButton"), Content = "Envoyer", Margin = new Thickness(0, 0, 8, 0) };
+            go.Click += (_, _) => SuggestRooms();
+            var no = new Button { Style = (Style)win.FindResource("HudGhostButton"), Content = "Annuler" };
+            no.Click += (_, _) => { askingAi = false; Render(); };
+            buttons.Children.Add(go);
+            buttons.Children.Add(no);
+            ask.Children.Add(buttons);
+            props.Child = ask;
+            props.Visibility = Visibility.Visible;
+            return;
+        }
         if (selected == null || Find(selected.Id) == null)
         {
             props.Visibility = Visibility.Collapsed;

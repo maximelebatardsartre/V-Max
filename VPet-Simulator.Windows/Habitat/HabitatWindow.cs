@@ -172,6 +172,7 @@ public sealed class HabitatWindow : Window
 
     internal void QaHover(Point image, string? select) => editor?.QaHover(image, select);
     internal void QaDetect() => editor?.DetectFloors();
+    internal void QaSuggestRooms() => editor?.SuggestRooms();
 
     public void StartEditing()
     {
