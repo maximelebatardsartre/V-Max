@@ -24,6 +24,7 @@ public sealed class HudController
     private ChatPanel? chat;
     private StatusCard? status;
     private PantryPanel? pantry;
+    private InventoryPanel? inventory;
     private ActivitiesPanel? activities;
     private MorePanel? more;
     private HudSidePanel? openPanel;
@@ -118,13 +119,14 @@ public sealed class HudController
     /// </summary>
     public void ResetTheme()
     {
-        Window?[] all = [orbit, chat, status, pantry, activities, more];
+        Window?[] all = [orbit, chat, status, pantry, activities, more, inventory];
         foreach (var w in all)
             w?.Close();
         orbit = null;
         chat = null;
         status = null;
         pantry = null;
+        inventory = null;
         activities = null;
         more = null;
         openPanel = null;
@@ -141,6 +143,9 @@ public sealed class HudController
         chat.ToggleOpen();
     }
     public void OpenPantry() => Panel(ref pantry, () => new PantryPanel(mw)).Toggle();
+    /// <summary>Garde-manger ouvert directement sur une catégorie (anciens boutons « Manger », « Boire »…)</summary>
+    public void OpenPantry(Food.FoodType type) => Panel(ref pantry, () => new PantryPanel(mw)).ShowCategory(type);
+    public void OpenInventory() => Panel(ref inventory, () => new InventoryPanel(mw)).Toggle();
     public void OpenActivities() => Panel(ref activities, () => new ActivitiesPanel(mw)).Toggle();
     public void OpenStatus() => Panel(ref status, () => new StatusCard(mw)).Toggle();
     public void OpenMore() => Panel(ref more, () => new MorePanel(mw)).Toggle();

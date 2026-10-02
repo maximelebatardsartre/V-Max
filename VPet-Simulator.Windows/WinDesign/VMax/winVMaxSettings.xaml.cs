@@ -661,6 +661,21 @@ public partial class winVMaxSettings : Window
             "Les objets gardent leurs effets mais ne coûtent rien.",
             () => Toggle(() => mw.Sandbox?.FreeItems == true, v => { if (mw.Sandbox != null) mw.Sandbox.FreeItems = v; }));
 
+        Add("compagnon", "Économie", "Achat automatique",
+            "Quand il a faim ou soif et qu'il te reste au moins 100 $, il achète lui-même de quoi manger ou boire.",
+            () => Toggle(() => set.AutoBuy, v =>
+            {
+                if (v && mw.Core.Save!.Money < 100 && mw.Sandbox?.UnlimitedMoney != true)
+                {
+                    Pulse(T("Il faut au moins 100 $ pour l'achat automatique"));
+                    set.AutoBuy = false;
+                    return;
+                }
+                set.AutoBuy = v;
+            }));
+        Add("compagnon", "Économie", "Cadeaux automatiques", "Avec l'achat automatique, il s'offre aussi de temps en temps un cadeau.",
+            () => Toggle(() => set.AutoGift, v => set.AutoGift = v), advancedOnly: true);
+
         Add("compagnon", "Simulation", "Besoins du compagnon", "Faim, soif, humeur et endurance évoluent avec le temps. Désactive-les pour un simple fond d'écran animé, sans contrainte.",
             () => Toggle(() => set.EnableFunction, v =>
             {
