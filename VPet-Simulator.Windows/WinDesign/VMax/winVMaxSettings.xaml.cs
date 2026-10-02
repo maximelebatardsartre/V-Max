@@ -436,6 +436,8 @@ public partial class winVMaxSettings : Window
             () => Toggle(() => set.StartUPBoot, v => { set.StartUPBoot = v; StartupShortcut.Apply(mw); }));
         Add("general", "Démarrage", "Reprendre la dernière position", "Le compagnon réapparaît là où tu l'as laissé.",
             () => Toggle(() => set.StartRecordLast, v => set.StartRecordLast = v), advancedOnly: true);
+        Add("general", "Fenêtre", "Position de départ fixe", "Utilisée quand « Revenir à la dernière position » est désactivé.",
+            StartPointEditor, advancedOnly: true);
 
         Add("general", "Fenêtre", "Toujours au premier plan", "Le compagnon reste visible au-dessus des autres fenêtres.",
             () => Toggle(() => set.TopMost, v =>
@@ -556,13 +558,15 @@ public partial class winVMaxSettings : Window
 
         Add("compagnon", "Déplacements", "Se déplacer librement", "Le compagnon se promène, grimpe et explore ton bureau.",
             () => Toggle(() => set.AllowMove, v => set.SetAllowMove(v)));
-        var smartIntervals = new[] { 30, 60, 120, 300, 600, 1200 };
+        var smartIntervals = new[] { 30, 60, 120, 300, 600, 1200, 1800, 2400, 3000, 3600 };
         Add("compagnon", "Déplacements", "Déplacement intelligent", "Ne bouge que pendant un moment après ta dernière interaction.",
             () => Toggle(() => set.SmartMove, v => set.SetSmartMove(v)), advancedOnly: true);
         Add("compagnon", "Déplacements", "Durée du déplacement intelligent", "",
             () => Combo(smartIntervals.Select(s => s < 60 ? $"{s} s" : $"{s / 60} min").ToList(),
                 () => Math.Max(0, Array.IndexOf(smartIntervals, set.SmartMoveInterval)),
                 i => set.SetSmartMoveInterval(smartIntervals[i]), width: 140), advancedOnly: true);
+        Add("compagnon", "Déplacements", "Zone de déplacement", "Où le compagnon peut se promener en dehors de l'habitat.",
+            MoveAreaEditor, fullWidth: true, advancedOnly: true);
         Add("compagnon", "Déplacements", "Changer d'écran automatiquement", "Adapte la zone de déplacement à l'écran où tu déposes le compagnon.",
             () => Toggle(() => set.AutoChangeWindow, v => set.AutoChangeWindow = v), advancedOnly: true);
 
@@ -680,9 +684,13 @@ public partial class winVMaxSettings : Window
         Add("compagnon", "Simulation", "Fréquence des interactions spontanées", "Plus la valeur est basse, plus le compagnon agit de lui-même.",
             () => SliderRow(30, 1000, 10, () => set.InteractionCycle, v => set.InteractionCycle = (int)v, v => $"{v:0}"), advancedOnly: true);
         Add("compagnon", "Interactions", "Durée de l'appui long", "Temps d'appui avant de pouvoir soulever le compagnon.",
-            () => SliderRow(0.05, 2, 0.05, () => set.PressLength / 1000.0, v => set.PressLength = (int)(v * 1000), v => $"{v:0.00} s"), advancedOnly: true);
+            () => SliderRow(0.05, 5, 0.05, () => set.PressLength / 1000.0, v => set.PressLength = (int)(v * 1000), v => $"{v:0.00} s"), advancedOnly: true);
         Add("compagnon", "Interactions", "Sensibilité à la musique", "Volume à partir duquel le compagnon se met à danser.",
             () => SliderRow(0.02, 1, 0.01, () => set.MusicCatch, v => set.MusicCatch = v, v => $"{v * 100:0} %"), advancedOnly: true);
+        Add("compagnon", "Interactions", "Volume pour danser à fond", "Au-delà de ce volume, la danse devient plus énergique.",
+            () => SliderRow(0.02, 1, 0.01, () => set.MusicMax, v => set.MusicMax = v, v => $"{v * 100:0} %"), advancedOnly: true);
+        Add("compagnon", "Interactions", "Volume actuel", "Ce que le compagnon entend en ce moment : règle les deux seuils ci-dessus d'après cette valeur.",
+            MusicMeter, advancedOnly: true);
 
         // ---------------- IA
         DefineAgentSettings();
@@ -702,6 +710,13 @@ public partial class winVMaxSettings : Window
             () => ActionButton(T("Ouvrir le dossier"), () => Process.Start(new ProcessStartInfo(ExtensionValue.DataDirectory) { UseShellExecute = true })?.Dispose()),
             advancedOnly: true);
 
+        Add("sauvegardes", "Compagnons multiples", "Plusieurs compagnons",
+            "Chaque compagnon a ses propres réglages et sa propre sauvegarde, et peut tourner en même temps que les autres.",
+            MultiSaveEditor, fullWidth: true, advancedOnly: true);
+        Add("sauvegardes", "Zone sensible", "Recommencer de zéro",
+            "Efface la progression (niveau, argent, objets). Les statistiques sont gardées si la sauvegarde n'a jamais été modifiée.",
+            () => ActionButton(T("Recommencer…"), ResetGame), advancedOnly: true);
+
         // ---------------- Extensions
         Add("extensions", "Mods", "Gestion des mods", "Activer, désactiver et autoriser les mods et leurs plugins de code.",
             () => ActionButton(T("Gérer les mods"), () => mw.ShowLegacySetting(5), accent: true));
@@ -715,6 +730,17 @@ public partial class winVMaxSettings : Window
             () => Link(T("Dépôt GitHub"), ExtensionValue.RepositoryURL));
         Add("apropos", "V-Max", "Signaler un problème", "Prépare un rapport et ouvre un ticket GitHub.",
             () => ActionButton(T("Signaler"), () => new winReport(mw).Show()));
+        Add("apropos", "Diagnostic", "Calcul automatique des prix équitables",
+            "Corrige les objets et occupations des mods trop généreux. À désactiver seulement pour tester un mod.",
+            () => Toggle(() => !set["gameconfig"].GetBool("noAutoCal"), v => { set["gameconfig"].SetBool("noAutoCal", !v); NeedRestart(); }), advancedOnly: true);
+        Add("apropos", "Diagnostic", "Sauvegarde vérifiée",
+            mw.HashCheck ? "Oui : sauvegarde jamais modifiée et sans mod déséquilibré." : "Non : la sauvegarde a été modifiée ou un mod déséquilibré a été utilisé.",
+            () => new TextBlock { Text = mw.HashCheck ? "✓ " + T("Vérifiée") : T("Non vérifiée"), Foreground = (Brush)FindResource(mw.HashCheck ? "VMaxSubtleText" : "PrimaryText"), VerticalAlignment = VerticalAlignment.Center }, advancedOnly: true);
+        Add("apropos", "Crédits", "Auteurs des mods", "Les créateurs des mods installés.",
+            () => ActionButton(T("Voir la liste"), () => VDialog.Show(string.Join("\n", mw.CoreMODs.Select(m => m.Author).Where(a => !string.IsNullOrWhiteSpace(a)).Distinct().OrderBy(a => a)), T("Merci aux auteurs des mods"))), advancedOnly: true);
+        Add("apropos", "Crédits", "Bibliothèques utilisées", "Composants open source et bibliothèques chargées par les mods.",
+            () => ActionButton(T("Voir la liste"), () => VDialog.Show(string.Join("\n", ExtensionValue.DllReferenceDescriptions.Select(kv => kv.Key + " — " + kv.Value)
+                .Concat(CoreMOD.LoadedDLL.Select(d => d)).Distinct()), T("Bibliothèques"))), advancedOnly: true);
         Add("apropos", "Crédits", "Basé sur VPet",
             "V-Max est un fork de VPet (Virtual Pet Simulator) de LorisYounger et exLB.org, publié sous licence Apache 2.0.",
             () => Link("github.com/LorisYounger/VPet", ExtensionValue.UpstreamURL));
@@ -768,11 +794,9 @@ public partial class winVMaxSettings : Window
                     System.IO.File.WriteAllText(p, "");
                 Process.Start(new ProcessStartInfo(p) { UseShellExecute = true })?.Dispose();
             }), advancedOnly: true);
-        Add("ia", "Transparence", "L'agent répond aussi aux plugins de discussion",
-            "Utilise l'agent comme module de discussion de VPet (sinon, réponses intégrées ou plugin tiers).",
-            () => Toggle(() => Agent.VMaxAgentPlugin.IsActive(mw), v => Agent.VMaxAgentPlugin.Activate(mw, v)), advancedOnly: true);
-        Add("ia", "Transparence", "Module de discussion classique", "Réponses intégrées de VPet ou plugin de discussion tiers.",
-            () => ActionButton(T("Configurer"), () => mw.ShowLegacySetting(1)), advancedOnly: true);
+        Add("ia", "Compatibilité", "Module de discussion des mods",
+            "Qui répond quand un mod ou un plugin passe par la discussion de VPet. La discussion V-Max (anneau, Ctrl+Alt+Espace) utilise toujours l'agent.",
+            ChatModuleEditor, fullWidth: true, advancedOnly: true);
     }
 
     /// <summary>
@@ -890,6 +914,215 @@ public partial class winVMaxSettings : Window
         line.Children.Add(combo);
         line.Children.Add(refresh);
         return line;
+    }
+
+    private FrameworkElement MusicMeter()
+    {
+        var text = new TextBlock { Width = 140, FontFamily = new FontFamily("Cascadia Mono, Consolas"), VerticalAlignment = VerticalAlignment.Center, Foreground = (Brush)FindResource("PrimaryText") };
+        var timer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(200) };
+        timer.Tick += (_, _) =>
+        {
+            float v = mw.AudioPlayingVolume();
+            text.Text = $"{v * 100:0} %" + (v > mw.Set.MusicMax ? "  ♪♪" : v > mw.Set.MusicCatch ? "  ♪" : "");
+        };
+        text.Loaded += (_, _) => timer.Start();
+        text.Unloaded += (_, _) => timer.Stop();
+        return text;
+    }
+
+    private FrameworkElement MoveAreaEditor()
+    {
+        var root = new StackPanel();
+        var status = new TextBlock { Foreground = (Brush)FindResource("VMaxSubtleText"), FontSize = 12, Margin = new Thickness(0, 6, 0, 0) };
+        void Refresh()
+        {
+            if (mw.Core.Controller is not MWController c)
+                status.Text = T("Le mode habitat gère les déplacements.");
+            else if (mw.Set.AutoChangeWindow)
+                status.Text = T("Écran choisi automatiquement (là où tu poses le compagnon).");
+            else if (c.IsPrimaryScreen)
+                status.Text = T("Écran principal.");
+            else
+                status.Text = T("Zone personnalisée : ") + $"{c.ScreenBorder.X}, {c.ScreenBorder.Y} — {c.ScreenBorder.Width} × {c.ScreenBorder.Height}";
+        }
+        var line = new StackPanel { Orientation = Orientation.Horizontal };
+        var primary = (Button)ActionButton(T("Écran principal"), () => { (mw.Core.Controller as MWController)?.ResetScreenBorder(); Refresh(); });
+        var current = (Button)ActionButton(T("Écran du compagnon"), () => { (mw.Core.Controller as MWController)?.SetNowScreenActivate(); Refresh(); });
+        var custom = (Button)ActionButton(T("Zone personnalisée…"), () => new HUD.MoveAreaWindow(mw, Refresh).Show());
+        current.Margin = custom.Margin = new Thickness(8, 0, 0, 0);
+        line.Children.Add(primary);
+        line.Children.Add(current);
+        line.Children.Add(custom);
+        root.Children.Add(line);
+        root.Children.Add(status);
+        Refresh();
+        return root;
+    }
+
+    private FrameworkElement StartPointEditor()
+    {
+        var line = new StackPanel { Orientation = Orientation.Horizontal };
+        var x = (TextBox)TextField(() => mw.Set.StartRecordPoint.X.ToString("0"), v => { if (double.TryParse(v, out var d)) mw.Set.StartRecordPoint = new Point(d, mw.Set.StartRecordPoint.Y); }, "X", 80);
+        var y = (TextBox)TextField(() => mw.Set.StartRecordPoint.Y.ToString("0"), v => { if (double.TryParse(v, out var d)) mw.Set.StartRecordPoint = new Point(mw.Set.StartRecordPoint.X, d); }, "Y", 80);
+        y.Margin = new Thickness(8, 0, 0, 0);
+        var here = (Button)ActionButton(T("Position actuelle"), () =>
+        {
+            mw.Set.StartRecordPoint = new Point(mw.Left, mw.Top);
+            x.Text = mw.Left.ToString("0");
+            y.Text = mw.Top.ToString("0");
+        });
+        here.Margin = new Thickness(8, 0, 0, 0);
+        line.Children.Add(x);
+        line.Children.Add(y);
+        line.Children.Add(here);
+        return line;
+    }
+
+    private FrameworkElement ChatModuleEditor()
+    {
+        var root = new StackPanel();
+        var options = new List<(string type, string? api, string label)>
+        {
+            ("DIY", Agent.VMaxAgentPlugin.TalkName, T("Agent V-Max (IA)")),
+            ("LB", null, T("Réponses intégrées de VPet")),
+        };
+        foreach (var api in mw.TalkAPI.Where(a => a.APIName != Agent.VMaxAgentPlugin.TalkName))
+            options.Add(("DIY", api.APIName, T("Plugin : ") + api.APIName));
+        options.Add(("OFF", null, T("Désactivée")));
+        string curType = mw.Set["CGPT"][(gstr)"type"];
+        string curApi = mw.Set["CGPT"][(gstr)"DIY"];
+        int current = options.FindIndex(o => o.type == curType && (o.type != "DIY" || o.api == curApi));
+        var settingsButton = (Button)ActionButton(T("Réglages du plugin"), () => mw.TalkBoxCurr?.Setting());
+        settingsButton.Margin = new Thickness(8, 0, 0, 0);
+        void UpdateButton() => settingsButton.Visibility = mw.Set["CGPT"][(gstr)"type"] == "DIY" && mw.TalkBoxCurr != null && mw.TalkBoxCurr.APIName != Agent.VMaxAgentPlugin.TalkName ? Visibility.Visible : Visibility.Collapsed;
+        var combo = Combo(options.Select(o => o.label).ToList(), () => Math.Max(0, current), i =>
+        {
+            var o = options[i];
+            mw.RemoveTalkBox();
+            mw.Set["CGPT"][(gstr)"type"] = o.type;
+            if (o.type == "DIY")
+            {
+                mw.TalkAPIIndex = mw.TalkAPI.FindIndex(a => a.APIName == o.api);
+                mw.Set["CGPT"][(gstr)"DIY"] = o.api ?? "";
+                mw.LoadTalkDIY();
+            }
+            else if (o.type == "LB")
+            {
+                mw.TalkBox = new TalkSelect(mw);
+                mw.Main.ToolBar!.MainGrid.Children.Add(mw.TalkBox);
+            }
+            UpdateButton();
+        }, width: 300);
+        var line = new StackPanel { Orientation = Orientation.Horizontal };
+        line.Children.Add(combo);
+        line.Children.Add(settingsButton);
+        root.Children.Add(line);
+        UpdateButton();
+        return root;
+    }
+
+    private FrameworkElement MultiSaveEditor()
+    {
+        var root = new StackPanel();
+        var list = new StackPanel();
+        void Refresh()
+        {
+            list.Children.Clear();
+            foreach (var name in App.MutiSaves.ToList())
+            {
+                bool loaded = App.MainWindows.Any(w => w.PrefixSave.Trim('-') == name);
+                bool isDefault = name.Length == 0;
+                bool startup = isDefault ? !System.IO.Directory.EnumerateFiles(ExtensionValue.DataDirectory, "startup_*").Any()
+                    : System.IO.File.Exists(System.IO.Path.Combine(ExtensionValue.DataDirectory, "startup_" + name));
+                var row = new DockPanel { Margin = new Thickness(0, 0, 0, 6) };
+                var label = new TextBlock
+                {
+                    Text = (isDefault ? T("Compagnon principal") : name) + (loaded ? "  ·  " + T("ouvert") : "") + (startup ? "  ·  " + T("au démarrage") : ""),
+                    VerticalAlignment = VerticalAlignment.Center, Foreground = (Brush)FindResource("PrimaryText"),
+                };
+                var actions = new StackPanel { Orientation = Orientation.Horizontal };
+                var open = (Button)ActionButton(T("Ouvrir"), () =>
+                {
+                    if (App.MainWindows.Any(w => w.PrefixSave.Trim('-') == name)) { Pulse(T("Déjà ouvert")); return; }
+                    new MainWindow(name, mw).Show();
+                    Refresh();
+                });
+                open.IsEnabled = !loaded;
+                var def = (Button)ActionButton(T("Au démarrage"), () =>
+                {
+                    foreach (var sp in new System.IO.DirectoryInfo(ExtensionValue.DataDirectory).GetFiles("startup_*"))
+                        sp.Delete();
+                    if (name.Length > 0)
+                        System.IO.File.Create(System.IO.Path.Combine(ExtensionValue.DataDirectory, "startup_" + name)).Close();
+                    Refresh();
+                });
+                def.IsEnabled = !startup;
+                var del = (Button)ActionButton(T("Supprimer"), () =>
+                {
+                    if (VDialog.Show(T("Supprimer le compagnon « {0} » et ses réglages ? Cette action est définitive.").Replace("{0}", name), T("Supprimer un compagnon"),
+                            MessageBoxButton.YesNo, MessageBoxIcon.Warning) != MessageBoxResult.Yes)
+                        return;
+                    System.IO.File.Delete(System.IO.Path.Combine(ExtensionValue.DataDirectory, $"Setting-{name}.lps"));
+                    App.MutiSaves.Remove(name);
+                    Refresh();
+                });
+                del.IsEnabled = !isDefault && !loaded;
+                def.Margin = del.Margin = new Thickness(8, 0, 0, 0);
+                actions.Children.Add(open);
+                actions.Children.Add(def);
+                actions.Children.Add(del);
+                DockPanel.SetDock(actions, Dock.Right);
+                row.Children.Add(actions);
+                row.Children.Add(label);
+                list.Children.Add(row);
+            }
+        }
+        var create = new StackPanel { Orientation = Orientation.Horizontal, Margin = new Thickness(0, 6, 0, 0) };
+        var nameBox = (TextBox)TextField(() => "", _ => { }, T("Nom du nouveau compagnon"), 220);
+        var add = (Button)ActionButton(T("Créer"), () =>
+        {
+            var name = nameBox.Text.Trim();
+            if (name.Length == 0) return;
+            if (name.IndexOfAny(@"()#:|/\?*<>-".ToCharArray()) >= 0) { Pulse(T("Évite les symboles ( ) # : | / \\ ? * < > -")); return; }
+            if (App.MutiSaves.Any(x => string.Equals(x, name, StringComparison.OrdinalIgnoreCase))) { Pulse(T("Ce nom existe déjà")); return; }
+            var lps = new LPS(mw.Set);
+            lps.SetInt("savetimes", 0);
+            System.IO.File.WriteAllText(System.IO.Path.Combine(ExtensionValue.DataDirectory, $"Setting-{name}.lps"), lps.ToString());
+            App.MutiSaves.Add(name);
+            new MainWindow(name, mw).Show();
+            nameBox.Text = "";
+            Refresh();
+        }, accent: true);
+        add.Margin = new Thickness(8, 0, 0, 0);
+        create.Children.Add(nameBox);
+        create.Children.Add(add);
+        root.Children.Add(list);
+        root.Children.Add(create);
+        Refresh();
+        return root;
+    }
+
+    /// <summary>Recommencer de zéro (règle de VPet : les statistiques d'une sauvegarde jamais modifiée sont gardées)</summary>
+    private void ResetGame()
+    {
+        if (VDialog.Show(T("Effacer toute la progression de ton compagnon et recommencer de zéro ? Pense à faire une copie de secours si tu hésites."),
+                T("Recommencer de zéro"), MessageBoxButton.YesNo, MessageBoxIcon.Warning) != MessageBoxResult.Yes)
+            return;
+        var oldsave = mw.GameSavesData;
+        mw.GameSavesData = new GameSave_v2(mw.Core.Save!.Name);
+        mw.Core.Save = mw.GameSavesData.GameSave;
+        mw.GameSavesData.GameSave.Event_LevelUp += mw.LevelUP;
+        if (oldsave.HashCheck)
+        {
+            mw.GameSavesData.Statistics = oldsave.Statistics;
+            if (oldsave.GameSave.Money > 10000000 || oldsave.GameSave.Money < -1000000000 || oldsave.GameSave.Exp > 100000000 || oldsave.GameSave.Exp < -10000000000)
+            {
+                mw.Core.Save!.Money = 10000;
+                mw.Core.Save!.Exp = 10000;
+            }
+        }
+        mw.HashCheck = true;
+        Pulse(T("C'est reparti de zéro"));
     }
 
     private FrameworkElement VoicePicker()
