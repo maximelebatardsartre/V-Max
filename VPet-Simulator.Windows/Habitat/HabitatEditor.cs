@@ -221,6 +221,44 @@ internal sealed class HabitatEditor
         Render();
     }
 
+    /// <summary>
+    /// En multi-écrans « Span », trace des repères verticaux là où tombent les frontières entre écrans sur le décor.
+    /// Aide au tracé : tu vois où commence/finit chaque écran. Détecté automatiquement (aucune valeur en dur).
+    /// </summary>
+    private void DrawScreenGuides(Canvas o)
+    {
+        if (!mode.SpanScreens)
+            return;
+        System.Collections.Generic.List<Screens.ScreenDetail> ss;
+        try { ss = Screens.All(); } catch { return; }
+        if (ss.Count < 2)
+            return;
+        double minX = ss.Min(s => (double)s.X), maxX = ss.Max(s => (double)s.X + s.Width);
+        double vw = maxX - minX;
+        if (vw <= 0)
+            return;
+        double imgW = work.Image.Width, imgH = work.Image.Height;
+        var accent = Res("HudAccent");
+        foreach (var bx in ss.Select(s => (double)s.X + s.Width).Where(x => x < maxX - 1).Distinct())
+        {
+            double ix = (bx - minX) / vw * imgW;
+            o.Children.Add(new Line
+            {
+                X1 = ix, X2 = ix, Y1 = 0, Y2 = imgH, Stroke = accent, StrokeThickness = Px(1.5),
+                StrokeDashArray = new DoubleCollection { 6, 5 }, Opacity = 0.45, IsHitTestVisible = false,
+            });
+            var tag = new Border
+            {
+                Background = accent, CornerRadius = new CornerRadius(Px(7)), Opacity = 0.9, IsHitTestVisible = false,
+                Padding = new Thickness(Px(7), Px(2), Px(7), Px(3)),
+                Child = new TextBlock { Text = "bord d'écran", FontSize = Px(11), Foreground = Res("HudOnAccent") },
+            };
+            Canvas.SetLeft(tag, ix + Px(5));
+            Canvas.SetTop(tag, Px(6));
+            o.Children.Add(tag);
+        }
+    }
+
     #region Rendu
     private double Scale => Math.Max(0.0001, win.ViewProjection.ScaleY);
     private double Px(double screenPixels) => screenPixels / Scale;
@@ -239,6 +277,8 @@ internal sealed class HabitatEditor
         var silver = Res("HudSilver");
         var success = Res("HudSuccess");
         var surface = Res("HudSurface");
+
+        DrawScreenGuides(o);
 
         // pièces (sous tout le reste)
         foreach (var r in work.Rooms)
