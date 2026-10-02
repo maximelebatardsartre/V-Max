@@ -359,7 +359,20 @@ public sealed class HabitatMode
     internal void QaEnterDesktop(bool layer = false)
     {
         qaForceLayer = layer;
-        EnterDesktop(WindowMap, new Rect(0, 0, SystemParameters.PrimaryScreenWidth, SystemParameters.PrimaryScreenHeight), ImageFit.Fill, 1, topmost: !layer);
+        Rect bounds; ImageFit fit;
+        if (SpanScreens)
+        {// même logique que HabitatDesktop : couvre le bureau virtuel (tous les écrans)
+            var v = System.Windows.Forms.SystemInformation.VirtualScreen;
+            var m = System.Windows.PresentationSource.FromVisual(mw)?.CompositionTarget?.TransformFromDevice ?? System.Windows.Media.Matrix.Identity;
+            bounds = new Rect(m.Transform(new Point(v.Left, v.Top)), m.Transform(new Point(v.Right, v.Bottom)));
+            fit = ImageFit.Span;
+        }
+        else
+        {
+            bounds = new Rect(0, 0, SystemParameters.PrimaryScreenWidth, SystemParameters.PrimaryScreenHeight);
+            fit = ImageFit.Fill;
+        }
+        EnterDesktop(WindowMap, bounds, fit, 1, topmost: !layer);
         qaForceLayer = false;
     }
     private bool qaForceLayer;
