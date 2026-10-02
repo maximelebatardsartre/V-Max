@@ -104,6 +104,7 @@ public partial class MainWindow
     /// V-Max : options « bac à sable » (argent illimité, jauges figées, objets gratuits)
     /// </summary>
     public SandboxRules? Sandbox { get; private set; }
+
     public winBetterBuy? winBetterBuy { get; set; }
     public winGallery? winGallery { get; set; } 
     public winInventory? winInventory { get; set; }

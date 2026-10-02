@@ -2662,7 +2662,7 @@ namespace VPet_Simulator.Windows
                                   var p = Habitat!.Projection;
                                   var m = Habitat.Metrics;
                                   double s = ActualWidth;
-                                  trace.AppendLine($"{qi * 500 + 500}ms habitat={Habitat!.IsActive}{(Habitat.OnDesktop ? " (bureau)" : "")} intention={Life?.Current?.Label}{(Life?.Navigating == true ? " (trajet)" : "")} état={Main.State} graph={Main.DisplayType.Name}/{Main.DisplayType.Type} x={p.ToImageX(Left + s * m.CenterRatio):0} pieds={p.ToImageY(Top + s * m.FootRatio):0} zoom={Set.ZoomLevel:0.000} L={Core.Controller.GetWindowsDistanceLeft():0} R={Core.Controller.GetWindowsDistanceRight():0} D={Core.Controller.GetWindowsDistanceDown():0}");
+                                  trace.AppendLine($"{qi * 500 + 500}ms habitat={Habitat!.IsActive}{(Habitat.OnDesktop ? " (bureau)" : "")}{(Habitat.OnDesktop ? " [couche " + (Habitat.LayerAttached ? "oui" : "non") + " : " + Habitat.WallpaperLayer_Diagnostic + " ; enfant=" + VPet_Simulator.Windows.Habitat.WallpaperLayer.IsAttached(this) + " ; écran=" + VPet_Simulator.Windows.Habitat.WallpaperLayer.ScreenPosition(this) + "]" : "")} visible={IsVisible} left={Left:0} top={Top:0} intention={Life?.Current?.Label}{(Life?.Navigating == true ? " (trajet)" : "")} état={Main.State} graph={Main.DisplayType.Name}/{Main.DisplayType.Type} x={p.ToImageX(Left + s * m.CenterRatio):0} pieds={p.ToImageY(Top + s * m.FootRatio):0} zoom={Set.ZoomLevel:0.000} L={Core.Controller.GetWindowsDistanceLeft():0} R={Core.Controller.GetWindowsDistanceRight():0} D={Core.Controller.GetWindowsDistanceDown():0}");
                               });
                               if (int.TryParse(qaHabitat.GetString("snapat"), out var snapAt) && qi == snapAt)
                                   Dispatcher.Invoke(() => QaSnapshotComposite(Habitat!.Window!, new Window[] { this }, System.IO.Path.Combine(System.IO.Path.GetTempPath(), "vmax-qa-mid.png")));
@@ -2675,7 +2675,7 @@ namespace VPet_Simulator.Windows
                                       Life!.QaUse(book);
                                   });
                               if (qi == 3 && qaHabitat.GetString("desktop") != null)
-                                  Dispatcher.Invoke(() => Habitat!.QaEnterDesktop());
+                                  Dispatcher.Invoke(() => Habitat!.QaEnterDesktop(qaHabitat.GetString("layer") != null));
                               if (qi == 9 && qaHabitat.GetString("desktop") != null)
                                   Dispatcher.Invoke(() => Habitat!.ExitDesktop());
                               if (qi == 2 && qaHabitat.GetString("goto") is string qaPlace)

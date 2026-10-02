@@ -23,6 +23,7 @@
 		<UseWindowsForms>true</UseWindowsForms>
 		<ImportWindowsDesktopTargets>true</ImportWindowsDesktopTargets>
 		<ApplicationIcon>vpeticon.ico</ApplicationIcon>
+		<ApplicationManifest>app.manifest</ApplicationManifest>
 
 		<Platforms>x86;x64</Platforms>
 

@@ -15,6 +15,7 @@ namespace VPet_Simulator.Windows;
 /// </summary>
 public static class ScreenGuard
 {
+
     private static bool watching;
 
     public static void Watch(Dispatcher dispatcher)
@@ -36,6 +37,9 @@ public static class ScreenGuard
     public static bool EnsureOnScreen(Window w)
     {
         var hwnd = new WindowInteropHelper(w).Handle;
+        // fenêtre accrochée à la couche du fond d'écran : sa position est relative à l'hôte, le mode habitat s'en charge
+        if (Habitat.WallpaperLayer.IsAttached(hwnd))
+            return false;
         var src = PresentationSource.FromVisual(w);
         if (hwnd == IntPtr.Zero || src?.CompositionTarget == null || w.ActualWidth < 1)
             return false;

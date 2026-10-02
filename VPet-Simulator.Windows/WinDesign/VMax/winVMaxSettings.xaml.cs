@@ -598,6 +598,10 @@ public partial class winVMaxSettings : Window
             () => Combo(idleChoices.Select(m => m == 0 ? T("Jamais") : $"{m} min").ToList(),
                 () => Math.Max(0, Array.IndexOf(idleChoices, mw.Habitat?.IdleMinutes ?? 5)),
                 i => { if (mw.Habitat != null) mw.Habitat.IdleMinutes = idleChoices[i]; }, width: 140), advancedOnly: true);
+        Add("compagnon", "Habitat (mode autonome)", "Vivre dans le fond d'écran (expérimental)",
+            "Le compagnon vit en permanence sur ton fond d'écran, derrière les fenêtres, comme un fond d'écran animé (carte du fond d'écran requise). "
+            + "Il n'est alors plus cliquable : parle-lui avec Ctrl+Alt+Espace.",
+            () => Toggle(() => mw.Habitat?.WallpaperLayerEnabled == true, v => { if (mw.Habitat != null) mw.Habitat.WallpaperLayerEnabled = v; }), advancedOnly: true);
         Add("compagnon", "Habitat (mode autonome)", "Habitat toujours au premier plan", "Garde la fenêtre habitat au-dessus des autres fenêtres.",
             () => Toggle(() => mw.Habitat?.AlwaysOnTop == true, v => { if (mw.Habitat != null) mw.Habitat.AlwaysOnTop = v; }), advancedOnly: true);
 

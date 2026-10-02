@@ -433,7 +433,7 @@ Format (version 1) :
 |---|---|---|
 | **1. Fondations** ✅ | Modèle, projection, fenêtre habitat, locomotion et gravité sur les sols, éditeur des sols avec fantôme et taille du compagnon, réglages, taille à la volée | Le compagnon marche sur un sol tracé, suit la fenêtre quand on la déplace ou la redimensionne, retombe sur un sol quand on le lâche |
 | **2. Navigation** ✅ | Échelles (aimantation), chutes, A*, pièces, emplacements, routines de vie avancées (§11.7), bascule vers le bureau (Win+D, inactivité) | « Va dans la cuisine » fonctionne à travers deux étages |
-| **3. Extras** | Outils de l'agent, détection automatique des sols, suggestion des pièces par l'IA, partage, expérimentation de la couche du fond d'écran | — |
+| **3. Extras** ✅ | Outils de l'agent, détection automatique des sols, suggestion des pièces par l'IA, partage `.vmaxhome`, couche du fond d'écran (expérimentale), bac à sable, autonomie financière | Voir §11.8 |
 
 ### 11.7 Routines de vie avancées (décision du 2026-10-02)
 
@@ -451,3 +451,14 @@ Pas de tamagotchi qui mange à 12 h 00 pile : l'utilisateur compose le rythme de
 | **Lieux** | Les routines désignent des pièces par leur **nom** (puis par leur type) : elles sont indépendantes du décor, et un même rythme suit le compagnon d'un fond d'écran à l'autre. |
 
 Les jauges de VPet continuent d'évoluer : les routines ne les remplacent pas, elles décident **quand** et **où** le compagnon mange ou dort (et un repas de routine est un vrai repas, choisi parmi les favoris, payé selon les règles de la boutique).
+
+### 11.8 Étape 3 : ce qui a été construit et appris
+
+| Brique | Fonctionnement | Limites connues |
+|---|---|---|
+| **Détection des sols** | Ruptures horizontales sur une copie réduite en niveaux de gris ; segments continus ; on garde le dessus d'une planche, pas le plafond de la pièce du bas. Propositions annulables d'un Ctrl+Z. | Propose aussi des bords qui ne sont pas des sols (bas d'un toit, étagère) : l'utilisateur valide. |
+| **Pièces par l'IA** | Image réduite (1024 px) + sols tracés envoyés à Gemini (vision) après accord explicite ; réponse JSON en millièmes convertie en pièces. | Nécessite une clé Gemini ; les autres fournisseurs gratuits n'ont pas la vision dans V-Max. |
+| **Partage `.vmaxhome`** | Zip : manifeste, carte, image. À l'import : empreinte vérifiée, noms de fichiers simples uniquement, aucun chemin local exporté. | Droits sur les images : rappel affiché à l'export. |
+| **Couche du fond d'écran** | Fenêtre du compagnon enfant du `WorkerW` qui dessine le fond d'écran. Deux structures gérées : avant 24H2 (WorkerW de premier niveau) et 24H2+ (WorkerW enfant de Progman). | Plus cliquable (la vue des icônes reçoit les clics) ; WPF convertit mal la position d'une fenêtre enfant quand l'hôte a une origine non nulle (écran à gauche du principal) : corrigé en interceptant `WM_WINDOWPOSCHANGING`. Manifeste « Windows 8+ » requis pour les fenêtres transparentes enfants. |
+| **Bac à sable** | Argent illimité (vraie somme mise de côté), jauges qui ne baissent jamais (accroche `FunctionSpendHandle`), objets gratuits. | — |
+| **Routines plus humaines** | Fréquence (certains jours), « seulement s'il en a besoin », respiration entre deux routines, il traîne après un repas, autonomie financière (fauché → travail). | — |

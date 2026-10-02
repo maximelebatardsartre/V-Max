@@ -54,6 +54,24 @@ internal sealed class HabitatDesktop
         var fg = Foreground();
         if (!mode.OnDesktop)
         {
+            // expérimental : il vit en permanence dans le fond d'écran, derrière les fenêtres
+            if (mode.WallpaperLayerEnabled)
+            {
+                var layerMap = WallpaperMap();
+                if (layerMap != null)
+                {
+                    forIdle = false;
+                    mode.EnterDesktop(layerMap, MonitorBounds(), WallpaperInfo.CurrentFit(), PixelToDip(), topmost: false);
+                    if (!mode.LayerAttached)
+                    {
+                        // échec de l'accroche : on n'insiste pas, retour au fonctionnement normal
+                        mode.WallpaperLayerEnabled = false;
+                        mode.ExitDesktop();
+                        mw.Toast("La couche du fond d'écran n'est pas accessible : " + WallpaperLayer.Diagnostic, HUD.HudToast.Kind.Warning, 8);
+                    }
+                }
+                return;
+            }
             if (fg == Fg.Desktop || idle)
             {
                 var map = WallpaperMap();
@@ -64,6 +82,8 @@ internal sealed class HabitatDesktop
             }
             return;
         }
+        if (mode.LayerAttached)
+            return; // dans le fond d'écran, il y reste
         // retour dans l'habitat : activité reprise (inactivité) ou une application au premier plan (Win+D)
         if (forIdle ? IdleTime() < TimeSpan.FromSeconds(2) : fg == Fg.OtherApp)
             mode.ExitDesktop();

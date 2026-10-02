@@ -78,6 +78,24 @@ public sealed class HabitatMode
         set => Cfg.SetBool("desktop_off", !value);
     }
 
+    /// <summary>Expérimental : vivre en permanence dans la couche du fond d'écran, derrière les fenêtres</summary>
+    public bool WallpaperLayerEnabled
+    {
+        get => Cfg.GetBool("wallpaper_layer");
+        set
+        {
+            Cfg.SetBool("wallpaper_layer", value);
+            if (!value && OnDesktop && layerAttached)
+                ExitDesktop();
+        }
+    }
+
+    internal string WallpaperLayer_Diagnostic => WallpaperLayer.Diagnostic;
+
+    /// <summary>Le compagnon est accroché à la couche du fond d'écran</summary>
+    public bool LayerAttached => layerAttached;
+    private bool layerAttached;
+
     /// <summary>Minutes d'inactivité avant de sortir sur le bureau (0 = jamais)</summary>
     public int IdleMinutes
     {
@@ -318,8 +336,13 @@ public sealed class HabitatMode
     [System.Runtime.InteropServices.DllImport("user32.dll")] private static extern bool ShowWindow(IntPtr hWnd, int nCmdShow);
 
     /// <summary>QA : passe sur le bureau avec la carte de l'habitat, sur l'écran principal</summary>
-    internal void QaEnterDesktop() =>
-        EnterDesktop(WindowMap, new Rect(0, 0, SystemParameters.PrimaryScreenWidth, SystemParameters.PrimaryScreenHeight), ImageFit.Fill, 1, topmost: true);
+    internal void QaEnterDesktop(bool layer = false)
+    {
+        qaForceLayer = layer;
+        EnterDesktop(WindowMap, new Rect(0, 0, SystemParameters.PrimaryScreenWidth, SystemParameters.PrimaryScreenHeight), ImageFit.Fill, 1, topmost: !layer);
+        qaForceLayer = false;
+    }
+    private bool qaForceLayer;
 
     #region Bureau (Win+D, inactivité)
     private Func<HabitatProjection> desktopProjection = () => HabitatProjection.Identity;
@@ -343,6 +366,12 @@ public sealed class HabitatMode
         // Windows masque les fenêtres possédées avec leur propriétaire réduit (Win+D) : on réaffiche le compagnon sans voler le focus
         ShowWindow(new System.Windows.Interop.WindowInteropHelper(mw).Handle, 4 /* SW_SHOWNOACTIVATE */);
         mw.Topmost = topmost;
+        // expérimental : le compagnon passe dans la couche du fond d'écran, derrière les fenêtres
+        if ((WallpaperLayerEnabled || qaForceLayer) && !topmost && WallpaperLayer.Attach(mw))
+        {
+            // Left/Top restent en coordonnées écran (WallpaperLayer corrige la conversion vers l'hôte)
+            layerAttached = true;
+        }
         if (!sameMap)
         {
             petX = double.NaN;
@@ -350,6 +379,8 @@ public sealed class HabitatMode
         }
         Reproject();
         PlacePet();
+        if (layerAttached)
+            WallpaperLayer.Note($"posé Left={mw.Left:0} (projection {Projection.OffsetX:0}+{Projection.ScaleX:0.000}x), à l'écran {WallpaperLayer.ScreenPosition(mw)}");
         Changed?.Invoke();
     }
 
@@ -361,6 +392,11 @@ public sealed class HabitatMode
         mw.Life?.Cancel(null);
         Leash = null;
         bool sameMap = Map == WindowMap;
+        if (layerAttached)
+        {
+            WallpaperLayer.Detach(mw);
+            layerAttached = false;
+        }
         OnDesktop = false;
         Map = WindowMap;
         desktopTopmost = false;
