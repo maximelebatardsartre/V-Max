@@ -45,6 +45,22 @@ python tools/mods/translate.py --verdicts garder,integrer # seulement les mods r
   - les variables `{0}`, `{name}` et `/n` sont vérifiées sur chaque réponse.
 - **Reprise sans frais** : `tm.fr.json` mémorise ce qui est déjà traduit, une relance ne repaie rien.
 
+## Traduction complète en français (dialogues et descriptions)
+
+Les **noms** (occupations, aliments, mods) sont déjà traduits à la main (`fr_names.py`). Pour traduire le **reste**
+(dialogues des bulles, descriptions d'aliments) en français naturel avec Gemini :
+
+1.  Enregistre ta clé Gemini dans V-Max : **Paramètres › IA**, colle ta clé sur « Google Gemini ».
+2.  Lance la traduction, puis l'application :
+
+```
+python tools/mods/translate.py          # traduit dialogues + descriptions (coût affiché ; reprise gratuite)
+python tools/mods/apply_translations.py  # écrit les lang/fr dans chaque mod → plus aucun chinois
+```
+
+`apply_translations.py` affiche « aucun texte chinois restant » quand tout est couvert. Les mods traduits sont
+ensuite inclus dans l'installeur par `packaging/pack.ps1` (dossier « mods-inclus », chargé et actif d'office).
+
 ## Mesurer le démarrage avec ces mods (développement)
 
 ```

@@ -44,6 +44,20 @@ New-Item -ItemType Directory -Force -Path (Split-Path $modDst) | Out-Null
 robocopy $modSrc $modDst /E /NFL /NDL /NJH /NJS /NP | Out-Null
 if ($LASTEXITCODE -ge 8) { throw "La copie de mod/0000_core a échoué." }
 
+# Mods du Workshop traduits, livrés avec l'installeur (chargés et actifs d'office via « mods-inclus »)
+$bundledSrc = Join-Path $env:APPDATA "V-Max\mods"
+if (Test-Path $bundledSrc) {
+    Write-Host "==> Copie des mods inclus (activités traduites)" -ForegroundColor Cyan
+    $bundledDst = Join-Path $publish "mods-inclus"
+    New-Item -ItemType Directory -Force -Path $bundledDst | Out-Null
+    robocopy $bundledSrc $bundledDst /E /NFL /NDL /NJH /NJS /NP | Out-Null
+    if ($LASTEXITCODE -ge 8) { throw "La copie des mods inclus a échoué." }
+    $n = (Get-ChildItem $bundledDst -Directory).Count
+    Write-Host "    $n mods inclus"
+} else {
+    Write-Host "==> Aucun mod inclus (dossier $bundledSrc absent) — installeur de base" -ForegroundColor Yellow
+}
+
 Write-Host "==> Fabrication de l'installeur Velopack ($Version)" -ForegroundColor Cyan
 New-Item -ItemType Directory -Force -Path $releases | Out-Null
 vpk pack `

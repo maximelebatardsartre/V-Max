@@ -59,9 +59,14 @@ public partial class MainWindow
     /// </summary>
     public static string UserModsDir => System.IO.Path.Combine(ExtensionValue.DataDirectory, "mods");
 
-    /// <summary>Dossiers de mods chargés en plus du dossier d'installation (mods de l'utilisateur et imports du Studio)</summary>
+    /// <summary>
+    /// Dossiers de mods chargés en plus du dossier d'installation et actifs d'office :
+    /// « mods-inclus » livré avec l'installeur (mods traduits fournis par défaut), les mods ajoutés par
+    /// l'utilisateur (%APPDATA%\V-Max\mods) et les imports du Studio.
+    /// </summary>
     public static System.Collections.Generic.IEnumerable<string> UserModRoots =>
     [
+        System.IO.Path.Combine(ExtensionValue.BaseDirectory, "mods-inclus"),
         UserModsDir,
         System.IO.Path.Combine(ExtensionValue.DataDirectory, "studio", "mods"),
     ];

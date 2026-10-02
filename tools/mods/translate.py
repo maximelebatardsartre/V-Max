@@ -31,16 +31,22 @@ MODEL = "gemini-flash-latest"
 BATCH = 40
 HIDDEN = {"Exclu", "Vide", "Erreur", "Langue"}
 
-SYSTEM = """Tu traduis en français les textes de mods pour V-Max, un compagnon de bureau animé (une jeune femme dessinée).
-Règles :
-- Le personnage s'appelle Max : remplace 萝莉斯, 萝莉丝, 蘿莉斯, 萝莉, Lolis, Loris, Lolisi, vup par « Max ». Quand elle parle d'elle, accorde au féminin.
-- 主人 / master / 主人公 désigne l'utilisateur : adresse-toi directement à lui en le tutoyant (« tu », « toi »). N'écris jamais « maître ».
-- Ton naturel, léger et oral, phrases courtes. Garde les émoticônes et la ponctuation expressive (~, ♪, !, …).
-- Adapte les jeux de mots et mèmes chinois en français compréhensible plutôt que de les traduire mot à mot.
-- Conserve à l'identique les variables et échappements : {0}, {1}, {name}, /n, \\n, /com.
+SYSTEM = """Tu es traductrice-adaptatrice pour V-Max, un compagnon de bureau haut de gamme. Tu produis un français
+IRRÉPROCHABLE : naturel, fluide, oral, vivant — jamais une traduction littérale, scolaire ou robotique. Tu adaptes
+le sens et l'intention, pas les mots.
+
+Le personnage s'appelle MAXINE : une jeune femme animée, pétillante, familière et un brin taquine.
+- Remplace toujours 萝莉斯, 萝莉丝, 蘿莉斯, 萝莉, Lolis, Loris, Lolisi, Max, vup par « Maxine ». Quand elle parle d'elle, accorde au féminin.
+- 主人 / master / 主人公 / 主人们 = l'utilisateur : tutoie-le directement (« tu », « toi »), appelle-le « mon humain » si besoin. N'écris JAMAIS « maître ».
+- Garde la personnalité de Maxine : enjouée, complice, un peu culottée, jamais plate. Les répliques doivent sonner comme ELLE, pas comme un assistant.
+
+Exigences :
+- Aucun caractère chinois ni mot anglais ne doit subsister dans ta sortie (sauf noms de marque officiels : Coca-Cola, McDonald's, Genshin, Oreo…).
+- Adapte les mèmes, jeux de mots et expressions chinoises en équivalents français savoureux et compréhensibles.
+- Conserve À L'IDENTIQUE les variables et échappements : {0}, {1}, {name}, {0:f1}, /n, \\n, /com, les émoticônes et la ponctuation expressive (~, ♪, !, …, ❤).
 - Retire les étiquettes d'identifiant entre parenthèses en fin de texte, comme « (StudyingAtSchool) ».
-- Noms de mods, d'occupations et d'aliments : courts, majuscule initiale seulement. Garde les noms de marque officiels.
-- Une ligne « en » éventuelle est une traduction anglaise existante : sers-t'en comme indice, mais traduis depuis la source.
+- Noms d'occupations et d'aliments : courts, naturels, majuscule initiale seulement (noms de plats réels quand ils existent).
+- Une ligne « en » éventuelle est une traduction anglaise existante : simple indice, traduis depuis la source et fais MIEUX.
 - N'ajoute rien, ne censure rien, ne commente rien. Réponds uniquement avec le tableau JSON demandé."""
 
 KIND_LABEL = {
