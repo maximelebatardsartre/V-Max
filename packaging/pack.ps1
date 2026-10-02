@@ -2,11 +2,11 @@
     V-Max — fabrication de l'installeur et d'une release (Velopack).
 
     Usage :
-        pwsh packaging/pack.ps1 -Version 1.0.0            # fabrique l'installeur dans packaging/releases
-        pwsh packaging/pack.ps1 -Version 1.0.1 -Upload    # fabrique ET publie la release sur GitHub
+        powershell -ExecutionPolicy Bypass -File packaging\pack.ps1 -Version 1.0.0   # fabrique l'installeur dans packaging/releases
+        powershell -ExecutionPolicy Bypass -File packaging\pack.ps1 -Version 1.0.1 -Upload   # fabrique ET publie la release sur GitHub
 
     Produit :
-        packaging/releases/MaxineSetup.exe   installeur « un clic »
+        packaging/releases/Maxine-win-Setup.exe installeur « un clic »
         packaging/releases/*.nupkg + RELEASES fichiers lus par l'auto-update
 
     Prérequis (une fois) :
@@ -53,11 +53,13 @@ vpk pack `
     --packVersion $Version `
     --packDir $publish `
     --mainExe Maxine.exe `
+    --runtime $Runtime `
     --icon $icon `
     --outputDir $releases
 if ($LASTEXITCODE -ne 0) { throw "vpk pack a échoué." }
 
-Write-Host "Installeur prêt : $(Join-Path $releases 'MaxineSetup.exe')" -ForegroundColor Green
+$setup = Get-ChildItem $releases -Filter "*Setup.exe" | Select-Object -First 1
+Write-Host "Installeur prêt : $($setup.FullName)" -ForegroundColor Green
 
 if ($Upload) {
     if (-not $env:GITHUB_TOKEN) { throw "Définis GITHUB_TOKEN (jeton GitHub avec le droit 'repo') pour publier." }

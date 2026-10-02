@@ -52,6 +52,19 @@ public partial class MainWindow
 
     /// <summary>V-Max : nom du compagnon pour une nouvelle partie (valeur de base, modifiable ensuite par l'utilisateur)</summary>
     public const string DefaultPetName = "Maxine";
+
+    /// <summary>
+    /// V-Max : dossier où atterrissent les mods ajoutés par l'utilisateur (Studio : import et « Intégrer au jeu »).
+    /// Dans %APPDATA%\V-Max\mods, donc hors du dossier d'installation : ces mods survivent aux mises à jour.
+    /// </summary>
+    public static string UserModsDir => System.IO.Path.Combine(ExtensionValue.DataDirectory, "mods");
+
+    /// <summary>Dossiers de mods chargés en plus du dossier d'installation (mods de l'utilisateur et imports du Studio)</summary>
+    public static System.Collections.Generic.IEnumerable<string> UserModRoots =>
+    [
+        UserModsDir,
+        System.IO.Path.Combine(ExtensionValue.DataDirectory, "studio", "mods"),
+    ];
     /// <summary>
     /// V-Max: Steam retiré. Conservé pour compatibilité des plugins (toujours false).
     /// </summary>

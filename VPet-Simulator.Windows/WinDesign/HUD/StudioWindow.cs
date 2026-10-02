@@ -641,7 +641,41 @@ public sealed class StudioWindow : HudWindow
         {
             Notify("Verdict non enregistré : " + e.Message, HudToast.Kind.Warning);
         }
+        if (value == "integrer")
+            Integrate(m);
         RefreshList();
+    }
+
+    /// <summary>
+    /// « Intégrer au jeu » : copie le mod dans le dossier des mods de l'utilisateur (%APPDATA%\V-Max\mods) pour
+    /// qu'il soit chargé au prochain démarrage et peuple les activités et attitudes de Maxine.
+    /// </summary>
+    private void Integrate(StudioMod m)
+    {
+        try
+        {
+            var dest = Path.Combine(MainWindow.UserModsDir, m.Id);
+            if (Path.GetFullPath(m.Source).TrimEnd('\\').Equals(Path.GetFullPath(dest).TrimEnd('\\'), StringComparison.OrdinalIgnoreCase))
+                return; // déjà chargé depuis le dossier de l'utilisateur
+            Directory.CreateDirectory(MainWindow.UserModsDir);
+            if (Directory.Exists(dest))
+                Directory.Delete(dest, true);
+            CopyDir(new DirectoryInfo(m.Source), new DirectoryInfo(dest));
+            Notify($"« {DisplayName(m)} » sera actif au prochain démarrage de Maxine.", HudToast.Kind.Success);
+        }
+        catch (Exception e)
+        {
+            Notify("Intégration impossible : " + e.Message, HudToast.Kind.Warning);
+        }
+    }
+
+    private static void CopyDir(DirectoryInfo source, DirectoryInfo dest)
+    {
+        dest.Create();
+        foreach (var f in source.GetFiles())
+            f.CopyTo(Path.Combine(dest.FullName, f.Name), true);
+        foreach (var d in source.GetDirectories())
+            CopyDir(d, new DirectoryInfo(Path.Combine(dest.FullName, d.Name)));
     }
 
     private void OnKey(object sender, KeyEventArgs e)

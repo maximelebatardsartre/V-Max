@@ -16,10 +16,10 @@ puis `setx GITHUB_TOKEN "ghp_..."` (rouvre le terminal ensuite).
 ## Fabriquer un installeur
 
 ```powershell
-pwsh packaging/pack.ps1 -Version 1.0.0
+powershell -ExecutionPolicy Bypass -File packaging\pack.ps1 -Version 1.0.0
 ```
 
-Ça produit `packaging/releases/MaxineSetup.exe` : un installeur autonome (le runtime .NET 10 est inclus,
+Ça produit `packaging/releases/Maxine-win-Setup.exe` : un installeur autonome (le runtime .NET 10 est inclus,
 aucun prérequis), qui installe pour l'utilisateur courant, crée le raccourci bureau et lance Maxine.
 La case « Me lancer au démarrage de Windows » est proposée, cochée, dans la carte d'accueil au premier lancement.
 
@@ -32,7 +32,7 @@ La case « Me lancer au démarrage de Windows » est proposée, cochée, dans la
 Quand tu veux corriger un bug ou ajouter une vanne, incrémente la version et publie :
 
 ```powershell
-pwsh packaging/pack.ps1 -Version 1.0.1 -Upload
+powershell -ExecutionPolicy Bypass -File packaging\pack.ps1 -Version 1.0.1 -Upload
 ```
 
 Au prochain lancement sur le PC d'un ami, Maxine voit la nouvelle release, propose « Mise à jour disponible »,
