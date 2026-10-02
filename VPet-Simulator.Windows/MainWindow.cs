@@ -1948,7 +1948,7 @@ namespace VPet_Simulator.Windows
                           var itm = new Item()
                           {
                               Name = "球拍",
-                              Desc = "老板牌的最新款碳纤维球拍. 内置辅助动力, 让您可以轻松用出\"零式发球\"\"天衣无缝\"等球技\n你刚刚说了，网球?".Translate(),
+                              Desc = "La toute dernière raquette en carbone de chez Boss. Propulsion intégrée : tu sors des services canon et des coups imparables sans effort.\nTu as dit… tennis ?".Translate(),
                               ItemType = "Toy",
                               Price = 100,
                               IsSingle = true,
@@ -2513,7 +2513,7 @@ namespace VPet_Simulator.Windows
                       var errstr = string.Join("\n------\n", Main.ErrorMessage);
                       if (errstr.Contains("0000_core"))
                       {
-                          VDialog.Show("动画加载错误,请尝试以下解决方法修复问题:\n\t1. 删除游戏根目录`Cache`文件夹\n\t2. 删除游戏根目录`mod\\0000_core\\pet`文件夹".Translate(), "动画加载错误".Translate());
+                          VDialog.Show("Erreur de chargement des animations. Essaie ceci pour réparer :\n\t1. Supprime le dossier `Cache` à la racine du jeu\n\t2. Supprime le dossier `mod\\0000_core\\pet` à la racine du jeu".Translate(), "动画加载错误".Translate());
                           ShowReport(errstr, "动画加载错误".Translate());
                       }
                       else
