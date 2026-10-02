@@ -82,6 +82,8 @@ Aujourd'hui, tout transite par `MainWindow` (une classe de 4 224 lignes) et par 
 
 ## 3. Ponts OS ↔ statistiques du compagnon
 
+> **Abandonné (décision du 2026-10-02).** L'état du PC (batterie, processeur, heures d'usage) ne pilotera pas les jauges du compagnon : sa vie reste gouvernée par ses besoins, ses routines et son habitat. La section est conservée pour mémoire.
+
 VPet simule faim, soif, humeur et endurance avec des règles internes (`MainLogic.FunctionSpend`, `MainLogic.cs:234-427`). V-Max peut **relier ces jauges à la réalité de la machine**, de sorte que le personnage devient un tableau de bord vivant.
 
 ### 3.1 Sources de métriques
@@ -341,7 +343,7 @@ L'agent ne doit pas être branché sur les fondations actuelles sans ces correct
 | Phase | Contenu | Critère de sortie |
 |---|---|---|
 | **v1.0 (étape 4)** | Interface 2026 (overlays en verre dépoli, paramètres Basic/Advanced, micro-animations, thème système), corrections de performances au repos, socle P0/P1 (hôte, bus, secrets, données dans `%APPDATA%`), `PetStateController`, `IChatProvider` Gemini en texte avec streaming, 5 outils à faible risque (média, applications, web, minuteur, état du compagnon) | CPU au repos inférieur à 1 %, première réponse visible en moins de 1,5 s, aucune action sensible sans confirmation |
-| **v1.1** | `MetricsService` et `StatsBridge` (modes Compagnon et Miroir), notifications Windows, palette de commandes, journal d'audit | Les jauges réagissent à la batterie et au CPU |
+| **v1.1** | ~~`MetricsService` et `StatsBridge`~~ (abandonné), notifications Windows, palette de commandes, journal d'audit ✅ | — |
 | **v1.2** | Voix : raccourci *push-to-talk*, Whisper, TTS fr-FR ; puis « Hey Max » (openWakeWord) en bêta | Moins d'un faux positif par heure sur le jeu de test |
 | **v1.3** | Routines PowerShell déclarées, recherche de fichiers, mémoire, vision d'écran, client MCP | Sécurité revue, tests d'injection de prompt |
 | **v2** | Animations dédiées (`listen`, `search`, `act`, `confused`), Gemini Live (conversation continue), marketplace de packs | — |
