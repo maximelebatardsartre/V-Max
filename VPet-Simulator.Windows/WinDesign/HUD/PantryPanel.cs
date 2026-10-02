@@ -239,27 +239,13 @@ public sealed class PantryPanel : HudSidePanel
 
     private void Give(Food item)
     {
-        var save = Pet.Core.Save!;
-        if (Pet.Set.EnableFunction)
+        var error = PetCare.Feed(Pet, item, interactive: true);
+        if (error != null)
         {
-            // crédit autorisé sous 1 000 $ (règle de VPet), sauf objets à forte expérience
-            if ((item.Price >= 1000 || item.Exp >= 1000) && item.Price >= save.Money)
-            {
-                HudToast.Show(Pet, $"Il manque {(item.Price - save.Money).ToString("N2", Fr)} $ pour {item.TranslateName}.", HudToast.Kind.Warning);
-                return;
-            }
-            if (Pet.HashCheck && item.IsOverLoad())
-            {
-                if (MessageBoxX.Show("当前食物/物品属性超模,是否继续使用?\n使用超模食物可能会导致游戏发生不可预料的错误\n使用超模食物不影响大部分成就解锁\n本物品推荐价格为{0:f0}"
-                    .Translate(item.RealPrice), "超模食物/物品使用提醒".Translate(), MessageBoxButton.YesNo) != MessageBoxResult.Yes)
-                    return;
-                Pet.HashCheck = false;
-            }
-            save.Money -= item.Price;
-            Pet.TakeItem(item);
-            Pet.TakeItemHandle(item, 1, "betterbuy");
+            if (error.Length > 0)
+                HudToast.Show(Pet, error, HudToast.Kind.Warning);
+            return;
         }
-        Pet.DisplayFoodAnimation(item.GetGraph(), item.ImageSource);
         RefreshMoney();
         // rafraîchit la ligne (lassitude) sans perdre la position
         int index = rowOf.TryGetValue(item, out var old) ? items.Children.IndexOf(old) : -1;

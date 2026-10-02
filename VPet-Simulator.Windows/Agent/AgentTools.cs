@@ -278,6 +278,48 @@ public static class AgentToolRegistry
             },
         });
 
+        // ---- Habitat : se déplacer dans le décor
+        tools.Add(new AgentTool
+        {
+            Name = "go_to_room",
+            Title = "Aller dans une pièce",
+            Description = "Le compagnon se rend dans une pièce de son habitat (ex. « Cuisine », « Chambre ») et peut y faire une activité : "
+                + "sleep (dormir), eat (manger), drink (boire), relax (se détendre). À utiliser quand l'utilisateur demande au compagnon d'aller quelque part.",
+            Parameters = Obj(("room", "string", "Nom de la pièce", null), ("activity", "string", "Activité sur place", new[] { "relax", "eat", "drink", "sleep" })),
+            Risk = ToolRisk.Low,
+            Run = async (args, ctx, _) =>
+            {
+                string room = args["room"]?.GetValue<string>() ?? "";
+                string activity = args["activity"]?.GetValue<string>() ?? "relax";
+                var life = ctx.MW.Life;
+                if (life == null)
+                    return Fail("Le comportement du compagnon n'est pas prêt.");
+                if (ctx.MW.Habitat?.IsActive != true)
+                    return Fail("Le mode habitat n'est pas actif : il n'y a pas de pièces.");
+                // le trajet prend du temps : on répond dès qu'il est lancé
+                var start = await ctx.MW.Dispatcher.InvokeAsync(() => life.StartAsync(room, activity, System.TimeSpan.Zero, "agent"));
+                var first = await System.Threading.Tasks.Task.WhenAny(start, System.Threading.Tasks.Task.Delay(800));
+                if (first == start && !start.Result.Contains(" · ") && life.Current == null)
+                    return Fail(start.Result);
+                return Ok("En route : " + VPet_Simulator.Windows.Habitat.LifeBrain.Describe(activity, room));
+            },
+        });
+        tools.Add(new AgentTool
+        {
+            Name = "where_am_i",
+            Title = "Pièce actuelle du compagnon",
+            Description = "Indique dans quelle pièce de l'habitat se trouve le compagnon et la liste des pièces disponibles.",
+            Risk = ToolRisk.ReadOnly,
+            Run = (_, ctx, _) => ctx.MW.Dispatcher.Invoke(() =>
+            {
+                var h = ctx.MW.Habitat;
+                var rooms = h?.IsActive == true ? string.Join(", ", h.Map.Rooms.Select(r => r.Name)) : "";
+                var o = Ok(ctx.MW.Life?.WhereAmI() ?? "Inconnu.");
+                o["pieces"] = rooms;
+                return System.Threading.Tasks.Task.FromResult(o);
+            }),
+        });
+
         // ---- Minuteur
         tools.Add(new AgentTool
         {

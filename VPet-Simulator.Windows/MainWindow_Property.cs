@@ -96,6 +96,10 @@ public partial class MainWindow
     /// V-Max habitat : mode autonome dans un décor personnalisé
     /// </summary>
     public Habitat.HabitatMode? Habitat { get; private set; }
+    /// <summary>
+    /// V-Max : comportement (intentions, routines de vie, activités)
+    /// </summary>
+    public Habitat.LifeBrain? Life { get; private set; }
     public winBetterBuy? winBetterBuy { get; set; }
     public winGallery? winGallery { get; set; } 
     public winInventory? winInventory { get; set; }

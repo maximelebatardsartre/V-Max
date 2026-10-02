@@ -75,6 +75,23 @@ public sealed class HabitatMode
 
     public event Action? Changed;
 
+    /// <summary>
+    /// Laisse : le compagnon reste dans cette portion de son sol (pixels de l'image), par exemple pour flâner dans une pièce
+    /// </summary>
+    public (double left, double right)? Leash { get; set; }
+
+    /// <summary>Sol et position (pixels de l'image) du compagnon, ou null s'il n'est sur aucun sol</summary>
+    public (HabitatFloor floor, double x)? Locate()
+    {
+        if (!IsActive)
+            return null;
+        double size = mw.ActualWidth > 1 ? mw.ActualWidth : 500 * mw.Set.ZoomLevel;
+        double x = Projection.ToImageX(mw.Left + size * Metrics.CenterRatio);
+        double y = Projection.ToImageY(mw.Top + size * Metrics.FootRatio);
+        var f = Map.FloorAt(x, y, Math.Max(3, 8 / Math.Max(0.01, Projection.ScaleY))) ?? Map.LandingFloor(x, y);
+        return f == null ? null : (f, f.Clamp(x));
+    }
+
     #region Position mémorisée du compagnon (coordonnées de l'image)
     private double petX = double.NaN;
     private string? petFloor;
@@ -155,6 +172,8 @@ public sealed class HabitatMode
     {
         if (!IsActive)
             return;
+        mw.Life?.Cancel(null);
+        Leash = null;
         if (persist)
             Enabled = false;
         topmostWatch?.RemoveValueChanged(mw, KeepPetBelowTop);

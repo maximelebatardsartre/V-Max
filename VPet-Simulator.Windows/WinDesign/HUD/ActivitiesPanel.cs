@@ -138,11 +138,14 @@ public sealed class ActivitiesPanel : HudSidePanel
     }
 
     /// <summary>Applique le multiplicateur choisi dans le planning et la correction d'équilibrage, comme VPet</summary>
-    private Work Prepared(Work w)
+    private Work Prepared(Work w) => Prepare(Pet, w);
+
+    /// <summary>Occupation telle que VPet la lancerait (multiplicateur du planning, correction d'équilibrage)</summary>
+    public static Work Prepare(MainWindow mw, Work w)
     {
-        int mult = Pet.Set["workmenu"].GetInt("double_" + w.Name, 1);
-        var work = mult > 1 && w.LevelLimit <= Pet.Core.Save!.Level ? w.Double(mult) : (Work)w.Clone();
-        if (!Pet.Set["gameconfig"].GetBool("noAutoCal") && work.IsOverLoad())
+        int mult = mw.Set["workmenu"].GetInt("double_" + w.Name, 1);
+        var work = mult > 1 && w.LevelLimit <= mw.Core.Save!.Level ? w.Double(mult) : (Work)w.Clone();
+        if (!mw.Set["gameconfig"].GetBool("noAutoCal") && work.IsOverLoad())
             work.FixOverLoad();
         return work;
     }

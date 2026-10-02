@@ -58,12 +58,16 @@ public sealed class HabitatController : IController
     #endregion
 
     #region Distances virtuelles
+    /// <summary>Bornes de marche (pixels de l'image) : le sol, réduit à la laisse s'il y en a une</summary>
+    private (double left, double right) Bounds(HabitatFloor f) =>
+        mode.Leash is { } l ? (Math.Max(f.Left, l.left), Math.Min(f.Right, l.right)) : (f.Left, f.Right);
+
     public double GetWindowsDistanceLeft() => OnUi(() =>
     {
         var f = CurrentFloor;
         if (f == null)
             return EngineMargin * 3;
-        return CenterX - HalfBody - mode.Projection.ToScreenX(f.Left) + EngineMargin;
+        return CenterX - HalfBody - mode.Projection.ToScreenX(Bounds(f).left) + EngineMargin;
     });
 
     public double GetWindowsDistanceRight() => OnUi(() =>
@@ -71,7 +75,7 @@ public sealed class HabitatController : IController
         var f = CurrentFloor;
         if (f == null)
             return EngineMargin * 3;
-        return mode.Projection.ToScreenX(f.Right) - CenterX - HalfBody + EngineMargin;
+        return mode.Projection.ToScreenX(Bounds(f).right) - CenterX - HalfBody + EngineMargin;
     });
 
     /// <summary>
@@ -99,7 +103,8 @@ public sealed class HabitatController : IController
             // en marchant, les pieds restent sur le sol et le corps ne dépasse pas ses extrémités
             var p = mode.Projection;
             mw.Top = p.ToScreenY(floor.Y) - Size * mode.Metrics.FootRatio;
-            double minX = p.ToScreenX(floor.Left) + HalfBody * 0.5, maxX = p.ToScreenX(floor.Right) - HalfBody * 0.5;
+            var (bl, br) = Bounds(floor);
+            double minX = p.ToScreenX(bl) + HalfBody * 0.5, maxX = p.ToScreenX(br) - HalfBody * 0.5;
             if (maxX > minX)
             {
                 double cx = Math.Clamp(CenterX, minX, maxX);

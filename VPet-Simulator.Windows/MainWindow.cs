@@ -1741,6 +1741,7 @@ namespace VPet_Simulator.Windows
                   // V-Max HUD : anneau orbital, panneaux et bulle flottante remplacent la barre et la bulle de VPet
                   Hud = new HUD.HudController(this);
                   Habitat = new Habitat.HabitatMode(this);
+                  Life = new Habitat.LifeBrain(this);
                   // V-Max HUD : la bulle de VPet est remplacée par la bulle flottante (même interface IMassageBar)
                   if (Main.MsgBar is MessageBar oldBar)
                   {
@@ -2656,8 +2657,13 @@ namespace VPet_Simulator.Windows
                                   var p = Habitat!.Projection;
                                   var m = Habitat.Metrics;
                                   double s = ActualWidth;
-                                  trace.AppendLine($"{qi * 500 + 500}ms habitat={Habitat!.IsActive} visible={IsVisible} graph={Main.DisplayType.Name}/{Main.DisplayType.Type} x={p.ToImageX(Left + s * m.CenterRatio):0} pieds={p.ToImageY(Top + s * m.FootRatio):0} zoom={Set.ZoomLevel:0.000} L={Core.Controller.GetWindowsDistanceLeft():0} R={Core.Controller.GetWindowsDistanceRight():0} D={Core.Controller.GetWindowsDistanceDown():0}");
+                                  trace.AppendLine($"{qi * 500 + 500}ms habitat={Habitat!.IsActive} intention={Life?.Current?.Label}{(Life?.Navigating == true ? " (trajet)" : "")} état={Main.State} graph={Main.DisplayType.Name}/{Main.DisplayType.Type} x={p.ToImageX(Left + s * m.CenterRatio):0} pieds={p.ToImageY(Top + s * m.FootRatio):0} zoom={Set.ZoomLevel:0.000} L={Core.Controller.GetWindowsDistanceLeft():0} R={Core.Controller.GetWindowsDistanceRight():0} D={Core.Controller.GetWindowsDistanceDown():0}");
                               });
+                              if (int.TryParse(qaHabitat.GetString("snapat"), out var snapAt) && qi == snapAt)
+                                  Dispatcher.Invoke(() => QaSnapshotComposite(Habitat!.Window!, new Window[] { this }, System.IO.Path.Combine(System.IO.Path.GetTempPath(), "vmax-qa-mid.png")));
+                              if (qi == 2 && qaHabitat.GetString("goto") is string qaPlace)
+                                  Dispatcher.Invoke(() => _ = Life!.StartAsync(qaPlace, qaHabitat.GetString("act") ?? "relax", TimeSpan.Zero, "routine")
+                                      .ContinueWith(t => trace.AppendLine("intention : " + t.Result)));
                               if (qi == 4 && qaHabitat.GetString("close") != null)
                                   Dispatcher.Invoke(() => Habitat!.Window?.Close());
                               if (qi % 6 == 0 && qaHabitat.GetString("walk") != null)
