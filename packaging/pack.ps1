@@ -1,17 +1,17 @@
-<#
-    V-Max — fabrication de l'installeur et d'une release (Velopack).
+﻿<#
+    V-Max - fabrication de l'installeur et d'une release (Velopack).
 
     Usage :
         powershell -ExecutionPolicy Bypass -File packaging\pack.ps1 -Version 1.0.0   # fabrique l'installeur dans packaging/releases
         powershell -ExecutionPolicy Bypass -File packaging\pack.ps1 -Version 1.0.1 -Upload   # fabrique ET publie la release sur GitHub
 
     Produit :
-        packaging/releases/Maxine-win-Setup.exe installeur « un clic »
+        packaging/releases/Maxine-win-Setup.exe installeur " un clic "
         packaging/releases/*.nupkg + RELEASES fichiers lus par l'auto-update
 
     Prérequis (une fois) :
         dotnet tool install -g vpk
-        # pour -Upload : une variable d'environnement GITHUB_TOKEN avec un jeton « repo »
+        # pour -Upload : une variable d'environnement GITHUB_TOKEN avec un jeton " repo "
 #>
 param(
     [Parameter(Mandatory = $true)][string]$Version,
@@ -44,7 +44,7 @@ New-Item -ItemType Directory -Force -Path (Split-Path $modDst) | Out-Null
 robocopy $modSrc $modDst /E /NFL /NDL /NJH /NJS /NP | Out-Null
 if ($LASTEXITCODE -ge 8) { throw "La copie de mod/0000_core a échoué." }
 
-# Mods du Workshop traduits, livrés avec l'installeur (chargés et actifs d'office via « mods-inclus »)
+# Mods du Workshop traduits, livrés avec l'installeur (chargés et actifs d'office via " mods-inclus ")
 $bundledSrc = Join-Path $env:APPDATA "V-Max\mods"
 if (Test-Path $bundledSrc) {
     Write-Host "==> Copie des mods inclus (activités traduites)" -ForegroundColor Cyan
@@ -55,7 +55,7 @@ if (Test-Path $bundledSrc) {
     $n = (Get-ChildItem $bundledDst -Directory).Count
     Write-Host "    $n mods inclus"
 } else {
-    Write-Host "==> Aucun mod inclus (dossier $bundledSrc absent) — installeur de base" -ForegroundColor Yellow
+    Write-Host "==> Aucun mod inclus (dossier $bundledSrc absent) - installeur de base" -ForegroundColor Yellow
 }
 
 Write-Host "==> Fabrication de l'installeur Velopack ($Version)" -ForegroundColor Cyan
