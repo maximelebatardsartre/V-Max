@@ -61,7 +61,7 @@ internal sealed class HabitatDesktop
                 if (layerMap != null)
                 {
                     forIdle = false;
-                    mode.EnterDesktop(layerMap, MonitorBounds(), WallpaperInfo.CurrentFit(), PixelToDip(), topmost: false);
+                    mode.EnterDesktop(layerMap, MonitorBounds(), DesktopFit(), PixelToDip(), topmost: false);
                     if (!mode.LayerAttached)
                     {
                         // échec de l'accroche : on n'insiste pas, retour au fonctionnement normal
@@ -78,7 +78,7 @@ internal sealed class HabitatDesktop
                 if (map == null)
                     return; // pas de carte pour ce fond d'écran : on reste dans l'habitat
                 forIdle = fg != Fg.Desktop;
-                mode.EnterDesktop(map, MonitorBounds(), WallpaperInfo.CurrentFit(), PixelToDip(), topmost: forIdle);
+                mode.EnterDesktop(map, MonitorBounds(), DesktopFit(), PixelToDip(), topmost: forIdle);
             }
             return;
         }
@@ -118,16 +118,25 @@ internal sealed class HabitatDesktop
         return map is { Floors.Count: > 0 } ? map : null;
     }
 
-    /// <summary>Écran de la fenêtre habitat (bureau entier, pas seulement la zone de travail : le fond d'écran le couvre)</summary>
+    /// <summary>
+    /// Zone couverte sur le bureau. En multi-écrans (SpanScreens), c'est le bureau virtuel ENTIER (tous les écrans
+    /// réunis) → Maxine peut marcher d'un écran à l'autre. Sinon, l'écran où se trouve la fenêtre habitat.
+    /// </summary>
     private Rect MonitorBounds()
     {
-        var hwnd = new WindowInteropHelper(mode.Window!).Handle;
-        var b = Forms.Screen.FromHandle(hwnd).Bounds;
+        System.Drawing.Rectangle b;
+        if (mode.SpanScreens)
+            b = Forms.SystemInformation.VirtualScreen; // union de tous les écrans (bureau virtuel)
+        else
+            b = Forms.Screen.FromHandle(new WindowInteropHelper(mode.Window!).Handle).Bounds;
         var m = PresentationSource.FromVisual(mw)?.CompositionTarget?.TransformFromDevice ?? System.Windows.Media.Matrix.Identity;
         var tl = m.Transform(new Point(b.Left, b.Top));
         var br = m.Transform(new Point(b.Right, b.Bottom));
         return new Rect(tl, br);
     }
+
+    /// <summary>Mode d'ajustement du décor sur le bureau : « Étendu » en multi-écrans, sinon le réglage Windows.</summary>
+    private ImageFit DesktopFit() => mode.SpanScreens ? ImageFit.Span : WallpaperInfo.CurrentFit();
 
     private double PixelToDip() => PresentationSource.FromVisual(mw)?.CompositionTarget?.TransformFromDevice.M11 ?? 1;
 

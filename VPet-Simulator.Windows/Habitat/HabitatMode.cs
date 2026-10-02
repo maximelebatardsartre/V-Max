@@ -83,6 +83,18 @@ public sealed class HabitatMode
         set => Cfg.SetBool("desktop_off", !value);
     }
 
+    /// <summary>
+    /// Multi-écrans : sur le bureau, le décor et les déplacements s'étendent sur TOUS les écrans (bureau virtuel),
+    /// comme le mode « Étendu » des fonds d'écran Windows — Maxine passe d'un écran à l'autre. Activé par défaut ;
+    /// sans effet sur un seul écran. Optimal quand les écrans partagent la même mise à l'échelle Windows ; pour des
+    /// DPI différents le raccord peut être imparfait (amélioration prévue).
+    /// </summary>
+    public bool SpanScreens
+    {
+        get => !Cfg.GetBool("span_off");
+        set => Cfg.SetBool("span_off", !value);
+    }
+
     /// <summary>Expérimental : vivre en permanence dans la couche du fond d'écran, derrière les fenêtres</summary>
     public bool WallpaperLayerEnabled
     {
