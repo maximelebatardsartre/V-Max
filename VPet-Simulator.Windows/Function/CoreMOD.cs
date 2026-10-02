@@ -406,7 +406,11 @@ namespace VPet_Simulator.Windows
             }
 #endif
         }
-        public bool IsOnMOD(MainWindow mw) => mw.Set.IsOnMod(Name);
+        public bool IsOnMOD(MainWindow mw) => mw.Set.IsOnMod(Name) || DevModRoots.Contains(Path.Parent?.FullName ?? "");
+        /// <summary>
+        /// V-Max (développement) : dossiers passés par VMAX_EXTRA_MODS, dont les mods sont actifs sans toucher aux paramètres
+        /// </summary>
+        public static readonly HashSet<string> DevModRoots = new(StringComparer.OrdinalIgnoreCase);
         /// <summary>
         /// V-Max : toutes les DLL du mod sont approuvées dans leur version actuelle (voir <see cref="PluginTrustStore"/>)
         /// </summary>

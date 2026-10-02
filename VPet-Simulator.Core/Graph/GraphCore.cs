@@ -58,6 +58,72 @@ namespace VPet_Simulator.Core
         /// Dossier du cache des animations. V-Max : défini par l'application (%LOCALAPPDATA%\V-Max\cache)
         /// </summary>
         public static string CachePath = new FileInfo(System.Reflection.Assembly.GetExecutingAssembly().Location).DirectoryName + @"\cache";
+
+        /// <summary>
+        /// V-Max : signature courte d'une liste d'images (nombre, taille totale, date de modification la plus récente).
+        /// Les FileInfo issus de GetFiles portent déjà ces valeurs : aucun accès disque supplémentaire.
+        /// </summary>
+        public static string FilesSignature(FileInfo[] files)
+        {
+            long size = 0, newest = 0;
+            foreach (var f in files)
+            {
+                size += f.Length;
+                newest = Math.Max(newest, f.LastWriteTimeUtc.Ticks);
+            }
+            // FNV-1a 64 bits (HashCode.Combine change d'un lancement à l'autre : inutilisable pour un cache)
+            ulong h = 14695981039346656037UL;
+            foreach (long v in new[] { files.Length, size, newest })
+                for (int i = 0; i < 8; i++)
+                {
+                    h ^= (byte)(v >> (i * 8));
+                    h *= 1099511628211UL;
+                }
+            return h.ToString("x16");
+        }
+
+        /// <summary>
+        /// V-Max : marque un fichier du cache comme utilisé (date rafraîchie au plus une fois par semaine),
+        /// pour que <see cref="CleanupStaleCache"/> ne retire que les fichiers abandonnés
+        /// </summary>
+        public static void KeepCacheFile(string path)
+        {
+            try
+            {
+                var now = DateTime.UtcNow;
+                if (now - File.GetLastWriteTimeUtc(path) > TimeSpan.FromDays(7))
+                    File.SetLastWriteTimeUtc(path, now);
+            }
+            catch (IOException) { }
+            catch (UnauthorizedAccessException) { }
+        }
+
+        /// <summary>
+        /// V-Max : supprime les fichiers du cache inutilisés depuis <paramref name="maxAge"/> (anciennes versions d'animations,
+        /// mods retirés). Renvoie le nombre de fichiers supprimés.
+        /// </summary>
+        public static int CleanupStaleCache(TimeSpan maxAge)
+        {
+            int removed = 0;
+            try
+            {
+                var limit = DateTime.UtcNow - maxAge;
+                foreach (var f in new DirectoryInfo(CachePath).EnumerateFiles("*.png"))
+                {
+                    if (f.LastWriteTimeUtc >= limit)
+                        continue;
+                    try
+                    {
+                        f.Delete();
+                        removed++;
+                    }
+                    catch (IOException) { }
+                    catch (UnauthorizedAccessException) { }
+                }
+            }
+            catch (DirectoryNotFoundException) { }
+            return removed;
+        }
         /// <summary>
         /// 提供给缓存文件生成的锁,用于防止多线程同时生成同一个缓存文件
         /// </summary>
@@ -137,7 +203,7 @@ namespace VPet_Simulator.Core
                 return null;
             if (GraphsList.TryGetValue(GraphName, out var d3) && d3.TryGetValue(animat, out var gl))
             {
-                var list = gl.FindAll(x => x.GraphInfo.ModeType == mode);
+                var list = gl.FindAll(x => !x.IsFail && x.GraphInfo.ModeType == mode);
                 if (list.Count > 0)
                 {
                     if (list.Count == 1)
@@ -152,7 +218,7 @@ namespace VPet_Simulator.Core
                 if (i < 3)
                 {
                     //向下兼容的动画
-                    list = gl.FindAll(x => x.GraphInfo.ModeType == (IGameSave.ModeType)i);
+                    list = gl.FindAll(x => !x.IsFail && x.GraphInfo.ModeType == (IGameSave.ModeType)i);
                     if (list.Count > 0)
                         return list[Function.Rnd.Next(list.Count)];
                 }
@@ -160,12 +226,12 @@ namespace VPet_Simulator.Core
                 if (i >= 1)
                 {
                     //向上兼容的动画
-                    list = gl.FindAll(x => x.GraphInfo.ModeType == (IGameSave.ModeType)i);
+                    list = gl.FindAll(x => !x.IsFail && x.GraphInfo.ModeType == (IGameSave.ModeType)i);
                     if (list.Count > 0)
                         return list[Function.Rnd.Next(list.Count)];
                 }
                 //如果实在找不到,就走随机数(无生病)
-                list = gl.FindAll(x => x.GraphInfo.ModeType != IGameSave.ModeType.Ill);
+                list = gl.FindAll(x => !x.IsFail && x.GraphInfo.ModeType != IGameSave.ModeType.Ill);
                 if (list.Count > 0)
                     return list[Function.Rnd.Next(list.Count)];
             }
@@ -183,7 +249,7 @@ namespace VPet_Simulator.Core
                 return new List<IGraph>();
             if (GraphsList.TryGetValue(GraphName, out var d3) && d3.TryGetValue(animat, out var gl))
             {
-                var list = gl.FindAll(x => x.GraphInfo.ModeType == mode);
+                var list = gl.FindAll(x => !x.IsFail && x.GraphInfo.ModeType == mode);
                 if (list.Count > 0)
                 {
                     return list;
@@ -192,7 +258,7 @@ namespace VPet_Simulator.Core
                 if (i < 3)
                 {
                     //向下兼容的动画
-                    list = gl.FindAll(x => x.GraphInfo.ModeType == (IGameSave.ModeType)i);
+                    list = gl.FindAll(x => !x.IsFail && x.GraphInfo.ModeType == (IGameSave.ModeType)i);
                     if (list.Count > 0)
                         return list;
                 }
@@ -200,7 +266,7 @@ namespace VPet_Simulator.Core
                 if (i >= 0)
                 {
                     //向上兼容的动画
-                    list = gl.FindAll(x => x.GraphInfo.ModeType == (IGameSave.ModeType)i);
+                    list = gl.FindAll(x => !x.IsFail && x.GraphInfo.ModeType == (IGameSave.ModeType)i);
                     if (list.Count > 0)
                         return list;
                 }

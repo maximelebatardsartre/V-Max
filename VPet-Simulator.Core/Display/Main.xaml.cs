@@ -1,6 +1,7 @@
 ﻿using LinePutScript.Localization.WPF;
 using Panuon.WPF.UI;
 using System;
+using System.Linq;
 using System.Collections.Generic;
 using System.Media;
 using System.Threading;
@@ -77,6 +78,11 @@ namespace VPet_Simulator.Core
         /// <summary>
         /// 支持在加载等待的时候显示等待计数器
         /// </summary>
+        /// <summary>V-Max : nombre d'animations attendues pendant l'écran d'accueil</summary>
+        public int StartupGraphCount { get; private set; }
+        /// <summary>V-Max : animations attendues avant d'afficher le compagnon</summary>
+        public static bool IsStartupGraph(IGraph g) => g.GraphInfo.Type is GraphType.StartUP or GraphType.Default;
+
         public async Task Load_2_WaitGraph()
         {
             //新功能:等待所有图像加载完成再跑
@@ -87,6 +93,12 @@ namespace VPet_Simulator.Core
                     for (int i = 0; i < ig2.Count; i++)
                     {
                         IGraph ig3 = ig2[i];
+                        if (ig3 is ILazyGraph lazy)
+                        {// V-Max : préparation à la demande, sauf démarrage et repos
+                            if (!IsStartupGraph(ig3))
+                                continue;
+                            _ = lazy.EnsureStarted();
+                        }
                         while (!ig3.IsReady)
                         {
                             if (ig3.IsFail)
@@ -108,6 +120,7 @@ namespace VPet_Simulator.Core
         /// <param name="WaitCountAction">当前已等待图像个数</param>
         public async Task Load_2_WaitGraph(Action<int>? WaitCountAction)
         {
+            StartupGraphCount = Core.Graph!.GraphsALL.Count(g => g is not ILazyGraph || IsStartupGraph(g));
             if (WaitCountAction == null)
             {
                 await Load_2_WaitGraph();
@@ -125,6 +138,14 @@ namespace VPet_Simulator.Core
                     for (int i = 0; i < ig2.Count; i++)
                     {
                         IGraph ig3 = ig2[i];
+                        // V-Max : seules les animations de démarrage et de repos sont attendues ; les autres sont
+                        // préparées au premier affichage ou par le préchauffage (PNGAnimation.WarmUpAsync)
+                        if (ig3 is ILazyGraph lazy)
+                        {
+                            if (!IsStartupGraph(ig3))
+                                continue;
+                            _ = lazy.EnsureStarted();
+                        }
                         tasks.Add(Task.Run(async () =>
                         {
                             while (!ig3.IsReady)

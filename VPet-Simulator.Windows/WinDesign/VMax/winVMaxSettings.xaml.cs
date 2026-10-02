@@ -726,7 +726,7 @@ public partial class winVMaxSettings : Window
         Add("extensions", "Mods", "Raccourcis personnalisés", "Boutons du menu « Personnalisé » (liens, programmes, raccourcis clavier).",
             () => ActionButton(T("Modifier"), () => HUD.ShortcutsWindow.Open(mw)), advancedOnly: true);
         Add("extensions", "Maintenance", "Vider le cache des animations", "Reconstruit le cache au prochain démarrage (utile après une mise à jour de mod).",
-            () => ActionButton(T("Vider"), () => { set.LastCacheDate = DateTime.MinValue; NeedRestart(); }), advancedOnly: true);
+            () => ActionButton(T("Vider"), () => { MainWindow.RequestCachePurge(); NeedRestart(); }), advancedOnly: true);
 
         // ---------------- À propos
         Add("apropos", "V-Max", "Version", $"V-Max {mw.Version}  ·  .NET {Environment.Version}  ·  {(ExtensionValue.IsPortable ? T("mode portable") : T("installation standard"))}",

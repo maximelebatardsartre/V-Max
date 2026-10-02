@@ -1544,15 +1544,29 @@ namespace VPet_Simulator.Windows
 
             CoreMOD.NowLoading = null;
 
-            //判断是否需要清空缓存
-            if (App.MainWindows.Count == 1 && Set.LastCacheDate < CoreMODs.Max(x => x.CacheDate))
-            {//需要清理缓存
-                Set.LastCacheDate = DateTime.Now;
-                if (Directory.Exists(GraphCore.CachePath))
+            // V-Max : plus de purge globale du cache quand un mod change (les clés du cache incluent la signature des
+            // fichiers). Purge complète seulement sur demande (Paramètres › Extensions › Vider le cache des animations).
+            if (App.MainWindows.Count == 1 && CachePurgeRequested)
+            {
+                try
                 {
-                    Directory.Delete(GraphCore.CachePath, true);
+                    File.Delete(CachePurgeMarker);
+                    if (Directory.Exists(GraphCore.CachePath))
+                        Directory.Delete(GraphCore.CachePath, true);
                     Directory.CreateDirectory(GraphCore.CachePath);
                 }
+                catch (Exception e)
+                {
+                    ReportStartupError("Le cache des animations n'a pas pu être vidé.", e.ToString());
+                }
+            }
+            else if (App.MainWindows.Count == 1)
+            {// ménage discret : fichiers du cache inutilisés depuis 30 jours
+                _ = Task.Run(async () =>
+                {
+                    await Task.Delay(TimeSpan.FromMinutes(2));
+                    GraphCore.CleanupStaleCache(TimeSpan.FromDays(30));
+                });
             }
 
 
@@ -1719,7 +1733,7 @@ namespace VPet_Simulator.Windows
             Main.LoadALL((c) =>
             {
                 // la première fois, le cache des animations se construit : on montre l'avancement
-                Dispatcher.Invoke(() => LoadingStatus = $"Préparation des animations · {c * 100 / Math.Max(1, petloader.GraphCount)} %");
+                Dispatcher.Invoke(() => LoadingStatus = $"Préparation des animations · {Math.Min(100, c * 100 / Math.Max(1, Main.StartupGraphCount))} %");
             }
             //#if NewYear
             //            , Core.Graph!.FindGraph("newyear", AnimatType.Single, Core.Save!.Mode)
@@ -2721,6 +2735,28 @@ namespace VPet_Simulator.Windows
                               + "\nbulle=" + (Main.MsgBar as HUD.HudBubble)?.Text);
                       });
                   }
+                  if (Args.FindLine("vmax-qa-display") is ILine qaDisplay)
+                  {// QA : affiche une animation (préparée à la demande si besoin), trace l'attente et rend le compagnon
+                      Task.Run(async () =>
+                      {
+                          await Task.Delay(2500);
+                          var name = qaDisplay.Info;
+                          var animat = new[] { AnimatType.A_Start, AnimatType.Single, AnimatType.B_Loop }
+                              .FirstOrDefault(a => Core.Graph!.FindGraph(name, a, Core.Save!.Mode) != null);
+                          var g = Core.Graph!.FindGraph(name, animat, Core.Save!.Mode);
+                          bool readyBefore = g?.IsReady == true;
+                          var seen = new System.Collections.Concurrent.ConcurrentQueue<string>();
+                          var t0 = System.Diagnostics.Stopwatch.StartNew();
+                          Main.GraphDisplayHandler += gi => seen.Enqueue($"{t0.ElapsedMilliseconds}:{gi.Name}/{gi.Animat}");
+                          var sw = System.Diagnostics.Stopwatch.StartNew();
+                          Dispatcher.Invoke(() => Main.Display(name, animat, () => { }));
+                          long waited = sw.ElapsedMilliseconds;
+                          await Task.Delay(1500);
+                          System.IO.File.WriteAllText(System.IO.Path.Combine(System.IO.Path.GetTempPath(), "vmax-qa-trace.txt"),
+                              $"animation={name} phase={animat} trouvée={g != null} prête avant={readyBefore} prête après={g?.IsReady} appel={waited} ms affichées={string.Join(" ", seen)}");
+                          Dispatcher.Invoke(() => QaSnapshot(this, System.IO.Path.Combine(System.IO.Path.GetTempPath(), "vmax-qa-settings.png")));
+                      });
+                  }
                   if (Args.FindLine("vmax-qa-label") != null)
                   {// QA : pastille de message du compagnon
                       Task.Run(async () =>
@@ -3144,7 +3180,11 @@ namespace VPet_Simulator.Windows
         /// <summary>Étape de chargement affichée dans l'écran d'accueil</summary>
         public object LoadingStatus
         {
-            set => Dispatcher.BeginInvoke(() => splash?.SetStatus(value?.ToString() ?? ""));
+            set
+            {
+                StartupClock.Mark(value?.ToString() ?? "");
+                Dispatcher.BeginInvoke(() => splash?.SetStatus(value?.ToString() ?? ""));
+            }
         }
 
         private bool Args_NoSplash() => Environment.GetCommandLineArgs().Any(a => a.Contains("vmax-nosplash"));
@@ -3158,6 +3198,18 @@ namespace VPet_Simulator.Windows
             if (uiReady)
                 return;
             uiReady = true;
+            StartupClock.Finish(Core.Graph?.GraphsList.Values.Sum(g => g.Values.Sum(l => l.Count)) ?? 0, VPet_Simulator.Core.PNGAnimation.SpriteSheetsBuilt);
+            if (Core.Graph is GraphCore warm)
+            {// V-Max : préchauffage des animations restantes, une à une, une fois le compagnon affiché
+                _ = Task.Run(async () =>
+                {
+                    await Task.Delay(1500);
+                    var sw = System.Diagnostics.Stopwatch.StartNew();
+                    int before = VPet_Simulator.Core.PNGAnimation.SpriteSheetsBuilt;
+                    await VPet_Simulator.Core.PNGAnimation.WarmUpAsync(warm);
+                    StartupClock.Note($"Préchauffage terminé en {sw.ElapsedMilliseconds} ms ({VPet_Simulator.Core.PNGAnimation.SpriteSheetsBuilt - before} planches générées)");
+                });
+            }
             LoadingText.Visibility = Visibility.Collapsed;
             splash?.FadeOut();
             splash = null;
@@ -3179,6 +3231,15 @@ namespace VPet_Simulator.Windows
         /// Erreur de démarrage d'un plugin ou d'un mod : notification courte, détails complets dans
         /// %APPDATA%\V-Max\logs\demarrage.log (plus de grande fenêtre de trace au lancement)
         /// </summary>
+        /// <summary>Fichier témoin : le cache des animations sera vidé au prochain démarrage</summary>
+        public static string CachePurgeMarker => System.IO.Path.Combine(ExtensionValue.DataDirectory, "vider-cache.txt");
+        public static bool CachePurgeRequested => File.Exists(CachePurgeMarker);
+        public static void RequestCachePurge()
+        {
+            try { File.WriteAllText(CachePurgeMarker, DateTime.Now.ToString("O")); }
+            catch { }
+        }
+
         public void ReportStartupError(string summary, string details)
         {
             try

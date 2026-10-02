@@ -129,6 +129,14 @@ namespace VPet_Simulator.Windows
             {
                 //加载所有MOD
                 List<DirectoryInfo> Path = new(new DirectoryInfo(ModPath).EnumerateDirectories());
+                // V-Max (développement) : dossiers de mods supplémentaires, séparés par « ; » (mesures, Studio)
+                foreach (var extra in (Environment.GetEnvironmentVariable("VMAX_EXTRA_MODS") ?? "").Split(';', StringSplitOptions.RemoveEmptyEntries))
+                    if (Directory.Exists(extra))
+                    {
+                        var root = new DirectoryInfo(extra);
+                        CoreMOD.DevModRoots.Add(root.FullName);
+                        Path.AddRange(root.EnumerateDirectories());
+                    }
 
 
                 Dispatcher.InvokeAsync(new Action(() => LoadingStatus = "Chargement des traductions")).Wait();

@@ -454,7 +454,7 @@ def main() -> int:
         return 1
 
     mods = []
-    for d in sorted(p for p in args.source.iterdir() if p.is_dir()):
+    for d in sorted(p for p in args.source.resolve().iterdir() if p.is_dir()):
         try:
             mods.append(read_mod(d))
         except Exception as e:  # un mod abîmé ne doit pas bloquer les autres

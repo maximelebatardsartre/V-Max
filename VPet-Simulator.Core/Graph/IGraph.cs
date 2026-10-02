@@ -5,6 +5,18 @@ using System.Windows.Media;
 namespace VPet_Simulator.Core
 {
     /// <summary>
+    /// V-Max : animation préparée à la demande (au premier affichage ou par le préchauffage en arrière-plan)
+    /// plutôt qu'au démarrage
+    /// </summary>
+    public interface ILazyGraph
+    {
+        /// <summary>Préparation terminée (réussie ou non)</summary>
+        bool IsPrepared { get; }
+        /// <summary>Lance la préparation si besoin ; la tâche se termine quand elle est finie</summary>
+        System.Threading.Tasks.Task EnsureStarted();
+    }
+
+    /// <summary>
     /// 动画显示接口
     /// </summary>
     public interface IGraph : IEquatable<object>, IDisposable

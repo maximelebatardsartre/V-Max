@@ -1,5 +1,6 @@
 ﻿using LinePutScript;
 using System;
+using System.Linq;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading;
@@ -16,7 +17,7 @@ namespace VPet_Simulator.Core
     /// 食物动画 支持显示前中后3层夹心动画
     /// 不一定只用于食物,只是叫这个名字
     /// </summary>
-    public class FoodAnimation : IRunImage
+    public class FoodAnimation : IRunImage, ILazyGraph
     {
         /// <summary>
         /// 创建食物动画 第二层夹心为运行时提供
@@ -45,6 +46,21 @@ namespace VPet_Simulator.Core
             }
             IsReady = true;
         }
+
+        /// <summary>V-Max : calques avant et arrière, préparés à la demande</summary>
+        private IEnumerable<ILazyGraph> Layers()
+        {
+            if (GraphCore == null)
+                yield break;
+            foreach (var name in new[] { Front_Lay, Back_Lay })
+                if (name != null && GraphCore.GraphsList.TryGetValue(name, out var d))
+                    foreach (var l in d.Values)
+                        foreach (var g in l)
+                            if (g is ILazyGraph lg)
+                                yield return lg;
+        }
+        public bool IsPrepared => Layers().All(l => l.IsPrepared);
+        public Task EnsureStarted() => Task.WhenAll(Layers().Select(l => l.EnsureStarted()).ToList());
 
         public static void LoadGraph(GraphCore graph, FileSystemInfo path, ILine info)
         {

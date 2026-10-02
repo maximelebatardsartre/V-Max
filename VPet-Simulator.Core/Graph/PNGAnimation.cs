@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
@@ -29,7 +30,7 @@ namespace VPet_Simulator.Core
     /// - Respecte <see cref="AnimationGate"/> (pause quand le compagnon n'est pas visible).
     /// - La taille des images est lue dans l'en-tête PNG (plus de décodage complet au démarrage).
     /// </remarks>
-    public partial class PNGAnimation : IImageRun
+    public partial class PNGAnimation : IImageRun, ILazyGraph
     {
         /// <summary>
         /// 所有动画帧
@@ -94,7 +95,46 @@ namespace VPet_Simulator.Core
                     GraphCore.CommUIElements["Image3.PNGAnimation"] = new System.Windows.Controls.Image() { Height = 500 }; // 多整个, 防止动画闪烁
                 });
             }
-            Task.Run(() => startup(path, paths));
+            startPath = path;
+            startFiles = paths;
+            if (!LazyStartup)
+                EnsureStarted();
+        }
+
+        /// <summary>
+        /// V-Max : préparation à la demande. Seules les animations indispensables au démarrage sont préparées
+        /// pendant l'écran d'accueil ; les autres le sont au premier affichage ou par le préchauffage.
+        /// </summary>
+        public static bool LazyStartup = true;
+        /// <summary>Attente maximale quand une animation non préparée est demandée</summary>
+        public static TimeSpan OnDemandTimeout = TimeSpan.FromSeconds(3);
+        private string? startPath;
+        private FileInfo[]? startFiles;
+        private int started;
+        private readonly TaskCompletionSource prepared = new(TaskCreationOptions.RunContinuationsAsynchronously);
+
+        public bool IsPrepared => prepared.Task.IsCompleted;
+
+        public Task EnsureStarted()
+        {
+            if (Interlocked.Exchange(ref started, 1) == 0)
+                Task.Run(() => startup(startPath!, startFiles!));
+            return prepared.Task;
+        }
+
+        /// <summary>Animation demandée avant d'être prête : préparation immédiate, attente courte</summary>
+        private bool WaitPrepared()
+        {
+            if (IsReady)
+                return true;
+            if (IsFail)
+                return false;
+            try
+            {
+                EnsureStarted().Wait(OnDemandTimeout);
+            }
+            catch (AggregateException) { }
+            return IsReady;
         }
 
         public static void LoadGraph(GraphCore graph, FileSystemInfo path, ILine info)
@@ -124,6 +164,49 @@ namespace VPet_Simulator.Core
         /// 最大同时加载数
         /// </summary>
         public static int MaxLoadMemory = 2000;
+
+        /// <summary>
+        /// V-Max : nombre de sprite sheets générées depuis le lancement (0 quand tout vient du cache)
+        /// </summary>
+        public static int SpriteSheetsBuilt;
+
+        /// <summary>
+        /// V-Max : ordre du préchauffage (les animations les plus fréquentes d'abord)
+        /// </summary>
+        private static int WarmRank(GraphInfo.GraphType t) => t switch
+        {
+            GraphInfo.GraphType.Default or GraphInfo.GraphType.StartUP => 0,
+            GraphInfo.GraphType.Move or GraphInfo.GraphType.Raised_Dynamic or GraphInfo.GraphType.Raised_Static => 1,
+            GraphInfo.GraphType.Touch_Head or GraphInfo.GraphType.Touch_Body or GraphInfo.GraphType.Say => 2,
+            GraphInfo.GraphType.Idel or GraphInfo.GraphType.StateONE or GraphInfo.GraphType.StateTWO or GraphInfo.GraphType.Sleep => 3,
+            GraphInfo.GraphType.Work => 5,
+            GraphInfo.GraphType.Common => 6,
+            _ => 4,
+        };
+
+        /// <summary>
+        /// V-Max : prépare en arrière-plan toutes les animations pas encore prêtes, quelques-unes à la fois
+        /// (en laissant des emplacements libres pour les demandes immédiates)
+        /// </summary>
+        public static async Task WarmUpAsync(GraphCore core, CancellationToken cancel = default)
+        {
+            List<PNGAnimation> todo;
+            lock (core.GraphsALL)
+                todo = core.GraphsALL.OfType<PNGAnimation>().Where(g => !g.IsPrepared)
+                    .OrderBy(g => WarmRank(g.GraphInfo.Type)).ToList();
+            // la moitié des emplacements de construction : les demandes immédiates gardent toujours une place
+            int width = Math.Max(1, Math.Max(1, Environment.ProcessorCount / 4) / 2);
+            using var gate = new SemaphoreSlim(width, width);
+            var running = new List<Task>();
+            foreach (var g in todo)
+            {
+                if (cancel.IsCancellationRequested)
+                    break;
+                await gate.WaitAsync().ConfigureAwait(false);
+                running.Add(g.EnsureStarted().ContinueWith(_ => gate.Release(), TaskScheduler.Default));
+            }
+            await Task.WhenAll(running).ConfigureAwait(false);
+        }
 
         /// <summary>
         /// V-Max : nombre maximal de constructions de sprite sheets simultanées (limite les pics mémoire au premier lancement)
@@ -169,7 +252,9 @@ namespace VPet_Simulator.Core
 
                 //新方法:加载大图片
                 //生成大文件加载非常慢,先看看有没有缓存能用
-                Path = System.IO.Path.Combine(GraphCore.CachePath, $"{GraphCore!.Resolution}_{Math.Abs(Sub.GetHashCode(path))}_{paths.Length}.png");
+                // V-Max : la clé inclut la signature des fichiers (taille et date) : une animation modifiée est reconstruite
+                // seule, sans purge globale du cache (auparavant tout était regénéré à chaque mise à jour de mod)
+                Path = System.IO.Path.Combine(GraphCore.CachePath, $"{GraphCore!.Resolution}_{Math.Abs(Sub.GetHashCode(path))}_{paths.Length}_{GraphCore.FilesSignature(paths)}.png");
                 var sem = GraphCore.SpriteSheetBuildLocks.GetOrAdd(Path, _ => new SemaphoreSlim(1, 1));
                 await sem.WaitAsync();
                 try
@@ -182,12 +267,15 @@ namespace VPet_Simulator.Core
                         if (needBuild)
                             cacheList.Add(path);
                     }
+                    if (!needBuild)
+                        GraphCore.KeepCacheFile(Path);
                     if (needBuild)
                     {
                         await BuildSlots.WaitAsync();
                         try
                         {
                             BuildSpriteSheet(paths);
+                            Interlocked.Increment(ref SpriteSheetsBuilt);
                         }
                         finally
                         {
@@ -215,6 +303,10 @@ namespace VPet_Simulator.Core
             {
                 IsFail = true;
                 FailMessage = $"--PNGAnimation--{GraphInfo}--\nPath: {path}\n{e.Message}";
+            }
+            finally
+            {
+                prepared.TrySetResult();
             }
         }
 
@@ -355,7 +447,7 @@ namespace VPet_Simulator.Core
         public void Run(Decorator parant, Action? EndAction = null)
         {
             Touch();
-            if (!IsReady)
+            if (!WaitPrepared())
             {
                 EndAction?.Invoke();
                 return;
@@ -418,10 +510,10 @@ namespace VPet_Simulator.Core
         public Task Run(System.Windows.Controls.Image img, Action? EndAction = null)
         {
             Touch();
-            if (!IsReady)
+            if (!WaitPrepared())
             {
                 EndAction?.Invoke();
-                return Task.CompletedTask;
+                return new Task(() => { });// tâche non démarrée : les appelants font Start() (Task.CompletedTask levait une exception)
             }
             if (Control?.PlayState == true)
             {//如果当前正在运行,重置状态
