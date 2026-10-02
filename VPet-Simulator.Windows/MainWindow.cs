@@ -2644,16 +2644,24 @@ namespace VPet_Simulator.Windows
                           await Task.Delay(8000);
                           await Dispatcher.InvokeAsync(async () =>
                           {
-                              var err = await Habitat!.EnableAsync(qaHabitat.Info, persist: false);
-                              System.IO.File.WriteAllText(System.IO.Path.Combine(System.IO.Path.GetTempPath(), "vmax-qa-debug.txt"), "image=" + qaHabitat.Info + " erreur=" + (err ?? "aucune"));
-                              if (qaHabitat.GetString("edit") != null)
+                              var dbg = System.IO.Path.Combine(System.IO.Path.GetTempPath(), "vmax-qa-debug.txt");
+                              var err = qaHabitat.Info == "desktop"
+                                  ? await Habitat!.EnableDesktopAsync(persist: false)
+                                  : await Habitat!.EnableAsync(qaHabitat.Info, persist: false);
+                              System.IO.File.WriteAllText(dbg, "décor=" + qaHabitat.Info + " erreur=" + (err ?? "aucune") + " desktopDecor=" + Habitat.DesktopDecor);
+                              if (qaHabitat.GetString("edit") != null || Args.FindLine("edit") != null)
                               {
                                   Habitat.Window?.StartEditing();
                                   Habitat.Window?.QaHover(new Point(560, 520), qaHabitat.GetString("sel") ?? "f2");
-                                  if (qaHabitat.GetString("detect") != null)
+                                  if (qaHabitat.GetString("detect") != null || Args.FindLine("detect") != null)
                                       Habitat.Window?.QaDetect();
-                                  if (qaHabitat.GetString("rooms") != null)
+                                  if (qaHabitat.GetString("rooms") != null || Args.FindLine("rooms") != null)
                                       Habitat.Window?.QaSuggestRooms();
+                              }
+                              if ((qaHabitat.GetString("draw") != null || Args.FindLine("draw") != null) && Habitat.Window != null)
+                              {
+                                  Habitat.Window.StartEditing();
+                                  System.IO.File.AppendAllText(dbg, "\ndraw+finish: " + Habitat.Window.QaDrawAndFinish());
                               }
                           }).Task.Unwrap();
                           var trace = new System.Text.StringBuilder();

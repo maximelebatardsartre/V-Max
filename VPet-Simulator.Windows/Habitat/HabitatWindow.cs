@@ -35,14 +35,15 @@ public sealed class HabitatWindow : Window
         Title = "V-Max · Habitat";
         Icon = mw.Icon;
         WindowStyle = WindowStyle.None;
-        // Mode « bureau » : fenêtre RÉELLEMENT transparente → on voit le vrai bureau (fenêtres comprises) à travers.
-        // Mode aquarium (image) : fenêtre opaque classique, inchangée.
-        AllowsTransparency = mode.DesktopDecor;
+        // Mode « bureau » avec capture d'écran (mode.Image != null) : fenêtre opaque plein écran montrant ton bureau,
+        // tracé fiable. Mode « bureau » sans image : fenêtre réellement transparente. Aquarium (image choisie) : opaque.
+        bool transparentDesktop = mode.DesktopDecor && mode.Image == null;
+        AllowsTransparency = transparentDesktop;
         ResizeMode = mode.DesktopDecor ? ResizeMode.NoResize : ResizeMode.CanResize;
         ShowInTaskbar = true;
         MinWidth = 320;
         MinHeight = 200;
-        Background = mode.DesktopDecor ? System.Windows.Media.Brushes.Transparent : (Brush)FindResource("HudSurface");
+        Background = transparentDesktop ? System.Windows.Media.Brushes.Transparent : (Brush)FindResource("HudSurface");
         FontFamily = (FontFamily)FindResource("HudBody");
         Foreground = (Brush)FindResource("HudText");
         if (!mode.DesktopDecor)
@@ -179,6 +180,7 @@ public sealed class HabitatWindow : Window
     public bool IsEditing => editor != null;
 
     internal void QaHover(Point image, string? select) => editor?.QaHover(image, select);
+    internal string QaDrawAndFinish() => editor?.QaDrawAndFinish() ?? "pas d'éditeur";
     internal void QaDetect() => editor?.DetectFloors();
     internal void QaSuggestRooms() => editor?.SuggestRooms();
 

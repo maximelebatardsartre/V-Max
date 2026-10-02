@@ -213,6 +213,30 @@ internal sealed class HabitatEditor
         win.StopEditing(work);
     }
 
+    /// <summary>QA : trace un sol au milieu du décor puis « Terminer », en capturant toute erreur (debug de l'éditeur).</summary>
+    internal string QaDrawAndFinish()
+    {
+        try
+        {
+            Checkpoint();
+            work.Floors.Add(new HabitatFloor
+            {
+                Id = "qa-" + Guid.NewGuid().ToString("N")[..6],
+                Y = work.Image.Height * 0.82,
+                X1 = work.Image.Width * 0.2,
+                X2 = work.Image.Width * 0.8,
+            });
+            Render();
+            int before = work.Floors.Count;
+            Finish();
+            return $"sols avant Terminer={before} ; Terminer OK (view scaleY={win.ViewProjection.ScaleY:0.000}, image={work.Image.Width}x{work.Image.Height})";
+        }
+        catch (Exception e)
+        {
+            return "EXCEPTION Terminer: " + e.GetType().Name + " — " + e.Message + " @ " + (e.StackTrace?.Split('\n')[0]?.Trim() ?? "");
+        }
+    }
+
     private bool windowsHidden;
 
     /// <summary>

@@ -225,17 +225,43 @@ public sealed class HabitatMode
         string key = $"desktop-{vs.Width}x{vs.Height}-{System.Windows.Forms.Screen.AllScreens.Length}";
         var map = HabitatMap.TryLoad(key) ?? new HabitatMap();
         map.Image = new HabitatImage { Sha256 = key, Width = vs.Width, Height = vs.Height, Name = "Bureau" };
-        Activate(map, null, null);
+        // on capture le bureau RÉEL (tous les écrans, fenêtres comprises) comme décor : tu traces sur ce que tu vois,
+        // sur un canevas opaque fiable (l'interaction souris sur une fenêtre transparente était capricieuse).
+        var shot = CaptureVirtualDesktop();
+        Activate(map, shot, null, isDesktop: true);
         return Task.FromResult<string?>(null);
     }
 
-    /// <summary>Partie commune d'activation (image OU bureau transparent).</summary>
-    private void Activate(HabitatMap map, BitmapSource? image, string? path)
+    /// <summary>Capture tout le bureau virtuel (tous les écrans) en image. Null si échec.</summary>
+    private static BitmapSource? CaptureVirtualDesktop()
+    {
+        try
+        {
+            var vs = System.Windows.Forms.SystemInformation.VirtualScreen;
+            using var bmp = new System.Drawing.Bitmap(vs.Width, vs.Height, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
+            using (var g = System.Drawing.Graphics.FromImage(bmp))
+                g.CopyFromScreen(vs.Left, vs.Top, 0, 0, new System.Drawing.Size(vs.Width, vs.Height), System.Drawing.CopyPixelOperation.SourceCopy);
+            var h = bmp.GetHbitmap();
+            try
+            {
+                var src = System.Windows.Interop.Imaging.CreateBitmapSourceFromHBitmap(h, IntPtr.Zero, Int32Rect.Empty, BitmapSizeOptions.FromEmptyOptions());
+                src.Freeze();
+                return src;
+            }
+            finally { DeleteObject(h); }
+        }
+        catch { return null; }
+    }
+
+    [System.Runtime.InteropServices.DllImport("gdi32.dll")] private static extern bool DeleteObject(IntPtr hObject);
+
+    /// <summary>Partie commune d'activation (image, bureau capturé, ou bureau transparent).</summary>
+    private void Activate(HabitatMap map, BitmapSource? image, string? path, bool isDesktop = false)
     {
         Map = WindowMap = map;
         Image = image;
         ImagePath = path;
-        DesktopDecor = image == null;
+        DesktopDecor = isDesktop;
         Metrics = PetMetrics.Measure(mw);
 
         classicController = mw.Core.Controller;
