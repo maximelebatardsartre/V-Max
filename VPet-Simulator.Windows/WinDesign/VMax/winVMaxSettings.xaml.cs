@@ -607,8 +607,9 @@ public partial class winVMaxSettings : Window
             () => Combo(smartIntervals.Select(s => s < 60 ? $"{s} s" : $"{s / 60} min").ToList(),
                 () => Math.Max(0, Array.IndexOf(smartIntervals, set.SmartMoveInterval)),
                 i => set.SetSmartMoveInterval(smartIntervals[i]), width: 140), advancedOnly: true);
-        Add("compagnon", "Déplacements", "Zone de déplacement", "Où le compagnon peut se promener en dehors de l'habitat.",
-            MoveAreaEditor, fullWidth: true, advancedOnly: true);
+        Add("compagnon", "Déplacements", "Où Maxine peut aller",
+            "Choisis sa liberté : « Tous les écrans » → elle se balade partout et passe d'un écran à l'autre sans collision (tu peux aussi la glisser à la main où tu veux). Ou limite-la à un seul écran, ou à une zone. À toi de voir.",
+            MoveAreaEditor, fullWidth: true);
         Add("compagnon", "Déplacements", "Changer d'écran automatiquement", "Adapte la zone de déplacement à l'écran où tu déposes le compagnon.",
             () => Toggle(() => set.AutoChangeWindow, v => set.AutoChangeWindow = v), advancedOnly: true);
 
@@ -1058,16 +1059,20 @@ public partial class winVMaxSettings : Window
                 status.Text = T("Le mode habitat gère les déplacements.");
             else if (mw.Set.AutoChangeWindow)
                 status.Text = T("Écran choisi automatiquement (là où tu poses le compagnon).");
+            else if (c.IsAllScreens)
+                status.Text = T("Libre sur tous les écrans — Maxine passe d'un écran à l'autre sans collision.");
             else if (c.IsPrimaryScreen)
                 status.Text = T("Écran principal.");
             else
-                status.Text = T("Zone personnalisée : ") + $"{c.ScreenBorder.X}, {c.ScreenBorder.Y} — {c.ScreenBorder.Width} × {c.ScreenBorder.Height}";
+                status.Text = T("Écran / zone choisi : ") + $"{c.ScreenBorder.X}, {c.ScreenBorder.Y} — {c.ScreenBorder.Width} × {c.ScreenBorder.Height}";
         }
         var line = new StackPanel { Orientation = Orientation.Horizontal };
+        var all = (Button)ActionButton(T("Tous les écrans (libre)"), () => { (mw.Core.Controller as MWController)?.SetAllScreens(); Refresh(); });
         var primary = (Button)ActionButton(T("Écran principal"), () => { (mw.Core.Controller as MWController)?.ResetScreenBorder(); Refresh(); });
-        var current = (Button)ActionButton(T("Écran du compagnon"), () => { (mw.Core.Controller as MWController)?.SetNowScreenActivate(); Refresh(); });
+        var current = (Button)ActionButton(T("Cet écran"), () => { (mw.Core.Controller as MWController)?.SetNowScreenActivate(); Refresh(); });
         var custom = (Button)ActionButton(T("Zone personnalisée…"), () => new HUD.MoveAreaWindow(mw, Refresh).Show());
-        current.Margin = custom.Margin = new Thickness(8, 0, 0, 0);
+        primary.Margin = current.Margin = custom.Margin = new Thickness(8, 0, 0, 0);
+        line.Children.Add(all);
         line.Children.Add(primary);
         line.Children.Add(current);
         line.Children.Add(custom);

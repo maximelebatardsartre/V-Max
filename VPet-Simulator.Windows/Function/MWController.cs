@@ -136,6 +136,43 @@ namespace VPet_Simulator.Windows
             });
         }
 
+        /// <summary>
+        /// V-Max : la zone de déplacement couvre TOUS les écrans (bureau virtuel). Le compagnon se promène et se
+        /// glisse LIBREMENT d'un écran à l'autre, sans collision aux bords d'écran. Générique (mono, multi, vertical).
+        /// </summary>
+        public void SetAllScreens()
+        {
+            mw.Dispatcher.Invoke(() =>
+            {
+                if (!mw.IsLoaded) return;
+                var vs = SystemInformation.VirtualScreen;
+                var src = HwndSource.FromHwnd(new WindowInteropHelper(mw).Handle);
+                Rectangle logical;
+                if (src?.CompositionTarget != null)
+                {
+                    var dpi = src.CompositionTarget.TransformToDevice;
+                    logical = new Rectangle((int)(vs.X / dpi.M11), (int)(vs.Y / dpi.M22), (int)(vs.Width / dpi.M11), (int)(vs.Height / dpi.M22));
+                }
+                else
+                    logical = new Rectangle(vs.X, vs.Y, vs.Width, vs.Height);
+                ScreenBorder = logical;
+                mw.Set.GameScreenIndex = -1; // tous les écrans
+            });
+        }
+
+        /// <summary>Vrai si la zone de déplacement couvre (à peu près) tout le bureau virtuel</summary>
+        public bool IsAllScreens
+        {
+            get
+            {
+                if (IsPrimaryScreen) return false;
+                var vs = SystemInformation.VirtualScreen;
+                var src = HwndSource.FromHwnd(new WindowInteropHelper(mw).Handle);
+                double sx = src?.CompositionTarget?.TransformToDevice.M11 ?? 1, sy = src?.CompositionTarget?.TransformToDevice.M22 ?? 1;
+                return Math.Abs(ScreenBorder.Width - vs.Width / sx) < 8 && Math.Abs(ScreenBorder.Height - vs.Height / sy) < 8;
+            }
+        }
+
         public void SetNowScreenActivate()
         {
             mw.Dispatcher.Invoke(() =>
