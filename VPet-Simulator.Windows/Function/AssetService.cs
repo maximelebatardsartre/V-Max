@@ -18,8 +18,11 @@ namespace VPet_Simulator.Windows;
 /// </summary>
 public static class AssetService
 {
-    /// <summary>Base publique du bucket R2 (lecture seule, aucune clé). Modifiable si le bucket change.</summary>
-    public const string BaseUrl = "https://pub-fe5cb60ed1c14f82a3895d2bc32929d5.r2.dev";
+    private const string DefaultBaseUrl = "https://pub-fe5cb60ed1c14f82a3895d2bc32929d5.r2.dev";
+
+    /// <summary>Base publique du bucket R2 (lecture seule, aucune clé). Surchargeable par VMAX_ASSETS_BASEURL (tests).</summary>
+    public static string BaseUrl =>
+        Environment.GetEnvironmentVariable("VMAX_ASSETS_BASEURL") is { Length: > 0 } u ? u : DefaultBaseUrl;
     private const string ManifestName = "assets.json";
 
     /// <summary>Dossier persistant des assets téléchargés</summary>
