@@ -2816,6 +2816,7 @@ namespace VPet_Simulator.Windows
                                   case "shortcuts": HUD.ShortcutsWindow.Open(this); break;
                                   case "studio": HUD.StudioWindow.Open(this); break;
                                   case "welcome": new HUD.WelcomeWindow(this).Show(); break;
+                                  case "rencontre": new HUD.WelcomeConversation(this).Show(); break;
                                   case "input": Dispatcher.BeginInvoke(() => ShowInputBox("Nom du compagnon", "Comment veux-tu l'appeler ?", "Max", _ => { })); break;
                               }
                           });
@@ -3229,7 +3230,7 @@ namespace VPet_Simulator.Windows
             }
             // V-Max : carte d'accueil au tout premier lancement (après le fondu du compagnon)
             var welcome = new System.Windows.Threading.DispatcherTimer { Interval = TimeSpan.FromMilliseconds(700) };
-            welcome.Tick += (_, _) => { welcome.Stop(); HUD.WelcomeWindow.ShowIfFirstRun(this); };
+            welcome.Tick += (_, _) => { welcome.Stop(); HUD.WelcomeConversation.ShowIfFirstRun(this); };
             welcome.Start();
             // V-Max : recherche d'une mise à jour publiée (seulement sur une installation par l'installeur)
             if (App.MainWindows.Count == 1 && Set["vmax"][(LinePutScript.gbol)"onboarded"])
