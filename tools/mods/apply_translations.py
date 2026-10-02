@@ -12,6 +12,9 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from fr_names import FR
 
 CJK = re.compile(r'[\u4e00-\u9fff]')
+# mods refus\u00e9s (contenu sexuel) : jamais charg\u00e9s par V-Max, inutile de les traiter
+EXCLUDED = {"3027004255", "3027542580", "3030945675", "3031981095", "3035399894", "3042568517",
+            "3044723043", "3045450089", "3046644833", "3065265367", "3290665653", "3176916830"}
 
 def unescape(s):  # inverse de l'échappement LinePutScript (comme ingest.py)
     return (s.replace("/stop", ":|").replace("/id", "#").replace("/com", ",")
@@ -31,8 +34,17 @@ def fields(text, regex):
 
 def main():
     appdata = os.environ['APPDATA']
+    # dialogues/descriptions : d'abord ceux versionnés dans le dépôt (fr_dialogues.json), puis ceux produits
+    # par translate.py (%APPDATA%\V-Max\studio\translations.fr.json) qui complètent/écrasent.
+    gemini = {}
+    repo = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'fr_dialogues.json')
+    if os.path.exists(repo):
+        for mod, d in json.load(open(repo, encoding='utf-8')).items():
+            gemini.setdefault(mod, {}).update(d)
     tm_path = os.path.join(appdata, 'V-Max', 'studio', 'translations.fr.json')
-    gemini = json.load(open(tm_path, encoding='utf-8')) if os.path.exists(tm_path) else {}
+    if os.path.exists(tm_path):
+        for mod, d in json.load(open(tm_path, encoding='utf-8')).items():
+            gemini.setdefault(mod, {}).update(d)
     roots = [os.path.join(appdata, 'V-Max', 'mods'), r'D:\VMAX\MOD\1920960']
 
     written = mods_done = 0
@@ -42,7 +54,7 @@ def main():
             continue
         for mod in sorted(os.listdir(root)):
             md = os.path.join(root, mod)
-            if not os.path.isdir(md):
+            if not os.path.isdir(md) or mod in EXCLUDED:
                 continue
             per_mod = gemini.get(mod, {})
             def lookup(raw):
