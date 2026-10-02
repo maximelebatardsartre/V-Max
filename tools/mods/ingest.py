@@ -461,6 +461,16 @@ def main() -> int:
             mods.append({"id": d.name, "category": "Erreur", "reason": f"{type(e).__name__}: {e}", "source": str(d)})
 
     args.out.mkdir(parents=True, exist_ok=True)
+    # mods ajoutés à la main dans le Studio (glisser-déposer) : conservés tels quels
+    previous = args.out / "catalog.json"
+    if previous.exists():
+        try:
+            known = {m["id"] for m in mods}
+            kept = [m for m in json.loads(previous.read_text(encoding="utf-8")).get("mods", [])
+                    if m.get("origin") == "manuel" and m.get("id") not in known]
+            mods.extend(kept)
+        except (json.JSONDecodeError, OSError):
+            pass
     counts: dict[str, int] = {}
     for m in mods:
         counts[m["category"]] = counts.get(m["category"], 0) + 1

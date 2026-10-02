@@ -28,6 +28,7 @@ Dans V-Max : Paramètres › À propos, 7 clics rapprochés sur le numéro de ve
 
 - **Lecteur** : lit les images d'origine, sans déblocage ni argent.
 - **Verdict** : Garder, Intégrer au jeu, À revoir ou Supprimer, avec une note facultative. Il est enregistré dans `verdicts.json`.
+- **Ajout manuel** : glisse un dossier de mod, un dossier de plusieurs mods ou une archive `.zip` dans la fenêtre (ou bouton +). Le mod est copié dans `studio\mods\`, lu avec les mêmes règles et les mêmes contrôles, puis ajouté au catalogue ; `ingest.py` conserve ces ajouts quand il régénère le catalogue.
 - **Clavier** : 1 à 4 pour le verdict, ↑/↓ pour changer de mod, Espace pour lecture ou pause, ←/→ pour avancer image par image.
 
 ## 3. Traduction

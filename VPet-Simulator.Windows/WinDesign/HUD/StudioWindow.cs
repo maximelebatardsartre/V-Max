@@ -175,12 +175,19 @@ public sealed class StudioWindow : HudWindow
             foreach (var kv in fr)
                 french[kv.Key] = kv.Value;
 
+        AddHeaderButton("\uE710", "Ajouter des mods (ou glisse un dossier ou un .zip dans la fenêtre)", PickFolders);
         AddHeaderButton("", "Recharger le catalogue", Reload);
         AddHeaderButton("", "Ouvrir le dossier du Studio", () => OpenPath(Folder));
 
-        if (catalog == null)
+        AllowDrop = true;
+        DragEnter += OnDragOver;
+        DragOver += OnDragOver;
+        DragLeave += (_, _) => dropHint.Visibility = Visibility.Collapsed;
+        Drop += OnDrop;
+
+        if (catalog == null || mods.Count == 0)
         {
-            Body = Empty("Aucun catalogue. Lance d'abord :\npython tools/mods/ingest.py MOD/1920960\n(il s'écrit dans " + CatalogPath + ")");
+            Body = WithDrop(Empty("Aucun mod dans le Studio.\nGlisse ici un dossier de mod ou une archive .zip, ou utilise le bouton + en haut."));
             return;
         }
 
@@ -219,7 +226,7 @@ public sealed class StudioWindow : HudWindow
         grid.Children.Add(left);
         grid.Children.Add(center);
         grid.Children.Add(side);
-        Body = grid;
+        Body = WithDrop(grid);
 
         PreviewKeyDown += OnKey;
         Closed += (_, _) => player.Stop();
@@ -246,6 +253,102 @@ public sealed class StudioWindow : HudWindow
         Close();
         Open(MW);
     }
+
+    #region Ajout manuel (glisser-déposer)
+    private readonly Border dropHint = new() { Visibility = Visibility.Collapsed, IsHitTestVisible = false };
+    private bool importing;
+
+    private FrameworkElement WithDrop(UIElement content)
+    {
+        var accent = ((SolidColorBrush)Res("HudAccent")).Color;
+        dropHint.Background = new SolidColorBrush(Color.FromArgb(0xCC, 0x12, 0x12, 0x18));
+        dropHint.BorderBrush = Res("HudAccent");
+        dropHint.BorderThickness = new Thickness(2);
+        dropHint.CornerRadius = new CornerRadius(18);
+        dropHint.Margin = new Thickness(16, 0, 16, 16);
+        var sp = new StackPanel { HorizontalAlignment = HorizontalAlignment.Center, VerticalAlignment = VerticalAlignment.Center };
+        sp.Children.Add(new TextBlock { Text = "\uE896", FontFamily = (FontFamily)FindResource("HudIcons"), FontSize = 40, Foreground = Res("HudAccent"), HorizontalAlignment = HorizontalAlignment.Center });
+        sp.Children.Add(new TextBlock { Text = "Dépose ici un dossier de mod ou une archive .zip", Style = St("HudTitle"), FontSize = 20, Margin = new Thickness(0, 12, 0, 4), HorizontalAlignment = HorizontalAlignment.Center });
+        sp.Children.Add(new TextBlock { Text = "Il sera copié dans le Studio, lu et classé, avec les mêmes contrôles que les autres.", Foreground = Res("HudTextMuted"), FontSize = 13, HorizontalAlignment = HorizontalAlignment.Center });
+        dropHint.Child = sp;
+        var host = new Grid();
+        host.Children.Add(content);
+        host.Children.Add(dropHint);
+        return host;
+    }
+
+    private static string[] DroppedPaths(DragEventArgs e)
+        => e.Data.GetDataPresent(DataFormats.FileDrop) && e.Data.GetData(DataFormats.FileDrop) is string[] p ? p : [];
+
+    private void OnDragOver(object sender, DragEventArgs e)
+    {
+        var paths = DroppedPaths(e);
+        bool ok = !importing && paths.Length > 0 && paths.All(p => Directory.Exists(p) || p.EndsWith(".zip", StringComparison.OrdinalIgnoreCase));
+        e.Effects = ok ? DragDropEffects.Copy : DragDropEffects.None;
+        dropHint.Visibility = ok ? Visibility.Visible : Visibility.Collapsed;
+        e.Handled = true;
+    }
+
+    private void OnDrop(object sender, DragEventArgs e)
+    {
+        dropHint.Visibility = Visibility.Collapsed;
+        var paths = DroppedPaths(e);
+        if (paths.Length > 0)
+            ImportPaths(paths);
+        e.Handled = true;
+    }
+
+    private void PickFolders()
+    {
+        var dialog = new Microsoft.Win32.OpenFolderDialog { Title = "Choisis un ou plusieurs dossiers de mods", Multiselect = true };
+        if (dialog.ShowDialog(this) == true)
+            ImportPaths(dialog.FolderNames);
+    }
+
+    private async void ImportPaths(string[] paths)
+    {
+        if (importing)
+            return;
+        importing = true;
+        Notify(paths.Length == 1 ? "Import du mod en cours…" : $"Import de {paths.Length} éléments en cours…");
+        var coreFood = Path.Combine(MainWindow.ModPath, "0000_core", "food");
+        var results = await Task.Run(() => paths.SelectMany(p =>
+        {
+            try
+            {
+                return ModImporter.Import(p, Folder, coreFood);
+            }
+            catch (Exception ex)
+            {
+                return [new ModImporter.Result(Path.GetFileName(p), Path.GetFileName(p), "Erreur", ex.Message)];
+            }
+        }).ToList());
+        importing = false;
+        var added = results.Where(r => r.Refused == null).ToList();
+        var refused = results.Where(r => r.Refused != null).ToList();
+        if (refused.Count > 0)
+            VDialog.Show(this, string.Join("\n", refused.Select(r => $"• {(string.IsNullOrWhiteSpace(r.Name) ? r.Id : r.Name)} : {r.Refused}")),
+                refused.Count == 1 ? "Mod non ajouté" : $"{refused.Count} mods non ajoutés", MessageBoxButton.OK, Panuon.WPF.UI.MessageBoxIcon.Warning);
+        if (added.Count == 0)
+            return;
+        MW.Toast(added.Count == 1 ? $"« {added[0].Name} » ajouté au Studio ({added[0].Category})." : $"{added.Count} mods ajoutés au Studio.", HudToast.Kind.Success);
+        player.Stop();
+        Close();
+        Open(MW).SelectById(added[0].Id);
+    }
+
+    /// <summary>Affiche un mod précis (après un import)</summary>
+    public void SelectById(string id)
+    {
+        var m = mods.FirstOrDefault(x => x.Id == id);
+        if (m == null)
+            return;
+        category = "Tout";
+        onlyUntriaged = false;
+        BuildFilters();
+        Select(m);
+    }
+    #endregion
 
     private static void OpenPath(string path)
     {

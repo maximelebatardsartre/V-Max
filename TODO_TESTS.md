@@ -82,4 +82,4 @@ Légende : **[B]** bloquant pour une version publique · **[N]** normal · **[C]
 - [ ] **[N]** Studio : lire chaque type d'animation (enchaînement, humeurs, ×0,5 / ×2, image par image), donner un verdict à la souris et au clavier (1 à 4, ↑/↓), le retrouver après redémarrage.
 - [ ] **[N]** Traduction réelle avec ta clé Gemini (`python tools/mods/translate.py --verdicts garder,integrer`) : relire un échantillon dans le Studio (Max, tutoiement, pas de « maître »).
 - [ ] **[C]** Un mod de la liste d'exclusion copié dans `mod\` n'est pas chargé.
-
+- [ ] **[N]** Studio : glisser un dossier de mod (ou un .zip, ou un dossier contenant plusieurs mods) dans la fenêtre → cadre « Dépose ici », mod copié et affiché ; bouton + (choix de dossiers) ; un mod refusé affiche la raison et n'est pas copié.

@@ -19,6 +19,16 @@ public static class ModBlocklist
 
     private static readonly Regex IdInName = new(@"(?<!\d)(\d{9,11})(?!\d)", RegexOptions.Compiled);
 
+    // Mêmes motifs que tools/mods/ingest.py (import manuel dans le Studio)
+    /// <summary>Titre ou description d'un mod à caractère sexuel</summary>
+    public static readonly Regex TitlePattern = new(@"r-?18|18\+|nsfw|porn|hentai|lewd|色情|裸|自慰|女上位|奈子|看光光|诱惑|誘惑|打屁股|涩涩|瑟瑟|成人", RegexOptions.IgnoreCase | RegexOptions.Compiled);
+    /// <summary>Noms d'animations ou répliques à caractère sexuel : le mod entier est refusé</summary>
+    public static readonly Regex ContentPattern = new(@"\bsex\b|肉棒|好深|要坏掉|要壞掉|高潮|做爱|做愛|内射|內射|小穴|乳头|乳頭|脱衣|脫衣|nude|naked", RegexOptions.IgnoreCase | RegexOptions.Compiled);
+    /// <summary>Réplique ambiguë dans un mod par ailleurs anodin : seule la ligne est écartée</summary>
+    public static readonly Regex LinePattern = new(@"舔|色眯眯|变态|變態|❤", RegexOptions.Compiled);
+
+    public static bool IsBlockedId(string id) => WorkshopIds.Contains(id.Trim());
+
     /// <summary>Vrai si le dossier du mod (nom ou « itemid » de sa fiche) correspond à un mod bloqué</summary>
     public static bool IsBlocked(DirectoryInfo modDir, string? itemId)
     {
