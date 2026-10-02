@@ -24,10 +24,8 @@ public static class StartupShortcut
         var path = ShortcutPath;
         // ancien raccourci de VPet
         var legacy = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Startup), "VPET_Simulator.lnk");
-        if (File.Exists(legacy))
-            File.Delete(legacy);
-        if (File.Exists(path))
-            File.Delete(path);
+        try { if (File.Exists(legacy)) File.Delete(legacy); } catch { }
+        try { if (File.Exists(path)) File.Delete(path); } catch { } // .lnk verrouillé/refusé : ne doit pas planter le réglage
         if (!mw.Set.StartUPBoot)
             return;
         var link = (IShellLink)new ShellLink();

@@ -81,8 +81,15 @@ namespace VPet_Simulator.Windows
                 return null;
             };
 
-            CultureInfo.CurrentCulture = new CultureInfo(CultureInfo.CurrentCulture.Name);
-            CultureInfo.CurrentCulture.NumberFormat = new CultureInfo("en-US").NumberFormat;
+            // V-Max : point décimal forcé pour TOUS les threads (pas seulement l'UI). Sans DefaultThreadCurrentCulture,
+            // l'autosave et le chargement des animations (threads de fond) repartaient sur la culture Windows de l'ami
+            // (virgule décimale en fr-FR/de-DE) → positions/opacités/stats lues et écrites de travers (compagnon hors
+            // écran, animations cassées). Indispensable pour une distribution hors des PC anglophones.
+            var vmaxCulture = new CultureInfo(CultureInfo.CurrentCulture.Name);
+            vmaxCulture.NumberFormat = new CultureInfo("en-US").NumberFormat;
+            CultureInfo.CurrentCulture = vmaxCulture;
+            CultureInfo.DefaultThreadCurrentCulture = vmaxCulture;
+            CultureInfo.DefaultThreadCurrentUICulture = vmaxCulture;
 
 
             //更新存档系统

@@ -14,7 +14,7 @@ namespace VPet_Simulator.Windows.Agent;
 
 /// <summary>
 /// V-Max : IA locale native (Llama 3.2 1B via le serveur llama.cpp, compatible OpenAI). Rien n'est embarqué dans
-/// l'installeur : au premier passage à « activé », le modèle (~0,8 Go) et le serveur sont téléchargés puis mis en
+/// l'installeur : au premier passage à « activé », le modèle (~2 Go) et le serveur sont téléchargés puis mis en
 /// cache. Activé → le serveur tourne (pleine puissance CPU) ; désactivé → le processus est arrêté, zéro ressource.
 /// Exposé comme le fournisseur local « maxine-local » et détecté automatiquement par le routeur une fois prêt.
 /// </summary>
@@ -25,9 +25,11 @@ public sealed class LocalAiService
     public const string ModelAlias = "maxine";
     public const string BaseUrl = "http://127.0.0.1:8777/v1";
 
-    // Sources (modifiables si les URLs changent)
-    private const string ModelUrl = "https://huggingface.co/bartowski/Llama-3.2-1B-Instruct-GGUF/resolve/main/Llama-3.2-1B-Instruct-Q4_K_M.gguf?download=true";
-    private const string ModelFile = "Llama-3.2-1B-Instruct-Q4_K_M.gguf";
+    // Sources (modifiables si les URLs changent). Qwen2.5-3B-Instruct : bien meilleur français et vrai support des
+    // outils/fonctions (contrairement au 1B qui vouvoyait, sortait du personnage et produisait des appels d'outils
+    // malformés → erreur « format »). ~1,9 Go en Q4_K_M.
+    private const string ModelUrl = "https://huggingface.co/bartowski/Qwen2.5-3B-Instruct-GGUF/resolve/main/Qwen2.5-3B-Instruct-Q4_K_M.gguf?download=true";
+    private const string ModelFile = "Qwen2.5-3B-Instruct-Q4_K_M.gguf";
     // Les binaires sont sur les builds « bXXXX » (la release « latest » de GitHub n'en a pas) : on parcourt la liste.
     private const string ReleaseApi = "https://api.github.com/repos/ggml-org/llama.cpp/releases?per_page=15";
 
@@ -91,7 +93,7 @@ public sealed class LocalAiService
             }
             if (!File.Exists(ModelPath))
             {
-                Progress?.Invoke("Téléchargement du modèle (~0,8 Go)…", -1);
+                Progress?.Invoke("Téléchargement du modèle (~2 Go)…", -1);
                 var err = await DownloadFileAsync(ModelUrl, ModelPath, "modèle", cancel);
                 if (err != null)
                     return err;
@@ -123,8 +125,17 @@ public sealed class LocalAiService
     /// <summary>Au démarrage de V-Max : relance le serveur si l'option était active et le modèle déjà présent</summary>
     public void ResumeIfEnabled()
     {
-        if (Enabled && ModelReady && !Running)
-            _ = StartAsync(CancellationToken.None);
+        if (!Enabled || !ModelReady || Running)
+            return;
+        // passe par le même verrou qu'EnableAsync/Disable pour éviter une course si l'utilisateur (dé)coche l'IA
+        // locale pendant la reprise au démarrage.
+        _ = Task.Run(async () =>
+        {
+            await gate.WaitAsync();
+            try { if (!Running) await StartAsync(CancellationToken.None); }
+            catch { }
+            finally { gate.Release(); }
+        });
     }
 
     public void Stop()
@@ -168,7 +179,9 @@ public sealed class LocalAiService
         foreach (var a in new[]
         {
             "-m", ModelPath, "--host", "127.0.0.1", "--port", Port.ToString(),
-            "--alias", ModelAlias, "-c", "4096", "-t", threads.ToString(), "-tb", threads.ToString(), "--no-webui",
+            // --jinja : utilise le gabarit de discussion du modèle (Qwen) qui gère correctement les appels d'outils.
+            // Sans lui, llama-server rejetait la sortie (« ne correspond pas au format attendu »).
+            "--alias", ModelAlias, "--jinja", "-c", "4096", "-t", threads.ToString(), "-tb", threads.ToString(), "--no-webui",
         })
             psi.ArgumentList.Add(a);
         try

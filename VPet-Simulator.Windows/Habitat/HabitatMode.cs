@@ -234,6 +234,9 @@ public sealed class HabitatMode
             mw.Core.Controller = classicController;
         mw.SetZoomLevel(classicZoom > 0 ? classicZoom : Cfg.GetFloat("classic_zoom", 0.5));
         mw.Topmost = mw.Set.TopMost;
+        // garantit que le compagnon redevient cliquable : si on ferme la fenêtre habitat PENDANT l'édition (où
+        // IsHitTestVisible est passé à false pour laisser passer les clics vers l'éditeur), il resterait sinon figé.
+        mw.IsHitTestVisible = true;
         mw.Opacity = mw.Set.OpacityMain ? mw.Set.Opacity : 1;
         mw.Main.SetMoveMode(mw.Set.AllowMove, mw.Set.SmartMove, mw.Set.SmartMoveInterval * 1000);
         var w = Window;

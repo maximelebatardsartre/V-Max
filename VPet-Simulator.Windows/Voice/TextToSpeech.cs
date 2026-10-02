@@ -80,7 +80,7 @@ public sealed class TextToSpeech : IDisposable
                     names.Add(d);
             }
         return names.OrderBy(n => n.Contains("French") || n.Contains("Français") ? 0 : 1).ThenBy(n => n).ToList();
-    });
+    }) ?? new List<string>(); // Run peut renvoyer null si l'init SAPI dépasse le délai : jamais null pour l'UI
 
     private static IEnumerable<dynamic> Tokens(string category)
     {

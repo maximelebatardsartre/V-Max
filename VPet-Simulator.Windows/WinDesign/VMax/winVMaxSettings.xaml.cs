@@ -781,7 +781,7 @@ public partial class winVMaxSettings : Window
         Add("sauvegardes", "Copies de secours", "Gestionnaire de sauvegardes", "Parcourir et restaurer les sauvegardes et leurs copies.",
             () => ActionButton(T("Ouvrir"), () => HUD.SavesWindow.Open(mw)));
         Add("sauvegardes", "Copies de secours", "Dossier des données", ExtensionValue.DataDirectory,
-            () => ActionButton(T("Ouvrir le dossier"), () => Process.Start(new ProcessStartInfo(ExtensionValue.DataDirectory) { UseShellExecute = true })?.Dispose()),
+            () => ActionButton(T("Ouvrir le dossier"), () => { try { Process.Start(new ProcessStartInfo(ExtensionValue.DataDirectory) { UseShellExecute = true })?.Dispose(); } catch { } }),
             advancedOnly: true);
 
         Add("sauvegardes", "Compagnons multiples", "Plusieurs compagnons",
@@ -850,8 +850,8 @@ public partial class winVMaxSettings : Window
         Add("ia", "Agent V-Max", "Nouvelle conversation", "Oublie l'échange en cours (l'agent ne garde aucune mémoire après la fermeture de V-Max).",
             () => ActionButton(T("Effacer"), () => { agent?.ResetConversation(); Pulse(T("Conversation effacée")); }));
 
-        Add("ia", "IA locale", "IA locale (Llama 3.2)",
-            "Une petite IA qui tourne sur ton PC, sans clé et sans connexion. À la première activation, Maxine télécharge le modèle (~0,8 Go). Désactive-la pour libérer le processeur.",
+        Add("ia", "IA locale", "IA locale (Qwen 3B)",
+            "Une IA qui tourne sur ton PC, sans clé et sans connexion. À la première activation, Maxine télécharge le modèle (~2 Go). Plus lente qu'une IA en ligne, mais privée. Désactive-la pour libérer le processeur.",
             LocalAiToggle, fullWidth: true);
         foreach (var provider in Agent.Providers.ProviderRouter.Catalog)
         {
@@ -885,10 +885,14 @@ public partial class winVMaxSettings : Window
         Add("ia", "Transparence", "Journal des actions", "Chaque action de l'agent (outil, arguments, décision, résultat) est enregistrée localement.",
             () => ActionButton(T("Ouvrir le journal"), () =>
             {
-                var p = Agent.AgentOrchestrator.AuditLogPath;
-                if (!System.IO.File.Exists(p))
-                    System.IO.File.WriteAllText(p, "");
-                Process.Start(new ProcessStartInfo(p) { UseShellExecute = true })?.Dispose();
+                try
+                {
+                    var p = Agent.AgentOrchestrator.AuditLogPath;
+                    if (!System.IO.File.Exists(p))
+                        System.IO.File.WriteAllText(p, "");
+                    Process.Start(new ProcessStartInfo(p) { UseShellExecute = true })?.Dispose();
+                }
+                catch { }
             }), advancedOnly: true);
         Add("ia", "Compatibilité", "Module de discussion des mods",
             "Qui répond quand un mod ou un plugin passe par la discussion de VPet. La discussion V-Max (anneau, Ctrl+Alt+Espace) utilise toujours l'agent.",
@@ -1311,7 +1315,7 @@ public partial class winVMaxSettings : Window
             status.Text = mw.LocalAi.Running ? T("IA locale active — Maxine peut répondre hors ligne.")
                 : mw.LocalAi.Enabled ? T("IA locale en préparation…")
                 : mw.LocalAi.ModelReady ? T("Modèle déjà téléchargé. Active pour l'utiliser.")
-                : T("Non téléchargée. L'activer télécharge ~0,8 Go une seule fois.");
+                : T("Non téléchargée. L'activer télécharge ~2 Go une seule fois.");
         }
         SetStatus();
         if (mw.LocalAi != null)
@@ -1352,38 +1356,47 @@ public partial class winVMaxSettings : Window
     {
         var root = new StackPanel();
         var list = new StackPanel();
+        var mono = new FontFamily("Cascadia Mono, Consolas"); // police résolue dans cette fenêtre (cf. reste des paramètres)
         void Build()
         {
             list.Children.Clear();
-            foreach (var s in Screens.All())
+            List<Screens.ScreenDetail> screens;
+            try { screens = Screens.All(); } catch { screens = new List<Screens.ScreenDetail>(); }
+            foreach (var s in screens)
             {
-                var card = new Border
+                try
                 {
-                    CornerRadius = new CornerRadius(10), Padding = new Thickness(14, 10, 14, 10), Margin = new Thickness(0, 0, 0, 8),
-                    Background = (Brush)FindResource("VMaxCard"), BorderBrush = (Brush)FindResource(s.Primary ? "DARKPrimary" : "VMaxStroke"),
-                    BorderThickness = new Thickness(s.Primary ? 1.5 : 1),
-                };
-                var dock = new DockPanel();
-                var right = new StackPanel { HorizontalAlignment = HorizontalAlignment.Right };
-                right.Children.Add(new TextBlock { Text = s.Resolution, FontFamily = (FontFamily)FindResource("HudMono"), FontSize = 13, Foreground = (Brush)FindResource("PrimaryText"), HorizontalAlignment = HorizontalAlignment.Right });
-                right.Children.Add(new TextBlock { Text = "échelle " + s.ScaleText, FontSize = 11.5, Foreground = (Brush)FindResource("VMaxSubtleText"), HorizontalAlignment = HorizontalAlignment.Right });
-                DockPanel.SetDock(right, Dock.Right);
-                dock.Children.Add(right);
-                var left = new StackPanel { VerticalAlignment = VerticalAlignment.Center };
-                var title = new StackPanel { Orientation = Orientation.Horizontal };
-                title.Children.Add(new TextBlock { Text = s.FriendlyName, FontSize = 14, FontWeight = FontWeights.SemiBold, Foreground = (Brush)FindResource("PrimaryText"), VerticalAlignment = VerticalAlignment.Center });
-                if (s.Primary)
-                {
-                    var badge = new Border { CornerRadius = new CornerRadius(6), Background = (Brush)FindResource("DARKPrimary"), Padding = new Thickness(6, 1, 6, 2), Margin = new Thickness(8, 0, 0, 0), VerticalAlignment = VerticalAlignment.Center };
-                    badge.Child = new TextBlock { Text = T("Principal"), FontSize = 10.5, Foreground = (Brush)FindResource("DARKPrimaryText") };
-                    title.Children.Add(badge);
+                    var card = new Border
+                    {
+                        CornerRadius = new CornerRadius(10), Padding = new Thickness(14, 10, 14, 10), Margin = new Thickness(0, 0, 0, 8),
+                        Background = (Brush)FindResource("VMaxCard"), BorderBrush = (Brush)FindResource(s.Primary ? "DARKPrimary" : "VMaxStroke"),
+                        BorderThickness = new Thickness(s.Primary ? 1.5 : 1),
+                    };
+                    var dock = new DockPanel();
+                    var right = new StackPanel { HorizontalAlignment = HorizontalAlignment.Right };
+                    right.Children.Add(new TextBlock { Text = s.Resolution, FontFamily = mono, FontSize = 13, Foreground = (Brush)FindResource("PrimaryText"), HorizontalAlignment = HorizontalAlignment.Right });
+                    right.Children.Add(new TextBlock { Text = "échelle " + s.ScaleText, FontSize = 11.5, Foreground = (Brush)FindResource("VMaxSubtleText"), HorizontalAlignment = HorizontalAlignment.Right });
+                    DockPanel.SetDock(right, Dock.Right);
+                    dock.Children.Add(right);
+                    var left = new StackPanel { VerticalAlignment = VerticalAlignment.Center };
+                    var title = new StackPanel { Orientation = Orientation.Horizontal };
+                    title.Children.Add(new TextBlock { Text = s.FriendlyName, FontSize = 14, FontWeight = FontWeights.SemiBold, Foreground = (Brush)FindResource("PrimaryText"), VerticalAlignment = VerticalAlignment.Center });
+                    if (s.Primary)
+                    {
+                        var badge = new Border { CornerRadius = new CornerRadius(6), Background = (Brush)FindResource("DARKPrimary"), Padding = new Thickness(6, 1, 6, 2), Margin = new Thickness(8, 0, 0, 0), VerticalAlignment = VerticalAlignment.Center };
+                        badge.Child = new TextBlock { Text = T("Principal"), FontSize = 10.5, Foreground = (Brush)FindResource("DARKPrimaryText") };
+                        title.Children.Add(badge);
+                    }
+                    left.Children.Add(title);
+                    left.Children.Add(new TextBlock { Text = s.DeviceName.Replace(@"\\.\", "") + "  ·  position " + s.X + ", " + s.Y, FontSize = 11.5, Foreground = (Brush)FindResource("VMaxSubtleText") });
+                    dock.Children.Add(left);
+                    card.Child = dock;
+                    list.Children.Add(card);
                 }
-                left.Children.Add(title);
-                left.Children.Add(new TextBlock { Text = s.DeviceName.Replace(@"\\.\", "") + "  ·  position " + s.X + ", " + s.Y, FontSize = 11.5, Foreground = (Brush)FindResource("VMaxSubtleText") });
-                dock.Children.Add(left);
-                card.Child = dock;
-                list.Children.Add(card);
+                catch { /* un écran qui pose souci ne doit jamais vider toute la liste */ }
             }
+            if (list.Children.Count == 0)
+                list.Children.Add(new TextBlock { Text = T("Aucun écran détecté pour l'instant. Clique sur Rafraîchir, ou relance Maxine."), FontSize = 12.5, Foreground = (Brush)FindResource("VMaxSubtleText"), TextWrapping = TextWrapping.Wrap });
         }
         var refresh = (Button)ActionButton(T("Rafraîchir"), Build);
         refresh.HorizontalAlignment = HorizontalAlignment.Left;

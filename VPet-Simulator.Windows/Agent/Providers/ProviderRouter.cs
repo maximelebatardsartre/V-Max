@@ -51,7 +51,7 @@ public static class ProviderRouter
                 ["llama-3.3-70b", "gemini", "deepseek", "qwen"],
                 m => (m["id"]?.GetValue<string>() ?? "").EndsWith(":free")
                      && (m["supported_parameters"] as JsonArray)?.Any(p => p?.GetValue<string>() == "tools") == true)),
-        new("maxine-local", "Maxine (IA locale)", "Llama 3.2 · sur ton PC · hors ligne · sans clé", true,
+        new("maxine-local", "Maxine (IA locale)", "Qwen 3B · sur ton PC · hors ligne · sans clé", true,
             null, null,
             (_, model) => new OpenAiCompatibleProvider("maxine-local", "Maxine (IA locale)", LocalAiService.BaseUrl, null, model ?? LocalAiService.ModelAlias, true,
                 [LocalAiService.ModelAlias])),

@@ -65,9 +65,11 @@ if ($FullOffline) {
 
 Write-Host "==> Fabrication de l'installeur Velopack ($Version)" -ForegroundColor Cyan
 New-Item -ItemType Directory -Force -Path $releases | Out-Null
+# NB : packId reste "Maxine" (identité interne Velopack = NE PAS changer, sinon les installs existantes ne se
+# mettent plus à jour). packTitle est le nom VISIBLE (menu Démarrer, Programmes et fonctionnalités, raccourci).
 vpk pack `
     --packId Maxine `
-    --packTitle Maxine `
+    --packTitle "V-Max Compagnon" `
     --packAuthors "V-Max" `
     --packVersion $Version `
     --packDir $publish `
@@ -77,7 +79,14 @@ vpk pack `
     --outputDir $releases
 if ($LASTEXITCODE -ne 0) { throw "vpk pack a échoué." }
 
+# nom de fichier d'installeur plus parlant pour les amis (l'auto-update utilise le .nupkg, pas ce fichier)
 $setup = Get-ChildItem $releases -Filter "*Setup.exe" | Select-Object -First 1
+if ($setup) {
+    $nice = Join-Path $releases "V-Max-Compagnon-Setup.exe"
+    if (Test-Path $nice) { Remove-Item $nice -Force }
+    Rename-Item $setup.FullName $nice
+    $setup = Get-Item $nice
+}
 Write-Host "Installeur prêt : $($setup.FullName)" -ForegroundColor Green
 
 if ($Upload) {
@@ -87,7 +96,7 @@ if ($Upload) {
         --repoUrl $repo `
         --token $env:GITHUB_TOKEN `
         --publish `
-        --releaseName "Maxine $Version" `
+        --releaseName "V-Max Compagnon $Version" `
         --tag "v$Version" `
         --outputDir $releases
     if ($LASTEXITCODE -ne 0) { throw "La publication GitHub a échoué." }
