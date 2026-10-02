@@ -95,6 +95,28 @@ public sealed class HabitatMode
         set => Cfg.SetBool("span_off", !value);
     }
 
+    /// <summary>
+    /// Vivre directement sur le bureau en TRANSPARENT (temps réel) : on voit le vrai bureau à travers, et on trace
+    /// les sols/zones dessus. Activé par défaut (c'est l'expérience principale). Désactivé = ancien mode « décor image ».
+    /// </summary>
+    public bool DesktopMode
+    {
+        get => !Cfg.GetBool("desktop_mode_off");
+        set => Cfg.SetBool("desktop_mode_off", !value);
+    }
+
+    /// <summary>Position du compagnon sur le bureau : « front » = toujours DEVANT les fenêtres ; « behind » = DERRIÈRE.</summary>
+    public string Position
+    {
+        get => Cfg.GetString("position", "front") ?? "front";
+        set
+        {
+            Cfg.SetString("position", value);
+            if (Window != null && DesktopDecor)
+                Window.Topmost = value != "behind";
+        }
+    }
+
     /// <summary>Expérimental : vivre en permanence dans la couche du fond d'écran, derrière les fenêtres</summary>
     public bool WallpaperLayerEnabled
     {
@@ -182,9 +204,38 @@ public sealed class HabitatMode
         {
             return "Impossible d'ouvrir cette image : " + e.Message;
         }
+        Activate(map, image, path);
+        return null;
+    }
+
+    /// <summary>Décor « bureau » : pas d'image, le vrai bureau est visible à travers la fenêtre transparente.</summary>
+    public bool DesktopDecor { get; private set; }
+
+    /// <summary>
+    /// Active l'habitat TRANSPARENT sur le bureau : aucune image, on voit le vrai bureau (fenêtres comprises) en
+    /// direct ; la carte (sols/zones) est en coordonnées du bureau virtuel, donc générique pour toute config
+    /// (mono, multi, vertical, DPI mixte). Clé de carte = signature de la disposition des écrans.
+    /// </summary>
+    public Task<string?> EnableDesktopAsync(bool persist = true)
+    {
+        if (IsActive)
+            return Task.FromResult<string?>(null);
+        this.persist = persist;
+        var vs = System.Windows.Forms.SystemInformation.VirtualScreen;
+        string key = $"desktop-{vs.Width}x{vs.Height}-{System.Windows.Forms.Screen.AllScreens.Length}";
+        var map = HabitatMap.TryLoad(key) ?? new HabitatMap();
+        map.Image = new HabitatImage { Sha256 = key, Width = vs.Width, Height = vs.Height, Name = "Bureau" };
+        Activate(map, null, null);
+        return Task.FromResult<string?>(null);
+    }
+
+    /// <summary>Partie commune d'activation (image OU bureau transparent).</summary>
+    private void Activate(HabitatMap map, BitmapSource? image, string? path)
+    {
         Map = WindowMap = map;
         Image = image;
         ImagePath = path;
+        DesktopDecor = image == null;
         Metrics = PetMetrics.Measure(mw);
 
         classicController = mw.Core.Controller;
@@ -196,7 +247,8 @@ public sealed class HabitatMode
         classicOwner = mw.Owner;
 
         Window = new HabitatWindow(mw, this);
-        Window.Topmost = AlwaysOnTop;
+        // mode bureau : la position (devant/derrière les fenêtres) choisie par l'utilisateur ; sinon l'épingle.
+        Window.Topmost = DesktopDecor ? Position != "behind" : AlwaysOnTop;
         Window.Show();
         mw.Owner = Window;
         mw.Topmost = false;
@@ -217,7 +269,6 @@ public sealed class HabitatMode
         desktop ??= new HabitatDesktop(mw, this);
         desktop.Start();
         Changed?.Invoke();
-        return null;
     }
 
     /// <summary>Détache le compagnon de la fenêtre habitat (avant toute fermeture de celle-ci)</summary>

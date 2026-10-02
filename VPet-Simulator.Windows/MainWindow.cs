@@ -3287,7 +3287,7 @@ namespace VPet_Simulator.Windows
                 Habitat.Disable();
                 return;
             }
-            var error = await Habitat.EnableAsync();
+            var error = Habitat.DesktopMode ? await Habitat.EnableDesktopAsync() : await Habitat.EnableAsync();
             if (error != null)
                 Toast(error, HUD.HudToast.Kind.Warning, 6);
         }

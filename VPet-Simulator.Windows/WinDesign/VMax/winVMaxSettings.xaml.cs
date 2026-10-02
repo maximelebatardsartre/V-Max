@@ -613,12 +613,21 @@ public partial class winVMaxSettings : Window
             () => Toggle(() => set.AutoChangeWindow, v => set.AutoChangeWindow = v), advancedOnly: true);
 
         Add("compagnon", "Habitat (mode autonome)", "Mode autonome",
-            "Le compagnon vit dans une fenêtre « habitat » qui affiche ton décor (par défaut ton fond d'écran) et se promène sur les sols que tu traces.",
+            "Maxine vit sur ton bureau et se promène sur les sols/zones que tu traces. En l'activant la première fois, l'éditeur s'ouvre pour tracer ta carte.",
             () => Toggle(() => mw.Habitat?.IsActive == true, v =>
             {
                 if (mw.Habitat == null) return;
                 if (v != mw.Habitat.IsActive) _ = mw.ToggleHabitat();
             }));
+        Add("compagnon", "Habitat (mode autonome)", "Vivre directement sur le bureau (transparent)",
+            "Maxine vit sur ton VRAI bureau, en transparence temps réel : tu vois ton bureau et tes fenêtres, et tu traces sols/zones directement dessus (touche H pour masquer les fenêtres le temps du tracé). Désactive pour l'ancien mode « décor image ».",
+            () => Toggle(() => mw.Habitat?.DesktopMode != false, v => { if (mw.Habitat != null) mw.Habitat.DesktopMode = v; }));
+        var habitatPositions = new[] { ("front", "Devant les fenêtres"), ("behind", "Derrière les fenêtres") };
+        Add("compagnon", "Habitat (mode autonome)", "Position de Maxine",
+            "Sur le bureau : toujours au-dessus de tes fenêtres, ou derrière (comme un fond d'écran vivant).",
+            () => Combo(habitatPositions.Select(p => T(p.Item2)).ToList(),
+                () => Math.Max(0, Array.FindIndex(habitatPositions, p => p.Item1 == (mw.Habitat?.Position ?? "front"))),
+                i => { if (mw.Habitat != null) mw.Habitat.Position = habitatPositions[i].Item1; }, width: 220));
         Add("compagnon", "Habitat (mode autonome)", "Décor",
             "Une image avec des espaces dégagés (une maison en coupe, par exemple). Chaque image garde sa propre carte.",
             HabitatImagePicker, fullWidth: true);

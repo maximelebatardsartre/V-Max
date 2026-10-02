@@ -35,22 +35,30 @@ public sealed class HabitatWindow : Window
         Title = "V-Max · Habitat";
         Icon = mw.Icon;
         WindowStyle = WindowStyle.None;
-        ResizeMode = ResizeMode.CanResize;
+        // Mode « bureau » : fenêtre RÉELLEMENT transparente → on voit le vrai bureau (fenêtres comprises) à travers.
+        // Mode aquarium (image) : fenêtre opaque classique, inchangée.
+        AllowsTransparency = mode.DesktopDecor;
+        ResizeMode = mode.DesktopDecor ? ResizeMode.NoResize : ResizeMode.CanResize;
         ShowInTaskbar = true;
         MinWidth = 320;
         MinHeight = 200;
-        Background = (Brush)FindResource("HudSurface");
+        Background = mode.DesktopDecor ? System.Windows.Media.Brushes.Transparent : (Brush)FindResource("HudSurface");
         FontFamily = (FontFamily)FindResource("HudBody");
         Foreground = (Brush)FindResource("HudText");
-        WindowChrome.SetWindowChrome(this, new WindowChrome { CaptionHeight = 0, ResizeBorderThickness = new Thickness(6), GlassFrameThickness = new Thickness(0), UseAeroCaptionButtons = false });
+        if (!mode.DesktopDecor)
+            WindowChrome.SetWindowChrome(this, new WindowChrome { CaptionHeight = 0, ResizeBorderThickness = new Thickness(6), GlassFrameThickness = new Thickness(0), UseAeroCaptionButtons = false });
         RestoreBounds_();
 
-        var image = new Image { Source = mode.Image, Width = mode.Map.Image.Width, Height = mode.Map.Image.Height, Stretch = Stretch.Fill };
-        RenderOptions.SetBitmapScalingMode(image, BitmapScalingMode.HighQuality);
         World.Width = mode.Map.Image.Width;
         World.Height = mode.Map.Image.Height;
         World.RenderTransform = view;
-        World.Children.Add(image);
+        if (mode.Image != null)
+        {
+            // décor image (aquarium) : on l'affiche. En mode bureau, pas d'image → le vrai bureau reste visible.
+            var image = new Image { Source = mode.Image, Width = mode.Map.Image.Width, Height = mode.Map.Image.Height, Stretch = Stretch.Fill };
+            RenderOptions.SetBitmapScalingMode(image, BitmapScalingMode.HighQuality);
+            World.Children.Add(image);
+        }
         Overlay.Width = World.Width;
         Overlay.Height = World.Height;
         World.Children.Add(Overlay);
@@ -186,7 +194,13 @@ public sealed class HabitatWindow : Window
         aquariumBounds = new Rect(Left, Top, ActualWidth, ActualHeight);
         if (WindowState == WindowState.Minimized)
             WindowState = WindowState.Normal;
-        if (mode.SpanScreens && System.Windows.Forms.Screen.AllScreens.Length > 1)
+        if (mode.DesktopDecor)
+        {
+            // mode bureau : la fenêtre est DÉJÀ l'overlay transparent plein écran → on ne la redimensionne pas,
+            // on trace directement sur le vrai bureau visible à travers.
+            aquariumBounds = null;
+        }
+        else if (mode.SpanScreens && System.Windows.Forms.Screen.AllScreens.Length > 1)
         {
             // MULTI-ÉCRANS : on édite EN PLEIN ÉCRAN sur tout le bureau virtuel, directement sur le décor qui couvre
             // tous tes écrans (ton fond d'écran) → tu traces tes sols/zones/limites là où Maxine les verra vraiment.
@@ -262,6 +276,19 @@ public sealed class HabitatWindow : Window
     #region Position et taille mémorisées
     private void RestoreBounds_()
     {
+        if (mode.DesktopDecor)
+        {
+            // mode bureau : la fenêtre transparente couvre TOUT le bureau virtuel (tous les écrans)
+            var v = System.Windows.Forms.SystemInformation.VirtualScreen;
+            var m = PresentationSource.FromVisual(mw)?.CompositionTarget?.TransformFromDevice ?? System.Windows.Media.Matrix.Identity;
+            var tl = m.Transform(new Point(v.Left, v.Top));
+            var br = m.Transform(new Point(v.Right, v.Bottom));
+            Left = tl.X;
+            Top = tl.Y;
+            Width = br.X - tl.X;
+            Height = br.Y - tl.Y;
+            return;
+        }
         var cfg = mw.Set["vmax_habitat"];
         double w = cfg.GetFloat("w", 0), h = cfg.GetFloat("h", 0);
         var wa = SystemParameters.WorkArea;

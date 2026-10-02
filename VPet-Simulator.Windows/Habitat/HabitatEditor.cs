@@ -213,6 +213,29 @@ internal sealed class HabitatEditor
         win.StopEditing(work);
     }
 
+    private bool windowsHidden;
+
+    /// <summary>
+    /// Masque / réaffiche toutes les fenêtres ouvertes (touche H) pour tracer sur le bureau nu, puis les récupérer.
+    /// En mode bureau transparent, pratique pour voir le fond sans les fenêtres par-dessus.
+    /// </summary>
+    private void ToggleWindows()
+    {
+        try
+        {
+            var t = Type.GetTypeFromProgID("Shell.Application");
+            if (t == null)
+                return;
+            dynamic shell = Activator.CreateInstance(t)!;
+            if (windowsHidden)
+                shell.UndoMinimizeALL();
+            else
+                shell.MinimizeAll();
+            windowsHidden = !windowsHidden;
+        }
+        catch { }
+    }
+
     /// <summary>QA : simule le survol d'un point de l'image (fantôme) et la sélection d'un élément</summary>
     internal void QaHover(Point image, string? select)
     {
@@ -925,6 +948,9 @@ internal sealed class HabitatEditor
                 break;
             case Key.F when !ctrl:
                 FitView();
+                break;
+            case Key.H when !ctrl:
+                ToggleWindows();
                 break;
             case Key.Enter:
                 Finish();
