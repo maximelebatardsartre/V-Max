@@ -48,7 +48,7 @@ if ($LASTEXITCODE -ge 8) { throw "La copie de mod/0000_core a échoué." }
 # Source stable : MOD/1920960 (contient les traductions lang/fr) ; repli sur %APPDATA%/V-Max/mods.
 # Mods refusés (contenu sexuel) exclus ; dossiers sans info.lps (vides) ignorés.
 $excluded = @("3027004255","3027542580","3030945675","3031981095","3035399894","3042568517",
-              "3044723043","3045450089","3046644833","3065265367","3290665653","3176916830","3034830460")
+              "3044723043","3045450089","3046644833","3065265367","3290665653","3176916830")
 $bundledSrc = Join-Path $root "MOD\1920960"
 if (-not (Test-Path $bundledSrc)) { $bundledSrc = Join-Path $env:APPDATA "V-Max\mods" }
 if (Test-Path $bundledSrc) {
