@@ -2657,7 +2657,7 @@ namespace VPet_Simulator.Windows
                                   var p = Habitat!.Projection;
                                   var m = Habitat.Metrics;
                                   double s = ActualWidth;
-                                  trace.AppendLine($"{qi * 500 + 500}ms habitat={Habitat!.IsActive} intention={Life?.Current?.Label}{(Life?.Navigating == true ? " (trajet)" : "")} état={Main.State} graph={Main.DisplayType.Name}/{Main.DisplayType.Type} x={p.ToImageX(Left + s * m.CenterRatio):0} pieds={p.ToImageY(Top + s * m.FootRatio):0} zoom={Set.ZoomLevel:0.000} L={Core.Controller.GetWindowsDistanceLeft():0} R={Core.Controller.GetWindowsDistanceRight():0} D={Core.Controller.GetWindowsDistanceDown():0}");
+                                  trace.AppendLine($"{qi * 500 + 500}ms habitat={Habitat!.IsActive}{(Habitat.OnDesktop ? " (bureau)" : "")} intention={Life?.Current?.Label}{(Life?.Navigating == true ? " (trajet)" : "")} état={Main.State} graph={Main.DisplayType.Name}/{Main.DisplayType.Type} x={p.ToImageX(Left + s * m.CenterRatio):0} pieds={p.ToImageY(Top + s * m.FootRatio):0} zoom={Set.ZoomLevel:0.000} L={Core.Controller.GetWindowsDistanceLeft():0} R={Core.Controller.GetWindowsDistanceRight():0} D={Core.Controller.GetWindowsDistanceDown():0}");
                               });
                               if (int.TryParse(qaHabitat.GetString("snapat"), out var snapAt) && qi == snapAt)
                                   Dispatcher.Invoke(() => QaSnapshotComposite(Habitat!.Window!, new Window[] { this }, System.IO.Path.Combine(System.IO.Path.GetTempPath(), "vmax-qa-mid.png")));
@@ -2669,6 +2669,10 @@ namespace VPet_Simulator.Windows
                                       book.Routines.Add(new Habitat.LifeRoutine { Id = "qa", Action = qaRoutine, Place = qaHabitat.GetString("place"), From = now.AddMinutes(-30).ToString("HH:mm"), To = now.AddMinutes(1).ToString("HH:mm"), MinMinutes = 1, MaxMinutes = 2 });
                                       Life!.QaUse(book);
                                   });
+                              if (qi == 3 && qaHabitat.GetString("desktop") != null)
+                                  Dispatcher.Invoke(() => Habitat!.QaEnterDesktop());
+                              if (qi == 9 && qaHabitat.GetString("desktop") != null)
+                                  Dispatcher.Invoke(() => Habitat!.ExitDesktop());
                               if (qi == 2 && qaHabitat.GetString("goto") is string qaPlace)
                                   Dispatcher.Invoke(() => _ = Life!.StartAsync(qaPlace, qaHabitat.GetString("act") ?? "relax", TimeSpan.Zero, "routine")
                                       .ContinueWith(t => trace.AppendLine("intention : " + t.Result)));

@@ -431,6 +431,23 @@ Format (version 1) :
 
 | Étape | Contenu | Critère de sortie |
 |---|---|---|
-| **1. Fondations** | Modèle, projection, fenêtre habitat, locomotion et gravité sur les sols, éditeur des sols avec fantôme et taille du compagnon, réglages, taille à la volée | Le compagnon marche sur un sol tracé, suit la fenêtre quand on la déplace ou la redimensionne, retombe sur un sol quand on le lâche |
-| **2. Navigation** | Échelles (aimantation), chutes, A*, pièces, emplacements, routines, bascule vers le bureau (Win+D, inactivité) | « Va dans la cuisine » fonctionne à travers deux étages |
+| **1. Fondations** ✅ | Modèle, projection, fenêtre habitat, locomotion et gravité sur les sols, éditeur des sols avec fantôme et taille du compagnon, réglages, taille à la volée | Le compagnon marche sur un sol tracé, suit la fenêtre quand on la déplace ou la redimensionne, retombe sur un sol quand on le lâche |
+| **2. Navigation** ✅ | Échelles (aimantation), chutes, A*, pièces, emplacements, routines de vie avancées (§11.7), bascule vers le bureau (Win+D, inactivité) | « Va dans la cuisine » fonctionne à travers deux étages |
 | **3. Extras** | Outils de l'agent, détection automatique des sols, suggestion des pièces par l'IA, partage, expérimentation de la couche du fond d'écran | — |
+
+### 11.7 Routines de vie avancées (décision du 2026-10-02)
+
+Pas de tamagotchi qui mange à 12 h 00 pile : l'utilisateur compose le rythme de vie de son compagnon.
+
+| Élément | Règle |
+|---|---|
+| **Bloc de routine** | Action (dormir, manger, boire, se détendre, ou une occupation du personnage), lieu (nom de pièce), plage de départ (« entre 12 h 00 et 14 h 00 », peut passer minuit), jours actifs, durée min–max. Ajout, modification, suppression dans Paramètres › Routines de vie ; enregistrement dans `%APPDATA%\V-Maxoutines.json`. |
+| **Aléatoire humain** | Chaque jour, l'heure de départ et la durée sont tirées au hasard dans la plage. Le tirage est **déterministe par (routine, jour)** (hachage FNV-1a) : relancer V-Max ne change pas l'heure du jour, mais chaque jour en a une différente. |
+| **Déclenchement** | Vérification toutes les 20 s : heure tirée atteinte et plage en cours → trajet A* vers la pièce → animation sur l'emplacement de l'activité (les meubles apparaissent avec elle). |
+| **Rattrapage** | V-Max démarré au milieu de la plage après l'heure tirée : la routine part aussitôt. Plage terminée : sautée (pas d'enchaînement mécanique des oublis). |
+| **Disponibilité** | Une routine attend si le compagnon est tenu, déjà occupé à la demande de l'utilisateur, ou si l'éditeur est ouvert ; elle reste valable jusqu'à la fin de sa plage. |
+| **Interruption** | L'attraper annule l'intention ; une caresse ou une parole met le trajet en pause, puis il reprend. Réveillé à la main, il ne se rendort pas. |
+| **Sans habitat** | L'activité se joue sur place (dormir, manger…), sans trajet. |
+| **Lieux** | Les routines désignent des pièces par leur **nom** (puis par leur type) : elles sont indépendantes du décor, et un même rythme suit le compagnon d'un fond d'écran à l'autre. |
+
+Les jauges de VPet continuent d'évoluer : les routines ne les remplacent pas, elles décident **quand** et **où** le compagnon mange ou dort (et un repas de routine est un vrai repas, choisi parmi les favoris, payé selon les règles de la boutique).

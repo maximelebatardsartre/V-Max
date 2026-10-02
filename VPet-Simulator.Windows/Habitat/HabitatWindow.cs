@@ -161,7 +161,7 @@ public sealed class HabitatWindow : Window
 
     private void Moved()
     {
-        if (editor != null || !IsLoaded)
+        if (editor != null || !IsLoaded || mode.OnDesktop || WindowState == WindowState.Minimized)
             return;
         mode.Reproject();
         mode.PlacePet();
@@ -176,6 +176,7 @@ public sealed class HabitatWindow : Window
     {
         if (editor != null)
             return;
+        mode.ExitDesktop();
         mode.SetEditing(true);
         editor = new HabitatEditor(this, mode);
         ShowChrome(true);

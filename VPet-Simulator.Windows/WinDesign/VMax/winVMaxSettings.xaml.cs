@@ -586,6 +586,15 @@ public partial class winVMaxSettings : Window
                 mw.Habitat.Window?.StartEditing();
                 mw.Habitat.Window?.Activate();
             }));
+        Add("compagnon", "Habitat (mode autonome)", "Sortir sur le bureau",
+            "Quand tu affiches le bureau (Win+D), le compagnon quitte l'habitat et vit sur ton fond d'écran, si une carte a été tracée pour cette image.",
+            () => Toggle(() => mw.Habitat?.DesktopEnabled != false, v => { if (mw.Habitat != null) mw.Habitat.DesktopEnabled = v; }));
+        var idleChoices = new[] { 0, 2, 5, 10, 20, 30 };
+        Add("compagnon", "Habitat (mode autonome)", "Au repos, sortir sur le bureau après",
+            "Quand le PC est inactif, le compagnon passe sur le fond d'écran, au-dessus des fenêtres ; il revient dès que tu touches la souris ou le clavier.",
+            () => Combo(idleChoices.Select(m => m == 0 ? T("Jamais") : $"{m} min").ToList(),
+                () => Math.Max(0, Array.IndexOf(idleChoices, mw.Habitat?.IdleMinutes ?? 5)),
+                i => { if (mw.Habitat != null) mw.Habitat.IdleMinutes = idleChoices[i]; }, width: 140), advancedOnly: true);
         Add("compagnon", "Habitat (mode autonome)", "Habitat toujours au premier plan", "Garde la fenêtre habitat au-dessus des autres fenêtres.",
             () => Toggle(() => mw.Habitat?.AlwaysOnTop == true, v => { if (mw.Habitat != null) mw.Habitat.AlwaysOnTop = v; }), advancedOnly: true);
 

@@ -41,6 +41,12 @@ public sealed class HabitatMode
     public bool IsActive => Window != null;
     public HabitatWindow? Window { get; private set; }
     public HabitatMap Map { get; private set; } = new();
+    /// <summary>Carte de la fenêtre habitat (Map peut être celle du fond d'écran quand le compagnon est sur le bureau)</summary>
+    public HabitatMap WindowMap { get; private set; } = new();
+    /// <summary>Le compagnon vit sur le vrai fond d'écran (Win+D ou inactivité)</summary>
+    public bool OnDesktop { get; private set; }
+    private HabitatDesktop? desktop;
+
     public BitmapSource? Image { get; private set; }
     public string? ImagePath { get; private set; }
     public PetMetrics Metrics { get; private set; } = PetMetrics.Default;
@@ -63,6 +69,20 @@ public sealed class HabitatMode
             if (string.IsNullOrEmpty(value)) Cfg.Remove("image");
             else Cfg.SetString("image", value);
         }
+    }
+
+    /// <summary>Sortir sur le vrai bureau quand il est affiché (Win+D) ou au repos</summary>
+    public bool DesktopEnabled
+    {
+        get => !Cfg.GetBool("desktop_off");
+        set => Cfg.SetBool("desktop_off", !value);
+    }
+
+    /// <summary>Minutes d'inactivité avant de sortir sur le bureau (0 = jamais)</summary>
+    public int IdleMinutes
+    {
+        get => Cfg.GetInt("idle_minutes", 5);
+        set => Cfg.SetInt("idle_minutes", Math.Max(0, value));
     }
 
     public bool AlwaysOnTop
@@ -127,7 +147,7 @@ public sealed class HabitatMode
         {
             return "Impossible d'ouvrir cette image : " + e.Message;
         }
-        Map = map;
+        Map = WindowMap = map;
         Image = image;
         ImagePath = path;
         Metrics = PetMetrics.Measure(mw);
@@ -159,6 +179,8 @@ public sealed class HabitatMode
         PlacePet();
         if (Map.Floors.Count == 0)
             Window.StartEditing();
+        desktop ??= new HabitatDesktop(mw, this);
+        desktop.Start();
         Changed?.Invoke();
         return null;
     }
@@ -175,6 +197,7 @@ public sealed class HabitatMode
     {
         if (!IsActive)
             return;
+        desktop?.Stop();
         mw.Life?.Cancel(null);
         Leash = null;
         if (persist)
@@ -232,7 +255,13 @@ public sealed class HabitatMode
     /// <summary>Enregistre la carte (après édition ou changement de taille)</summary>
     public void SaveMap(HabitatMap map)
     {
-        Map = map;
+        if (OnDesktop && Map != WindowMap)
+        {
+            // la carte du fond d'écran a été redimensionnée (Ctrl + molette) : on l'enregistre telle quelle
+            try { map.Save(); } catch { }
+            return;
+        }
+        Map = WindowMap = map;
         try
         {
             map.Save();
@@ -253,7 +282,10 @@ public sealed class HabitatMode
     {
         if (Window == null)
             return;
-        Projection = Window.ScreenProjection;
+        if (OnDesktop)
+            Projection = desktopProjection();
+        else
+            Projection = Window.ScreenProjection;
         double size = Metrics.WindowSizeFor(Map.PetHeight * Projection.ScaleY);
         mw.SetZoomLevel(Math.Clamp(size / 500, 0.05, 8));
     }
@@ -283,6 +315,69 @@ public sealed class HabitatMode
         Remember(x, floor.Id);
     }
 
+    [System.Runtime.InteropServices.DllImport("user32.dll")] private static extern bool ShowWindow(IntPtr hWnd, int nCmdShow);
+
+    /// <summary>QA : passe sur le bureau avec la carte de l'habitat, sur l'écran principal</summary>
+    internal void QaEnterDesktop() =>
+        EnterDesktop(WindowMap, new Rect(0, 0, SystemParameters.PrimaryScreenWidth, SystemParameters.PrimaryScreenHeight), ImageFit.Fill, 1, topmost: true);
+
+    #region Bureau (Win+D, inactivité)
+    private Func<HabitatProjection> desktopProjection = () => HabitatProjection.Identity;
+    private bool desktopTopmost;
+
+    /// <summary>
+    /// Le compagnon passe sur le vrai fond d'écran, avec la carte de cette image projetée sur l'écran
+    /// </summary>
+    internal void EnterDesktop(HabitatMap map, Rect monitor, ImageFit fit, double pixelToDip, bool topmost)
+    {
+        if (OnDesktop || Window == null)
+            return;
+        mw.Life?.Cancel(null);
+        Leash = null;
+        bool sameMap = map == WindowMap;
+        OnDesktop = true;
+        Map = map;
+        desktopTopmost = topmost;
+        desktopProjection = () => HabitatProjection.Compute(map.Image.Width, map.Image.Height, monitor, fit, pixelToDip);
+        ReleasePet();
+        // Windows masque les fenêtres possédées avec leur propriétaire réduit (Win+D) : on réaffiche le compagnon sans voler le focus
+        ShowWindow(new System.Windows.Interop.WindowInteropHelper(mw).Handle, 4 /* SW_SHOWNOACTIVATE */);
+        mw.Topmost = topmost;
+        if (!sameMap)
+        {
+            petX = double.NaN;
+            petFloor = null;
+        }
+        Reproject();
+        PlacePet();
+        Changed?.Invoke();
+    }
+
+    /// <summary>Retour dans la fenêtre habitat</summary>
+    internal void ExitDesktop()
+    {
+        if (!OnDesktop)
+            return;
+        mw.Life?.Cancel(null);
+        Leash = null;
+        bool sameMap = Map == WindowMap;
+        OnDesktop = false;
+        Map = WindowMap;
+        desktopTopmost = false;
+        mw.Topmost = false;
+        if (Window != null)
+            mw.Owner = Window;
+        if (!sameMap)
+        {
+            petX = double.NaN;
+            petFloor = null;
+        }
+        Reproject();
+        PlacePet();
+        Changed?.Invoke();
+    }
+    #endregion
+
     /// <summary>Pendant l'édition, le compagnon s'efface (le fantôme le remplace)</summary>
     internal void SetEditing(bool editing)
     {
@@ -294,7 +389,7 @@ public sealed class HabitatMode
     private void KeepPetBelowTop(object? sender, EventArgs e)
     {
         // dans l'habitat, le compagnon suit la fenêtre habitat (fenêtre propriétaire) au lieu d'être toujours au premier plan
-        if (IsActive && mw.Topmost)
+        if (IsActive && mw.Topmost && !(OnDesktop && desktopTopmost))
             mw.Topmost = false;
     }
 
