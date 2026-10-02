@@ -1366,11 +1366,45 @@ public partial class winVMaxSettings : Window
         var root = new StackPanel();
         var list = new StackPanel();
         var mono = new FontFamily("Cascadia Mono, Consolas"); // police résolue dans cette fenêtre (cf. reste des paramètres)
+
+        // mini-carte de la disposition réelle des écrans (comme les paramètres d'affichage Windows)
+        FrameworkElement ScreenLayout(List<Screens.ScreenDetail> ss)
+        {
+            double minX = ss.Min(s => (double)s.X), minY = ss.Min(s => (double)s.Y);
+            double maxX = ss.Max(s => (double)s.X + s.Width), maxY = ss.Max(s => (double)s.Y + s.Height);
+            double vw = Math.Max(1, maxX - minX), vh = Math.Max(1, maxY - minY);
+            const double areaW = 540, maxH = 190, pad = 6;
+            double scale = Math.Min((areaW - 2 * pad) / vw, (maxH - 2 * pad) / vh);
+            var canvas = new Canvas { Width = areaW, Height = vh * scale + 2 * pad, Margin = new Thickness(0, 2, 0, 16), HorizontalAlignment = HorizontalAlignment.Left };
+            foreach (var s in ss)
+            {
+                var cell = new Border
+                {
+                    Width = Math.Max(30, s.Width * scale - 4), Height = Math.Max(22, s.Height * scale - 4),
+                    Background = (Brush)FindResource(s.Primary ? "VMaxNavSelected" : "VMaxCard"),
+                    BorderBrush = (Brush)FindResource(s.Primary ? "DARKPrimary" : "VMaxStroke"),
+                    BorderThickness = new Thickness(s.Primary ? 2 : 1), CornerRadius = new CornerRadius(6),
+                    Child = new TextBlock
+                    {
+                        Text = $"{s.Width}×{s.Height}\n{s.ScaleText}" + (s.Primary ? "  ★" : ""),
+                        FontSize = 9.5, FontFamily = mono, Foreground = (Brush)FindResource("VMaxSubtleText"),
+                        TextAlignment = TextAlignment.Center, HorizontalAlignment = HorizontalAlignment.Center, VerticalAlignment = VerticalAlignment.Center,
+                    },
+                };
+                Canvas.SetLeft(cell, pad + (s.X - minX) * scale);
+                Canvas.SetTop(cell, pad + (s.Y - minY) * scale);
+                canvas.Children.Add(cell);
+            }
+            return canvas;
+        }
+
         void Build()
         {
             list.Children.Clear();
             List<Screens.ScreenDetail> screens;
             try { screens = Screens.All(); } catch { screens = new List<Screens.ScreenDetail>(); }
+            if (screens.Count > 1)
+                list.Children.Add(ScreenLayout(screens));
             foreach (var s in screens)
             {
                 try
