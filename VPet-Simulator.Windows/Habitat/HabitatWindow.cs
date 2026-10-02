@@ -186,12 +186,29 @@ public sealed class HabitatWindow : Window
         aquariumBounds = new Rect(Left, Top, ActualWidth, ActualHeight);
         if (WindowState == WindowState.Minimized)
             WindowState = WindowState.Normal;
-        var wa = SystemParameters.WorkArea;
-        double ew = Math.Min(wa.Width * 0.92, 1320), eh = Math.Min(wa.Height * 0.92, 860);
-        Width = ew;
-        Height = eh;
-        Left = wa.Left + (wa.Width - ew) / 2;
-        Top = wa.Top + (wa.Height - eh) / 2;
+        if (mode.SpanScreens && System.Windows.Forms.Screen.AllScreens.Length > 1)
+        {
+            // MULTI-ÉCRANS : on édite EN PLEIN ÉCRAN sur tout le bureau virtuel, directement sur le décor qui couvre
+            // tous tes écrans (ton fond d'écran) → tu traces tes sols/zones/limites là où Maxine les verra vraiment.
+            var v = System.Windows.Forms.SystemInformation.VirtualScreen;
+            var m = PresentationSource.FromVisual(mw)?.CompositionTarget?.TransformFromDevice ?? System.Windows.Media.Matrix.Identity;
+            var tl = m.Transform(new Point(v.Left, v.Top));
+            var br = m.Transform(new Point(v.Right, v.Bottom));
+            Left = tl.X;
+            Top = tl.Y;
+            Width = br.X - tl.X;
+            Height = br.Y - tl.Y;
+        }
+        else
+        {
+            // mono-écran : espace de travail confortable et centré (évite la « bande étirée »).
+            var wa = SystemParameters.WorkArea;
+            double ew = Math.Min(wa.Width * 0.92, 1320), eh = Math.Min(wa.Height * 0.92, 860);
+            Width = ew;
+            Height = eh;
+            Left = wa.Left + (wa.Width - ew) / 2;
+            Top = wa.Top + (wa.Height - eh) / 2;
+        }
         SetView(FitView());
         mode.SetEditing(true);
         editor = new HabitatEditor(this, mode);
