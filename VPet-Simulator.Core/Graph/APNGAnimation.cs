@@ -236,8 +236,13 @@ namespace VPet_Simulator.Core
 
             using var image = SKImage.FromBitmap(combinedBitmap);
             using var data = image.Encode(SKEncodedImageFormat.Png, 100);
-            using var stream = File.Open(SpriteSheetPath, FileMode.Create, FileAccess.Write, FileShare.Read);
-            data.SaveTo(stream);
+            // V-Max : écriture atomique (.tmp puis remplacement), comme PNGAnimation. Sinon un disque plein ou une
+            // interruption antivirus laisserait un sprite sheet tronqué considéré comme valide (File.Exists) →
+            // animation corrompue de façon permanente jusqu'à purge manuelle du cache.
+            var tmp = SpriteSheetPath + ".tmp";
+            using (var stream = File.Open(tmp, FileMode.Create, FileAccess.Write, FileShare.Read))
+                data.SaveTo(stream);
+            File.Move(tmp, SpriteSheetPath, true);
         }
 
         private static ParsedApng ParseApng(string path)

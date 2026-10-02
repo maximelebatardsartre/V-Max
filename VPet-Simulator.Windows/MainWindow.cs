@@ -443,21 +443,17 @@ namespace VPet_Simulator.Windows
                     //timecount = DateTime.Now;
                 }
                 Set.StartRecordLastPoint = new Point(Dispatcher.Invoke(() => Left), Dispatcher.Invoke(() => Top));
-                if (PrefixSave == "" && File.Exists(ExtensionValue.DataDirectory + @"\Setting.lps"))
-                {//对于主设置的备份
-                    if (new FileInfo(ExtensionValue.DataDirectory + @"\Setting.lps").Length < 10)
-                    {//文件大小小于10字节,可能是损坏的文件
-                        File.Delete(ExtensionValue.DataDirectory + @"\Setting.lps");
-                    }
-                    else
-                    {
-                        if (File.Exists(ExtensionValue.DataDirectory + @"\Setting.bkp"))
-                            File.Delete(ExtensionValue.DataDirectory + @"\Setting.bkp");
-                        File.Move(ExtensionValue.DataDirectory + @"\Setting.lps", ExtensionValue.DataDirectory + @"\Setting.bkp");
-                    }
-
+                // V-Max : écriture atomique des réglages. On écrit d'abord un .tmp (si ça échoue, l'ancien Setting.lps
+                // reste intact), on sauvegarde l'ancien bon fichier en .bkp, puis on remplace d'un coup. Évite de se
+                // retrouver SANS Setting.lps si une écriture est interrompue (antivirus, disque plein, droits).
+                var settingPath = ExtensionValue.DataDirectory + @$"\Setting{PrefixSave}.lps";
+                var settingTmp = settingPath + ".tmp";
+                File.WriteAllText(settingTmp, Set.ToString());
+                if (PrefixSave == "" && File.Exists(settingPath) && new FileInfo(settingPath).Length >= 10)
+                {
+                    try { File.Copy(settingPath, ExtensionValue.DataDirectory + @"\Setting.bkp", true); } catch { }
                 }
-                File.WriteAllText(ExtensionValue.DataDirectory + @$"\Setting{PrefixSave}.lps", Set.ToString());
+                File.Move(settingTmp, settingPath, true);
 
                 if (!Directory.Exists(ExtensionValue.DataDirectory + @"\Saves"))
                     Directory.CreateDirectory(ExtensionValue.DataDirectory + @"\Saves");

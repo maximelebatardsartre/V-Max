@@ -593,8 +593,17 @@ namespace VPet_Simulator.Windows
 
         private void AutoSaveTimer_Elapsed(object? sender, ElapsedEventArgs? e)
         {
-            CheckGalleryUnlock();
-            Save();
+            // autosave sur thread de fond : une écriture bloquée (antivirus, disque plein, droits restreints) ne doit
+            // JAMAIS terminer le processus — AppDomain.UnhandledException ne peut pas être « gérée » pour un thread de fond.
+            try
+            {
+                CheckGalleryUnlock();
+                Save();
+            }
+            catch (Exception ex)
+            {
+                ReportStartupError("La sauvegarde automatique a échoué (elle sera retentée).", ex.ToString());
+            }
         }
 
 

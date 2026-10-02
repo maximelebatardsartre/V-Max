@@ -31,7 +31,11 @@ public sealed class LocalAiService
     // Les binaires sont sur les builds « bXXXX » (la release « latest » de GitHub n'en a pas) : on parcourt la liste.
     private const string ReleaseApi = "https://api.github.com/repos/ggml-org/llama.cpp/releases?per_page=15";
 
-    private static string Dir => Path.Combine(ExtensionValue.DataDirectory, "local-ai");
+    // %LOCALAPPDATA%\V-Max\local-ai (pas Roaming) : le modèle ~0,8 Go et llama-server.exe ne doivent pas être
+    // synchronisés par OneDrive ni « roamés » entre machines. En mode portable, tout reste à côté de l'exe.
+    private static string Dir => ExtensionValue.IsPortable
+        ? Path.Combine(ExtensionValue.BaseDirectory, "local-ai")
+        : Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "V-Max", "local-ai");
     private static string ModelPath => Path.Combine(Dir, ModelFile);
     private static string ServerPath => Path.Combine(Dir, "llama-server.exe");
     private static string ServerLogPath => Path.Combine(Dir, "server.log");

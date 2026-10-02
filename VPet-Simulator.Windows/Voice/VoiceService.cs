@@ -67,8 +67,12 @@ public sealed class VoiceService : IDisposable
     public string ReplyMode { get => Cfg.GetString("reply", "voice") ?? "voice"; set => Cfg.SetString("reply", value); }
     public string VoiceName { get => Cfg.GetString("voice_name", "Julie") ?? "Julie"; set => Cfg.SetString("voice_name", value); }
     public int Rate { get => Cfg.GetInt("rate", 0); set => Cfg.SetInt("rate", value); }
-    /// <summary>La voix ne quitte jamais le PC (reconnaissance de Windows uniquement)</summary>
-    public bool OfflineOnly { get => Cfg.GetBool("offline_only"); set => Cfg.SetBool("offline_only", value); }
+    /// <summary>
+    /// La voix ne quitte jamais le PC (reconnaissance de Windows uniquement). ACTIVÉ PAR DÉFAUT : au premier
+    /// lancement, aucun audio n'est envoyé dans le cloud. On stocke l'inverse (« cloud_ok ») pour que l'absence de
+    /// réglage = hors-ligne. L'utilisateur peut autoriser une transcription cloud (meilleure qualité) via Paramètres.
+    /// </summary>
+    public bool OfflineOnly { get => !Cfg.GetBool("cloud_ok"); set => Cfg.SetBool("cloud_ok", !value); }
     public bool WakeEnabled { get => Cfg.GetBool("wake"); set { Cfg.SetBool("wake", value); Apply(); } }
     public double WakeThreshold { get => Cfg.GetFloat("wake_threshold", 0.7); set { Cfg.SetFloat("wake_threshold", value); wake.Threshold = value; } }
 
