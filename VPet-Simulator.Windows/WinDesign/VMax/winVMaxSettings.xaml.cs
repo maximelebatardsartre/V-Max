@@ -619,6 +619,9 @@ public partial class winVMaxSettings : Window
         Add("compagnon", "Habitat (mode autonome)", "Décor",
             "Une image avec des espaces dégagés (une maison en coupe, par exemple). Chaque image garde sa propre carte.",
             HabitatImagePicker, fullWidth: true);
+        Add("compagnon", "Habitat (mode autonome)", "Écrans détectés",
+            "V-Max reconnaît tes écrans. Trace ta carte à la résolution de l'écran où tu veux voir Maxine, pour qu'elle colle à ton fond d'écran.",
+            ScreenPanel, fullWidth: true);
         Add("compagnon", "Habitat (mode autonome)", "Modifier la carte", "Trace les sols sur lesquels le compagnon marche et règle sa taille dans ce décor.",
             () => ActionButton(T("Ouvrir l'éditeur"), async () =>
             {
@@ -1281,6 +1284,53 @@ public partial class winVMaxSettings : Window
         line.Children.Add(export);
         line.Children.Add(import);
         return line;
+    }
+
+    /// <summary>Liste des écrans détectés (nom, résolution, échelle, principal), avec rafraîchissement</summary>
+    private FrameworkElement ScreenPanel()
+    {
+        var root = new StackPanel();
+        var list = new StackPanel();
+        void Build()
+        {
+            list.Children.Clear();
+            foreach (var s in Screens.All())
+            {
+                var card = new Border
+                {
+                    CornerRadius = new CornerRadius(10), Padding = new Thickness(14, 10, 14, 10), Margin = new Thickness(0, 0, 0, 8),
+                    Background = (Brush)FindResource("VMaxCard"), BorderBrush = (Brush)FindResource(s.Primary ? "DARKPrimary" : "VMaxStroke"),
+                    BorderThickness = new Thickness(s.Primary ? 1.5 : 1),
+                };
+                var dock = new DockPanel();
+                var right = new StackPanel { HorizontalAlignment = HorizontalAlignment.Right };
+                right.Children.Add(new TextBlock { Text = s.Resolution, FontFamily = (FontFamily)FindResource("HudMono"), FontSize = 13, Foreground = (Brush)FindResource("PrimaryText"), HorizontalAlignment = HorizontalAlignment.Right });
+                right.Children.Add(new TextBlock { Text = "échelle " + s.ScaleText, FontSize = 11.5, Foreground = (Brush)FindResource("VMaxSubtleText"), HorizontalAlignment = HorizontalAlignment.Right });
+                DockPanel.SetDock(right, Dock.Right);
+                dock.Children.Add(right);
+                var left = new StackPanel { VerticalAlignment = VerticalAlignment.Center };
+                var title = new StackPanel { Orientation = Orientation.Horizontal };
+                title.Children.Add(new TextBlock { Text = s.FriendlyName, FontSize = 14, FontWeight = FontWeights.SemiBold, Foreground = (Brush)FindResource("PrimaryText"), VerticalAlignment = VerticalAlignment.Center });
+                if (s.Primary)
+                {
+                    var badge = new Border { CornerRadius = new CornerRadius(6), Background = (Brush)FindResource("DARKPrimary"), Padding = new Thickness(6, 1, 6, 2), Margin = new Thickness(8, 0, 0, 0), VerticalAlignment = VerticalAlignment.Center };
+                    badge.Child = new TextBlock { Text = T("Principal"), FontSize = 10.5, Foreground = (Brush)FindResource("DARKPrimaryText") };
+                    title.Children.Add(badge);
+                }
+                left.Children.Add(title);
+                left.Children.Add(new TextBlock { Text = s.DeviceName.Replace(@"\\.\", "") + "  ·  position " + s.X + ", " + s.Y, FontSize = 11.5, Foreground = (Brush)FindResource("VMaxSubtleText") });
+                dock.Children.Add(left);
+                card.Child = dock;
+                list.Children.Add(card);
+            }
+        }
+        var refresh = (Button)ActionButton(T("Rafraîchir"), Build);
+        refresh.HorizontalAlignment = HorizontalAlignment.Left;
+        refresh.Margin = new Thickness(0, 2, 0, 0);
+        Build();
+        root.Children.Add(list);
+        root.Children.Add(refresh);
+        return root;
     }
 
     private FrameworkElement HabitatImagePicker()
