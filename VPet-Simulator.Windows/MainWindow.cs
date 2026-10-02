@@ -2814,6 +2814,7 @@ namespace VPet_Simulator.Windows
                                   case "inventory": Hud?.OpenInventory(); break;
                                   case "mods": HUD.ModsWindow.Open(this); break;
                                   case "shortcuts": HUD.ShortcutsWindow.Open(this); break;
+                                  case "studio": HUD.StudioWindow.Open(this); break;
                                   case "input": Dispatcher.BeginInvoke(() => ShowInputBox("Nom du compagnon", "Comment veux-tu l'appeler ?", "Max", _ => { })); break;
                               }
                           });

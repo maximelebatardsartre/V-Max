@@ -402,6 +402,32 @@ public partial class winVMaxSettings : Window
         _ => code,
     };
 
+    private int versionTaps;
+    private DateTime lastVersionTap;
+
+    /// <summary>Numéro de version ; 7 clics rapprochés débloquent le Studio des mods</summary>
+    private FrameworkElement VersionTapper()
+    {
+        var b = new Button { Content = $"V-Max {mw.Version}", Cursor = System.Windows.Input.Cursors.Arrow, FontFamily = (FontFamily)FindResource("HudMono") };
+        b.SetResourceReference(StyleProperty, "HudGhostButton");
+        b.Click += (_, _) =>
+        {
+            var now = DateTime.Now;
+            versionTaps = now - lastVersionTap < TimeSpan.FromSeconds(1.5) ? versionTaps + 1 : 1;
+            lastVersionTap = now;
+            if (versionTaps < 7)
+                return;
+            versionTaps = 0;
+            bool first = !HUD.StudioWindow.Unlocked(mw);
+            mw.Set["vmax_dev"][(gbol)"studio"] = true;
+            mw.Hud?.SetStudioHotkey(true);
+            if (first)
+                mw.Toast("Studio des mods débloqué. Raccourci : Ctrl+Maj+F12.", HUD.HudToast.Kind.Success);
+            HUD.StudioWindow.Open(mw);
+        };
+        return b;
+    }
+
     private void Add(string category, string section, string title, string description, Func<FrameworkElement> build,
         bool advancedOnly = false, bool restart = false, bool fullWidth = false)
         => settings.Add(new SettingDef
@@ -729,8 +755,22 @@ public partial class winVMaxSettings : Window
             () => ActionButton(T("Vider"), () => { MainWindow.RequestCachePurge(); NeedRestart(); }), advancedOnly: true);
 
         // ---------------- À propos
-        Add("apropos", "V-Max", "Version", $"V-Max {mw.Version}  ·  .NET {Environment.Version}  ·  {(ExtensionValue.IsPortable ? T("mode portable") : T("installation standard"))}",
+        Add("apropos", "V-Max", "Version", $".NET {Environment.Version}  ·  {(ExtensionValue.IsPortable ? T("mode portable") : T("installation standard"))}",
+            VersionTapper);
+        Add("apropos", "V-Max", "Code source", "Le dépôt GitHub de V-Max.",
             () => Link(T("Dépôt GitHub"), ExtensionValue.RepositoryURL));
+        if (HUD.StudioWindow.Unlocked(mw))
+        {
+            Add("apropos", "Développement", "Studio des mods", "Aperçu des animations et tri des mods du catalogue. Raccourci : Ctrl+Maj+F12.",
+                () => ActionButton(T("Ouvrir"), () => HUD.StudioWindow.Open(mw), accent: true));
+            Add("apropos", "Développement", "Masquer le Studio", "Retire la ligne ci-dessus et le raccourci (7 clics sur la version pour le retrouver).",
+                () => ActionButton(T("Masquer"), () =>
+                {
+                    mw.Set["vmax_dev"][(gbol)"studio"] = false;
+                    mw.Hud?.SetStudioHotkey(false);
+                    Pulse(T("Studio masqué"));
+                }));
+        }
         Add("apropos", "V-Max", "Signaler un problème", "Prépare un rapport et ouvre un ticket GitHub.",
             () => ActionButton(T("Signaler"), () => mw.ShowReport()));
         Add("apropos", "Diagnostic", "Calcul automatique des prix équitables",

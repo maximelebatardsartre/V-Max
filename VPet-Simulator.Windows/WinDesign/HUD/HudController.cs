@@ -94,6 +94,40 @@ public sealed class HudController
             return IntPtr.Zero;
         });
         mw.Closed += (_, _) => UnregisterHotKey(handle, HotkeyId);
+        if (StudioWindow.Unlocked(mw))
+            SetStudioHotkey(true);
+    }
+
+    private const int StudioHotkeyId = 0x564E;
+    private const uint MOD_SHIFT = 0x4, VK_F12 = 0x7B;
+    private bool studioHotkey, studioHook;
+
+    /// <summary>Ctrl+Maj+F12 ouvre le Studio des mods (seulement une fois débloqué)</summary>
+    public void SetStudioHotkey(bool on)
+    {
+        var handle = new WindowInteropHelper(mw).Handle;
+        if (handle == IntPtr.Zero || on == studioHotkey)
+            return;
+        if (!on)
+        {
+            UnregisterHotKey(handle, StudioHotkeyId);
+            studioHotkey = false;
+            return;
+        }
+        studioHotkey = RegisterHotKey(handle, StudioHotkeyId, MOD_CONTROL | MOD_SHIFT | MOD_NOREPEAT, VK_F12);
+        if (studioHook)
+            return;
+        studioHook = true;
+        HwndSource.FromHwnd(handle)?.AddHook((IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled) =>
+        {
+            if (msg == WM_HOTKEY && wParam.ToInt32() == StudioHotkeyId)
+            {
+                StudioWindow.Open(mw);
+                handled = true;
+            }
+            return IntPtr.Zero;
+        });
+        mw.Closed += (_, _) => UnregisterHotKey(handle, StudioHotkeyId);
     }
     #endregion
 
