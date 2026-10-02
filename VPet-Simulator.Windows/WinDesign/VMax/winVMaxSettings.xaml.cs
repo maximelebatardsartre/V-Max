@@ -623,8 +623,11 @@ public partial class winVMaxSettings : Window
             "Une image avec des espaces dégagés (une maison en coupe, par exemple). Chaque image garde sa propre carte.",
             HabitatImagePicker, fullWidth: true);
         Add("compagnon", "Habitat (mode autonome)", "Écrans détectés",
-            "V-Max reconnaît tes écrans. Trace ta carte à la résolution de l'écran où tu veux voir Maxine, pour qu'elle colle à ton fond d'écran.",
+            "V-Max reconnaît automatiquement tes écrans (position, résolution, échelle). Rien à régler : tout s'adapte à ta configuration.",
             ScreenPanel, fullWidth: true);
+        Add("compagnon", "Habitat (mode autonome)", "Sur tous les écrans",
+            "Sur le bureau, le décor et les déplacements de Maxine s'étendent sur TOUS tes écrans (comme le fond d'écran « Étendu » de Windows) : elle se balade et passe d'un écran à l'autre. Détecté automatiquement — sans effet si tu n'as qu'un écran.",
+            () => Toggle(() => mw.Habitat?.SpanScreens != false, v => { if (mw.Habitat != null) mw.Habitat.SpanScreens = v; }));
         Add("compagnon", "Habitat (mode autonome)", "Modifier la carte", "Trace les sols sur lesquels le compagnon marche et règle sa taille dans ce décor.",
             () => ActionButton(T("Ouvrir l'éditeur"), async () =>
             {
