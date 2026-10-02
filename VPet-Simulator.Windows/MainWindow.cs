@@ -1743,6 +1743,14 @@ namespace VPet_Simulator.Windows
                   Habitat = new Habitat.HabitatMode(this);
                   Life = new Habitat.LifeBrain(this);
                   Sandbox = new SandboxRules(this);
+                  try
+                  {
+                      Voice = new Voice.VoiceService(this);
+                  }
+                  catch (Exception ve)
+                  {
+                      ReportStartupError("La voix n'a pas pu démarrer.", ve.ToString());
+                  }
                   // V-Max HUD : la bulle de VPet est remplacée par la bulle flottante (même interface IMassageBar)
                   if (Main.MsgBar is MessageBar oldBar)
                   {
@@ -2714,6 +2722,26 @@ namespace VPet_Simulator.Windows
                               else
                                   VDialog.Show("Cet objet semble déséquilibré par rapport à son prix. L'utiliser quand même ?", "Objet déséquilibré", MessageBoxButton.YesNo, Panuon.WPF.UI.MessageBoxIcon.Warning);
                           });
+                      });
+                  }
+                  if (Args.FindLine("vmax-voice-file") is ILine qaVoice)
+                  {// QA : une phrase enregistrée (WAV) est transcrite hors ligne, envoyée à l'agent, la réponse est lue dans un fichier
+                      Task.Run(async () =>
+                      {
+                          await Task.Delay(9000);
+                          var outFile = System.IO.Path.Combine(System.IO.Path.GetTempPath(), "vmax-qa-voice.wav");
+                          await Dispatcher.InvokeAsync(async () =>
+                          {
+                              Voice!.QaOffline = true;
+                              Voice.QaOutputFile = outFile;
+                              if (!Agent.VMaxAgentPlugin.IsActive(this))
+                                  Agent.VMaxAgentPlugin.Activate(this, true);
+                              await Voice.HandleAudioAsync(System.IO.File.ReadAllBytes(qaVoice.Info));
+                          }).Task.Unwrap();
+                          await Task.Delay(int.TryParse(qaVoice.GetString("wait"), out var w) ? w : 8000);
+                          System.IO.File.WriteAllText(System.IO.Path.Combine(System.IO.Path.GetTempPath(), "vmax-qa-trace.txt"),
+                              "transcription=" + Voice!.LastTranscript + "\nréponse lue=" + (System.IO.File.Exists(outFile) ? new System.IO.FileInfo(outFile).Length + " octets" : "aucune")
+                              + "\nbulle=" + (Main.MsgBar as HUD.HudBubble)?.Text);
                       });
                   }
                   if (Args.FindLine("vmax-qa-label") != null)

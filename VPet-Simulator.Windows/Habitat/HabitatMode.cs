@@ -30,7 +30,11 @@ public sealed class HabitatMode
         Metrics = PetMetrics.Measure(mw);
         mw.PreviewMouseWheel += Pet_PreviewMouseWheel;
         // à la fermeture de V-Max, on mémorise la place de l'habitat (le mode reste activé pour le prochain lancement)
-        mw.Closing += (_, _) => Window?.SaveBounds();
+        mw.Closing += (_, _) =>
+        {
+            Window?.SaveBounds();
+            mw.Voice?.Dispose();
+        };
     }
 
     private ILine Cfg => mw.Set["vmax_habitat"];

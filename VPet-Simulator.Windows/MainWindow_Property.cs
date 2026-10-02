@@ -104,6 +104,10 @@ public partial class MainWindow
     /// V-Max : options « bac à sable » (argent illimité, jauges figées, objets gratuits)
     /// </summary>
     public SandboxRules? Sandbox { get; private set; }
+    /// <summary>
+    /// V-Max : voix (touche maintenue, « Hey Max », réponses parlées)
+    /// </summary>
+    public Voice.VoiceService? Voice { get; private set; }
 
     public winBetterBuy? winBetterBuy { get; set; }
     public winGallery? winGallery { get; set; } 

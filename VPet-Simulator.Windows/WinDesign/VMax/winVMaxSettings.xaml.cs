@@ -397,6 +397,7 @@ public partial class winVMaxSettings : Window
         categories.Add(new("apparence", T("Apparence"), "", T("Thème, taille et rendu du compagnon.")));
         categories.Add(new("compagnon", T("Compagnon"), "", T("Identité, déplacements et comportement de ton compagnon.")));
         categories.Add(new("routines", T("Routines de vie"), "", T("Le rythme de vie de ton compagnon, avec des horaires qui varient comme les tiens.")));
+        categories.Add(new("voix", T("Voix"), "", T("Parler à ton compagnon et l'entendre répondre.")));
         categories.Add(new("ia", T("Intelligence artificielle"), "", T("Discussion et agent IA.")));
         categories.Add(new("sauvegardes", T("Sauvegardes"), "", T("Enregistrement automatique et copies de secours.")));
         categories.Add(new("extensions", T("Extensions"), "", T("Mods, plugins et raccourcis personnalisés.")));
@@ -605,6 +606,36 @@ public partial class winVMaxSettings : Window
             () => Toggle(() => mw.Habitat?.WallpaperLayerEnabled == true, v => { if (mw.Habitat != null) mw.Habitat.WallpaperLayerEnabled = v; }), advancedOnly: true);
         Add("compagnon", "Habitat (mode autonome)", "Habitat toujours au premier plan", "Garde la fenêtre habitat au-dessus des autres fenêtres.",
             () => Toggle(() => mw.Habitat?.AlwaysOnTop == true, v => { if (mw.Habitat != null) mw.Habitat.AlwaysOnTop = v; }), advancedOnly: true);
+
+        // ---------------- Voix
+        Add("voix", "Parler", "Touche à maintenir pour parler",
+            "Maintiens la touche, parle, relâche : ta phrase part au compagnon, qui te répond. Fonctionne depuis n'importe quelle application.",
+            () => Toggle(() => mw.Voice?.PushToTalk == true, v => { if (mw.Voice != null) mw.Voice.PushToTalk = v; }));
+        Add("voix", "Parler", "Touche",
+            "Choisis une touche peu utilisée : elle est réservée à V-Max tant que l'option est active.",
+            () => Combo(Voice.PushToTalkKey.Choices.Select(c => c.label).ToList(),
+                () => Math.Max(0, Array.FindIndex(Voice.PushToTalkKey.Choices, c => c.vk == (mw.Voice?.PttKey ?? 0xDE))),
+                i => { if (mw.Voice != null) mw.Voice.PttKey = Voice.PushToTalkKey.Choices[i].vk; }, width: 200));
+        Add("voix", "Parler", "« Hey Max »",
+            "Dis « Hey Max » puis ta question : l'écoute s'arrête seule quand tu te tais. Le mot d'activation est reconnu sur ton PC, rien n'est envoyé tant que tu ne l'as pas prononcé.",
+            () => Toggle(() => mw.Voice?.WakeEnabled == true, v => { if (mw.Voice != null) mw.Voice.WakeEnabled = v; }));
+        var sensitivities = new[] { (0.55, "Sensible"), (0.7, "Normal"), (0.85, "Strict") };
+        Add("voix", "Parler", "Sensibilité de « Hey Max »", "Plus strict : moins de déclenchements par erreur, mais il faut parler plus distinctement.",
+            () => Combo(sensitivities.Select(s => T(s.Item2)).ToList(),
+                () => Math.Max(0, Array.FindIndex(sensitivities, s => Math.Abs(s.Item1 - (mw.Voice?.WakeThreshold ?? 0.7)) < 0.01)),
+                i => { if (mw.Voice != null) mw.Voice.WakeThreshold = sensitivities[i].Item1; }, width: 160), advancedOnly: true);
+        Add("voix", "Confidentialité", "Transcription hors ligne uniquement",
+            "Activé : ta voix ne quitte jamais le PC (reconnaissance de Windows, un peu moins précise). Désactivé : Groq ou Gemini transcrivent, avec la clé que tu as connectée.",
+            () => Toggle(() => mw.Voice?.OfflineOnly == true, v => { if (mw.Voice != null) mw.Voice.OfflineOnly = v; }));
+        var replies = new[] { ("voice", "Quand je lui parle"), ("always", "Toujours"), ("never", "Jamais") };
+        Add("voix", "Réponses", "Répondre à voix haute",
+            "Le compagnon lit ses réponses avec une voix française de Windows. Parle (ou appuie sur la touche) pour lui couper la parole.",
+            () => Combo(replies.Select(r => T(r.Item2)).ToList(),
+                () => Math.Max(0, Array.FindIndex(replies, r => r.Item1 == (mw.Voice?.ReplyMode ?? "voice"))),
+                i => { if (mw.Voice != null) mw.Voice.ReplyMode = replies[i].Item1; }, width: 200));
+        Add("voix", "Réponses", "Voix", "Les voix « OneCore » de Windows (Julie, Paul) sont les plus naturelles.", VoicePicker, fullWidth: true);
+        Add("voix", "Réponses", "Débit", "",
+            () => SliderRow(-5, 5, 1, () => mw.Voice?.Rate ?? 0, v => { if (mw.Voice != null) mw.Voice.Rate = (int)v; }, v => v == 0 ? T("Normal") : (v > 0 ? "+" : "") + v.ToString("0")));
 
         Add("routines", "Routines de vie", "Activer les routines de vie avancées",
             "Chaque routine a une plage horaire : chaque jour, l'heure réelle est tirée au hasard dedans (12h14 un jour, 13h40 le lendemain). "
@@ -858,6 +889,21 @@ public partial class winVMaxSettings : Window
         refresh.Margin = new Thickness(8, 0, 0, 0);
         line.Children.Add(combo);
         line.Children.Add(refresh);
+        return line;
+    }
+
+    private FrameworkElement VoicePicker()
+    {
+        var line = new StackPanel { Orientation = Orientation.Horizontal };
+        if (mw.Voice == null)
+            return new TextBlock { Text = T("La voix n'est pas disponible."), Foreground = (Brush)FindResource("VMaxSubtleText") };
+        var voices = mw.Voice.Voices();
+        var combo = (ComboBox)Combo(voices, () => Math.Max(0, voices.FindIndex(v => v.Contains(mw.Voice.VoiceName, StringComparison.OrdinalIgnoreCase))),
+            i => mw.Voice.VoiceName = voices[i], width: 320);
+        line.Children.Add(combo);
+        var test = (Button)ActionButton(T("Écouter un exemple"), () => mw.Voice.Say("Bonjour ! Je suis " + (mw.Core.Save?.Name ?? "Max") + ". Maintiens la touche et parle-moi quand tu veux."));
+        test.Margin = new Thickness(8, 0, 0, 0);
+        line.Children.Add(test);
         return line;
     }
 
