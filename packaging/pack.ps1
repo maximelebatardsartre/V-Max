@@ -24,7 +24,7 @@ $proj = Join-Path $root "VPet-Simulator.Windows\VPet-Simulator.Windows.csproj"
 $publish = Join-Path $PSScriptRoot "publish"
 $releases = Join-Path $PSScriptRoot "releases"
 $repo = "https://github.com/maximelebatardsartre/V-Max"
-$icon = Join-Path $root "VPet-Simulator.Windows\vpeticon.ico"
+$icon = Join-Path $root "VPet-Simulator.Windows\maxine.ico"
 
 if (-not (Get-Command vpk -ErrorAction SilentlyContinue)) {
     throw "vpk introuvable. Installe-le : dotnet tool install -g vpk"

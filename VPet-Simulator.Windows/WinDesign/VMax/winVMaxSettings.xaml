@@ -31,10 +31,7 @@
 
         <!-- Barre de titre -->
         <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="18,0,0,0">
-            <Border Width="22" Height="22" CornerRadius="6" Background="{DynamicResource DARKPrimary}">
-                <TextBlock Text="V" FontWeight="Bold" FontSize="13" Foreground="{DynamicResource DARKPrimaryText}"
-                        HorizontalAlignment="Center" VerticalAlignment="Center" />
-            </Border>
+            <Image Width="24" Height="24" Source="/Res/maxine-logo.png" RenderOptions.BitmapScalingMode="HighQuality" />
             <TextBlock Margin="10,0,0,0" VerticalAlignment="Center" FontSize="13" Text="{ll:Str Paramètres}" />
         </StackPanel>
         <Grid Grid.Column="1">

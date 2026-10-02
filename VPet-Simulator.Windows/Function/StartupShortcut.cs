@@ -33,7 +33,7 @@ public static class StartupShortcut
         var link = (IShellLink)new ShellLink();
         link.SetPath(System.Reflection.Assembly.GetExecutingAssembly().Location.Replace(".dll", ".exe"));
         link.SetDescription("V-Max");
-        link.SetIconLocation(Path.Combine(ExtensionValue.BaseDirectory, "vpeticon.ico"), 0);
+        link.SetIconLocation(Path.Combine(ExtensionValue.BaseDirectory, "maxine.ico"), 0);
         try
         {
             ((IPersistFile)link).Save(path, false);

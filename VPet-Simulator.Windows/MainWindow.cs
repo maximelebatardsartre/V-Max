@@ -2187,7 +2187,7 @@ namespace VPet_Simulator.Windows
 
                   notifyIcon.ContextMenuStrip = m_menu;
 
-                  notifyIcon.Icon = new System.Drawing.Icon(Application.GetResourceStream(new Uri("pack://application:,,,/vpeticon.ico")).Stream);
+                  notifyIcon.Icon = new System.Drawing.Icon(Application.GetResourceStream(new Uri("pack://application:,,,/maxine.ico")).Stream);
 
                   notifyIcon.Visible = true;
                   notifyIcon.BalloonTipClicked += (a, b) =>
