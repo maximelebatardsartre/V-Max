@@ -681,16 +681,17 @@ public partial class winVMaxSettings : Window
             () => Toggle(() => mw.Voice?.OfflineOnly == true, v => { if (mw.Voice != null) mw.Voice.OfflineOnly = v; }));
         var replies = new[] { ("voice", "Quand je lui parle"), ("always", "Toujours"), ("never", "Jamais") };
         Add("voix", "Réponses", "Répondre à voix haute",
-            "Le compagnon lit ses réponses avec une voix française de Windows. Parle (ou appuie sur la touche) pour lui couper la parole.",
+            "Le compagnon lit ses réponses à voix haute. Parle (ou appuie sur la touche) pour lui couper la parole.",
             () => Combo(replies.Select(r => T(r.Item2)).ToList(),
                 () => Math.Max(0, Array.FindIndex(replies, r => r.Item1 == (mw.Voice?.ReplyMode ?? "voice"))),
                 i => { if (mw.Voice != null) mw.Voice.ReplyMode = replies[i].Item1; }, width: 200));
-        Add("voix", "Réponses", "Voix premium (naturelle)",
-            "Une voix française neurale bien plus naturelle que les voix Windows (moteur open-source Piper, 100 % hors-ligne). Téléchargée une seule fois (~85 Mo) à l'activation de la voix. Désactive pour revenir aux voix Windows.",
-            () => Toggle(() => mw.Voice?.PremiumVoice == true, v => { if (mw.Voice != null) mw.Voice.PremiumVoice = v; }));
+        Add("voix", "Réponses", "Voix",
+            "Voix française neurale (moteur open-source Piper, 100 % hors-ligne). « Claire » est nette et posée, « Douce » plus chaleureuse. Téléchargée une seule fois (~85 Mo) à l'activation de la voix.",
+            () => Combo(Voice.PiperTts.Catalog.Select(c => T(c.Label)).ToList(),
+                () => Math.Max(0, Array.FindIndex(Voice.PiperTts.Catalog, c => c.Id == (mw.Voice?.PiperVoiceId ?? Voice.PiperTts.Catalog[0].Id))),
+                i => { if (mw.Voice != null) mw.Voice.PiperVoiceId = Voice.PiperTts.Catalog[i].Id; }, width: 200));
         Add("voix", "Réponses", "Essayer la voix", "",
             () => ActionButton(T("Écouter un exemple"), () => mw.Voice?.Say("Salut, c'est Maxine ! Alors, qu'est-ce qu'on fait de beau aujourd'hui ?")));
-        Add("voix", "Réponses", "Voix Windows (si premium désactivée)", "Les voix « OneCore » de Windows (Julie, Paul) sont les plus naturelles.", VoicePicker, fullWidth: true);
         Add("voix", "Réponses", "Débit", "",
             () => SliderRow(-5, 5, 1, () => mw.Voice?.Rate ?? 0, v => { if (mw.Voice != null) mw.Voice.Rate = (int)v; }, v => v == 0 ? T("Normal") : (v > 0 ? "+" : "") + v.ToString("0")));
 

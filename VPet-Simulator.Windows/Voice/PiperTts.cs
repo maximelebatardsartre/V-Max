@@ -18,14 +18,30 @@ namespace VPet_Simulator.Windows.Voice;
 public sealed class PiperTts : IDisposable
 {
     private const string EngineZipUrl = "https://github.com/rhasspy/piper/releases/download/2023.11.14-2/piper_windows_amd64.zip";
-    private const string VoiceOnnxUrl = "https://huggingface.co/rhasspy/piper-voices/resolve/main/fr/fr_FR/siwis/medium/fr_FR-siwis-medium.onnx?download=true";
-    private const string VoiceJsonUrl = "https://huggingface.co/rhasspy/piper-voices/resolve/main/fr/fr_FR/siwis/medium/fr_FR-siwis-medium.onnx.json?download=true";
+    private const string HfBase = "https://huggingface.co/rhasspy/piper-voices/resolve/main/fr/fr_FR/";
+
+    /// <summary>Une voix Piper : nom affiché, fichier de base, et numéro de locuteur pour les modèles multi-voix.</summary>
+    public sealed record PiperVoice(string Id, string Label, string File, string Dir, int? Speaker)
+    {
+        public string OnnxUrl => HfBase + Dir + "/" + File + ".onnx?download=true";
+        public string JsonUrl => HfBase + Dir + "/" + File + ".onnx.json?download=true";
+    }
+
+    /// <summary>Catalogue des voix françaises proposées (toutes neurales, hors-ligne). La 1re est la voix par défaut.</summary>
+    public static readonly PiperVoice[] Catalog =
+    [
+        new("siwis", "Claire", "fr_FR-siwis-medium", "siwis/medium", null),
+        new("jessica", "Douce", "fr_FR-upmc-medium", "upmc/medium", 0),
+    ];
+
+    /// <summary>Voix sélectionnée (changer de voix télécharge son modèle si besoin au prochain usage).</summary>
+    public PiperVoice Voice { get; set; } = Catalog[0];
 
     private static string Root => Path.Combine(
         Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "V-Max", "tts");
     private static string EnginePath => Path.Combine(Root, "piper", "piper.exe");
-    private static string VoicePath => Path.Combine(Root, "fr_FR-siwis-medium.onnx");
-    private static string VoiceJsonPath => Path.Combine(Root, "fr_FR-siwis-medium.onnx.json");
+    private string VoicePath => Path.Combine(Root, Voice.File + ".onnx");
+    private string VoiceJsonPath => Path.Combine(Root, Voice.File + ".onnx.json");
 
     private static readonly HttpClient Http = new() { Timeout = Timeout.InfiniteTimeSpan };
     private static readonly TimeSpan IdleTimeout = TimeSpan.FromSeconds(90);
@@ -86,14 +102,14 @@ public sealed class PiperTts : IDisposable
 
             if (!File.Exists(VoiceJsonPath))
             {
-                var err = await DownloadAsync(VoiceJsonUrl, VoiceJsonPath, cancel);
+                var err = await DownloadAsync(Voice.JsonUrl, VoiceJsonPath, cancel);
                 if (err != null)
                     return err;
             }
             if (!File.Exists(VoicePath))
             {
-                Progress?.Invoke("Téléchargement de la voix française…", -1);
-                var err = await DownloadAsync(VoiceOnnxUrl, VoicePath, cancel);
+                Progress?.Invoke($"Téléchargement de la voix « {Voice.Label} »…", -1);
+                var err = await DownloadAsync(Voice.OnnxUrl, VoicePath, cancel);
                 if (err != null)
                     return err;
             }
@@ -176,6 +192,11 @@ public sealed class PiperTts : IDisposable
         };
         foreach (var a in new[] { "--model", VoicePath, "--output_file", wav, "--length_scale", lengthScale.ToString(System.Globalization.CultureInfo.InvariantCulture) })
             psi.ArgumentList.Add(a);
+        if (Voice.Speaker is int spk) // modèle multi-voix : on choisit le locuteur
+        {
+            psi.ArgumentList.Add("--speaker");
+            psi.ArgumentList.Add(spk.ToString());
+        }
         Process p;
         lock (playLock)
         {

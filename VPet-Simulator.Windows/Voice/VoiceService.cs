@@ -52,6 +52,7 @@ public sealed class VoiceService : IDisposable
         });
         tts.SpeakingChanged += OnSpeaking;
         Piper.SpeakingChanged += OnSpeaking;
+        Piper.Voice = System.Array.Find(PiperTts.Catalog, c => c.Id == PiperVoiceId) ?? PiperTts.Catalog[0];
         Apply();
     }
 
@@ -88,6 +89,19 @@ public sealed class VoiceService : IDisposable
     {
         get => !Cfg.GetBool("premium_off");
         set { Cfg.SetBool("premium_off", !value); if (value && Enabled) _ = Piper.EnsureAsync(); }
+    }
+
+    /// <summary>Voix Piper choisie (id du catalogue : « siwis » = Claire, « jessica » = Douce). Par défaut la 1re.</summary>
+    public string PiperVoiceId
+    {
+        get => Cfg.GetString("piper_voice", PiperTts.Catalog[0].Id) ?? PiperTts.Catalog[0].Id;
+        set
+        {
+            Cfg.SetString("piper_voice", value);
+            Piper.Voice = System.Array.Find(PiperTts.Catalog, c => c.Id == value) ?? PiperTts.Catalog[0];
+            Piper.Stop();
+            if (Enabled) _ = Piper.EnsureAsync(); // télécharge la nouvelle voix si besoin
+        }
     }
 
     public System.Collections.Generic.List<string> Voices() => tts.Voices();
