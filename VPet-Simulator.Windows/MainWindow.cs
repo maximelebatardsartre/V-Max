@@ -1533,6 +1533,11 @@ namespace VPet_Simulator.Windows
             {
                 if (!File.Exists(di.FullName + @"\info.lps"))
                     continue;
+                if (ModBlocklist.IsBlocked(di))
+                {// V-Max : mod refusé (voir ModBlocklist)
+                    Console.WriteLine("Mod bloqué, non chargé : " + di.FullName);
+                    continue;
+                }
                 await Dispatcher.InvokeAsync(new Action(() => LoadingStatus = $"Chargement du mod : {di.Name}"));
                 CoreMODs.Add(new CoreMOD(di, this));
             }
