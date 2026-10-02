@@ -3231,6 +3231,9 @@ namespace VPet_Simulator.Windows
             var welcome = new System.Windows.Threading.DispatcherTimer { Interval = TimeSpan.FromMilliseconds(700) };
             welcome.Tick += (_, _) => { welcome.Stop(); HUD.WelcomeWindow.ShowIfFirstRun(this); };
             welcome.Start();
+            // V-Max : recherche d'une mise à jour publiée (seulement sur une installation par l'installeur)
+            if (App.MainWindows.Count == 1 && Set["vmax"][(LinePutScript.gbol)"onboarded"])
+                UpdateService.CheckInBackground(this);
         }
 
         /// <summary>

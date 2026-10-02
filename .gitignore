@@ -370,3 +370,7 @@ VPet-Simulator.Windows/mod/0001_ModMaker
 
 # V-Max : mods bruts téléchargés (Workshop), jamais dans le dépôt
 /MOD/
+
+# V-Max : sorties de packaging
+/packaging/publish/
+/packaging/releases/

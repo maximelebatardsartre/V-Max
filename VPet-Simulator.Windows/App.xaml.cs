@@ -18,6 +18,9 @@ namespace VPet_Simulator.Windows
     {
         public App() : base()
         {
+            // V-Max : amorçage de la mise à jour automatique. DOIT rester la première instruction : Velopack
+            // intercepte ici les étapes d'installation et de mise à jour (et peut fermer le processus).
+            Velopack.VelopackApp.Build().Run();
             Environment.CurrentDirectory =
                 Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)!;
 #if !DEBUG

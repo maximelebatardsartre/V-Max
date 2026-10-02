@@ -83,3 +83,15 @@ Légende : **[B]** bloquant pour une version publique · **[N]** normal · **[C]
 - [ ] **[N]** Traduction réelle avec ta clé Gemini (`python tools/mods/translate.py --verdicts garder,integrer`) : relire un échantillon dans le Studio (Max, tutoiement, pas de « maître »).
 - [ ] **[C]** Un mod de la liste d'exclusion copié dans `mod\` n'est pas chargé.
 - [ ] **[N]** Studio : glisser un dossier de mod (ou un .zip, ou un dossier contenant plusieurs mods) dans la fenêtre → cadre « Dépose ici », mod copié et affiché ; bouton + (choix de dossiers) ; un mod refusé affiche la raison et n'est pas copié.
+
+## 12. Packaging et diffusion (build Release)
+- [ ] **[B]** `pwsh packaging/pack.ps1 -Version 1.0.0` fabrique `MaxineSetup.exe` sans erreur.
+- [ ] **[B]** Installation sur un PC propre (sans .NET installé) : un clic, raccourci bureau créé, Maxine se lance.
+- [ ] **[B]** Premier lancement : nom « Maxine », carte d'accueil, micro / « Hey Max » / vision sur OFF ; case « démarrage avec Windows » cochée.
+- [ ] **[B]** Après coche « démarrage avec Windows » : Maxine se relance à l'ouverture de session suivante.
+- [ ] **[N]** Micro activé depuis l'accueil ou les Paramètres : la touche et « Hey Max » ne fonctionnent qu'après activation.
+- [ ] **[B]** Auto-update : publier une v1.0.1 (`-Upload`), relancer la v1.0.0 installée → « Mise à jour disponible », delta téléchargé, redémarrage sur la v1.0.1.
+- [ ] **[N]** Refuser la mise à jour : Maxine continue normalement, re-proposée au prochain lancement.
+- [ ] **[N]** Désinstallation (Programmes et fonctionnalités) : propre ; proposer ou vérifier le nettoyage de `%APPDATA%\V-Max`.
+- [ ] **[C]** Nom « Maxine » partout : fenêtre, barre des tâches, zone de notification, exécutable (Maxine.exe), Programmes installés.
+
