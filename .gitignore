@@ -378,3 +378,6 @@ VPet-Simulator.Windows/mod/0001_ModMaker
 # V-Max : sorties du pack d'assets (volumineuses)
 /packaging/assets-out/
 /packaging/assets-stage/
+
+# Dossiers de session Claude Code (worktrees d.agents, etc.)
+.claude/
