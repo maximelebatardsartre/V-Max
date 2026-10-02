@@ -52,3 +52,16 @@ set VMAX_EXTRA_MODS=C:\chemin\vers\un\dossier\de\mods
 ```
 
 Les mods de ce dossier sont chargés et actifs sans toucher aux paramètres. Le relevé du démarrage est écrit dans `%APPDATA%\V-Max\logs\demarrage-temps.log`.
+
+## Noms des mods en français (sans clé API)
+
+Les **noms visibles** des mods (occupations, aliments, noms de mods) sont traduits à la main dans
+`tools/mods/fr_names.py`. Pour les appliquer aux mods chargés (écrit un `lang/fr/vmax-trad.lps` dans chaque mod) :
+
+```
+python tools/mods/apply_names.py
+```
+
+Ça couvre les listes (planning, routines, garde-manger). Les **dialogues** et **descriptions** passent, eux, par
+`translate.py` (Gemini), qui nécessite une clé.
+
