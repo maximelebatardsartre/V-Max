@@ -174,11 +174,25 @@ public sealed class HabitatWindow : Window
     internal void QaDetect() => editor?.DetectFloors();
     internal void QaSuggestRooms() => editor?.SuggestRooms();
 
+    private Rect? aquariumBounds; // taille de l'« aquarium » mémorisée pendant l'édition
+
     public void StartEditing()
     {
         if (editor != null)
             return;
         mode.ExitDesktop();
+        // V-Max : en édition, on passe en espace de travail confortable et centré au lieu de garder la taille de
+        // l'« aquarium » (qui épouse le ratio de l'image → « bande étirée » pour une image panoramique).
+        aquariumBounds = new Rect(Left, Top, ActualWidth, ActualHeight);
+        if (WindowState == WindowState.Minimized)
+            WindowState = WindowState.Normal;
+        var wa = SystemParameters.WorkArea;
+        double ew = Math.Min(wa.Width * 0.92, 1320), eh = Math.Min(wa.Height * 0.92, 860);
+        Width = ew;
+        Height = eh;
+        Left = wa.Left + (wa.Width - ew) / 2;
+        Top = wa.Top + (wa.Height - eh) / 2;
+        SetView(FitView());
         mode.SetEditing(true);
         editor = new HabitatEditor(this, mode);
         ShowChrome(true);
@@ -192,6 +206,15 @@ public sealed class HabitatWindow : Window
             return;
         editor.Detach();
         editor = null;
+        // retour à la taille de l'« aquarium » mémorisée à l'entrée en édition
+        if (aquariumBounds is { } b)
+        {
+            Left = b.X;
+            Top = b.Y;
+            Width = b.Width;
+            Height = b.Height;
+            aquariumBounds = null;
+        }
         SetView(FitView());
         if (save != null)
             mode.SaveMap(save);
