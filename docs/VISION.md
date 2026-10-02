@@ -441,7 +441,7 @@ Pas de tamagotchi qui mange à 12 h 00 pile : l'utilisateur compose le rythme de
 
 | Élément | Règle |
 |---|---|
-| **Bloc de routine** | Action (dormir, manger, boire, se détendre, ou une occupation du personnage), lieu (nom de pièce), plage de départ (« entre 12 h 00 et 14 h 00 », peut passer minuit), jours actifs, durée min–max. Ajout, modification, suppression dans Paramètres › Routines de vie ; enregistrement dans `%APPDATA%\V-Maxoutines.json`. |
+| **Bloc de routine** | Action (dormir, manger, boire, se détendre, ou une occupation du personnage), lieu (nom de pièce), plage de départ (« entre 12 h 00 et 14 h 00 », peut passer minuit), jours actifs, durée min–max. Ajout, modification, suppression dans Paramètres › Routines de vie ; enregistrement dans `%APPDATA%\V-Max\routines.json`. |
 | **Aléatoire humain** | Chaque jour, l'heure de départ et la durée sont tirées au hasard dans la plage. Le tirage est **déterministe par (routine, jour)** (hachage FNV-1a) : relancer V-Max ne change pas l'heure du jour, mais chaque jour en a une différente. |
 | **Déclenchement** | Vérification toutes les 20 s : heure tirée atteinte et plage en cours → trajet A* vers la pièce → animation sur l'emplacement de l'activité (les meubles apparaissent avec elle). |
 | **Rattrapage** | V-Max démarré au milieu de la plage après l'heure tirée : la routine part aussitôt. Plage terminée : sautée (pas d'enchaînement mécanique des oublis). |
