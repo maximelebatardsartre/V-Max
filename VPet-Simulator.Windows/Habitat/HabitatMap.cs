@@ -63,6 +63,65 @@ public sealed class HabitatMap
     public HabitatFloor? MainFloor => Floors.OrderByDescending(f => f.Length).ThenByDescending(f => f.Y).FirstOrDefault();
 
     public HabitatFloor? Floor(string? id) => id == null ? null : Floors.FirstOrDefault(f => f.Id == id);
+
+    /// <summary>Pièce par nom (insensible à la casse et aux accents), puis par type</summary>
+    public HabitatRoom? RoomNamed(string? name)
+    {
+        if (string.IsNullOrWhiteSpace(name))
+            return null;
+        string key = Fold(name);
+        return Rooms.FirstOrDefault(r => Fold(r.Name) == key) ?? Rooms.FirstOrDefault(r => r.Tag != null && Fold(r.Tag) == key);
+    }
+
+    /// <summary>Pièce qui contient un point (la plus petite si elles se chevauchent)</summary>
+    public HabitatRoom? RoomAt(double x, double y) =>
+        Rooms.Where(r => r.Contains(x, y)).OrderBy(r => r.Width * r.Height).FirstOrDefault();
+
+    /// <summary>
+    /// Portions de sols praticables dans une pièce (sol dont la hauteur est dans la pièce, coupé à sa largeur)
+    /// </summary>
+    public List<(HabitatFloor floor, double left, double right)> FloorsIn(HabitatRoom room, double tolerance = 4)
+    {
+        var list = new List<(HabitatFloor, double, double)>();
+        foreach (var f in Floors)
+        {
+            if (f.Y < room.Y - tolerance || f.Y > room.Y + room.Height + tolerance)
+                continue;
+            double l = Math.Max(f.Left, room.X), r = Math.Min(f.Right, room.X + room.Width);
+            if (r - l > 1)
+                list.Add((f, l, r));
+        }
+        return list.OrderByDescending(s => s.Item3 - s.Item2).ToList();
+    }
+
+    /// <summary>
+    /// Point d'arrivée dans une pièce : un emplacement de l'activité voulue, sinon un emplacement de la pièce,
+    /// sinon le milieu de la plus grande portion de sol
+    /// </summary>
+    public (HabitatFloor floor, double x, HabitatSpot? spot)? TargetIn(HabitatRoom room, string? activity, Random? rnd = null)
+    {
+        var spots = Spots.Where(s => s.Room == room.Id && Floor(s.Floor) != null).ToList();
+        var match = spots.Where(s => activity != null && string.Equals(s.Activity, activity, StringComparison.OrdinalIgnoreCase)).ToList();
+        var pick = match.Count > 0 ? match : activity == null || activity == "relax" ? spots : new List<HabitatSpot>();
+        if (pick.Count > 0)
+        {
+            var s = pick[(rnd ?? Random.Shared).Next(pick.Count)];
+            return (Floor(s.Floor)!, s.X, s);
+        }
+        var seg = FloorsIn(room).FirstOrDefault();
+        if (seg.floor == null)
+            return null;
+        double margin = Math.Min(PetHeight * 0.3, (seg.right - seg.left) / 3);
+        double x = rnd == null ? (seg.left + seg.right) / 2 : seg.left + margin + rnd.NextDouble() * Math.Max(0, seg.right - seg.left - 2 * margin);
+        return (seg.floor, x, null);
+    }
+
+    /// <summary>Minuscules sans accents, pour comparer des noms de pièces saisis à la main</summary>
+    public static string Fold(string s)
+    {
+        var n = s.Trim().ToLowerInvariant().Normalize(System.Text.NormalizationForm.FormD);
+        return new string(n.Where(c => System.Globalization.CharUnicodeInfo.GetUnicodeCategory(c) != System.Globalization.UnicodeCategory.NonSpacingMark).ToArray());
+    }
     #endregion
 
     /// <summary>
@@ -220,6 +279,8 @@ public sealed class HabitatRoom
     public double Y { get; set; }
     public double Width { get; set; }
     public double Height { get; set; }
+
+    public bool Contains(double x, double y) => x >= X && x <= X + Width && y >= Y && y <= Y + Height;
 }
 
 /// <summary>Emplacement où se joue une occupation (l'animation apporte ses meubles)</summary>
