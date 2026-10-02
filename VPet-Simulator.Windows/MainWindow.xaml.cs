@@ -137,6 +137,20 @@ namespace VPet_Simulator.Windows
                         VDialog.Show(assetErr, "Premier lancement", System.Windows.MessageBoxButton.OK, Panuon.WPF.UI.MessageBoxIcon.Warning));
                     return;
                 }
+                // V-Max : les animations de base (module Core) doivent être présentes — téléchargées depuis R2 au
+                // premier lancement, ou fournies à côté de l'exe en développement — avant de charger le jeu.
+                if (!Directory.Exists(ModPath + @"\0000_core\pet\vup"))
+                {
+                    ReportStartupError("Module Core introuvable après préparation des assets (ModPath=" + ModPath + ")", "Core");
+                    await Dispatcher.InvokeAsync(() =>
+                    {
+                        VDialog.Show(
+                            "Les animations de base de Maxine sont introuvables. Vérifie ta connexion Internet puis relance Maxine — elles se téléchargeront automatiquement.",
+                            "Premier lancement", System.Windows.MessageBoxButton.OK, Panuon.WPF.UI.MessageBoxIcon.Error);
+                        Close();
+                    });
+                    return;
+                }
                 //加载所有MOD
                 List<DirectoryInfo> Path = new(new DirectoryInfo(ModPath).EnumerateDirectories());
                 // V-Max : mods ajoutés par l'utilisateur, conservés hors du dossier d'installation (survivent aux mises

@@ -1453,15 +1453,10 @@ namespace VPet_Simulator.Windows
                     Topmost = true;
                 }
 
-                //不存在就关掉
-                var modpath = new DirectoryInfo(ModPath + @"\0000_core\pet\vup");
-                if (!modpath.Exists)
-                {
-                    VDialog.Show("缺少模组Core,无法启动桌宠\nMissing module Core, can't start up", "启动错误 boot error", Panuon.WPF.UI.MessageBoxIcon.Error);
-                    Close();
-                    return;
-                }
-
+                // V-Max : le contrôle « module Core présent » a été déplacé APRÈS le téléchargement des assets R2
+                // (voir MainWindow.xaml.cs, juste après AssetService.EnsureAsync). En mode web-installer, les
+                // animations de base ne sont pas encore là à ce stade du démarrage : vérifier ici afficherait à tort
+                // l'erreur « module Core manquant ».
             }
             catch (Exception e)
             {
