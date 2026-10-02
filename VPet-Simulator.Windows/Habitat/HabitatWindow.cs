@@ -114,7 +114,18 @@ public sealed class HabitatWindow : Window
         MouseLeave += (_, _) => ShowChrome(editor != null);
         SizeChanged += (_, _) => { UpdateView(); Moved(); };
         LocationChanged += (_, _) => Moved();
-        SourceInitialized += (_, _) => RoundCorners();
+        SourceInitialized += (_, _) =>
+        {
+            RoundCorners();
+            // mode bureau : on cale la fenêtre EXACTEMENT sur l'écran du compagnon en pixels PHYSIQUES (fiable même en
+            // DPI mixte sur un écran non principal, là où les coordonnées logiques WPF sont ambiguës).
+            if (mode.DesktopDecor)
+            {
+                var b = mode.DesktopScreenBounds;
+                var hwnd = new WindowInteropHelper(this).Handle;
+                SetWindowPos(hwnd, IntPtr.Zero, b.X, b.Y, b.Width, b.Height, SWP_NOZORDER | SWP_NOACTIVATE);
+            }
+        };
         // WPF ferme les fenêtres possédées avec leur propriétaire : on détache le compagnon AVANT la fermeture
         Closing += (_, _) =>
         {
@@ -287,15 +298,16 @@ public sealed class HabitatWindow : Window
     {
         if (mode.DesktopDecor)
         {
-            // mode bureau : la fenêtre transparente couvre TOUT le bureau virtuel (tous les écrans)
-            var v = System.Windows.Forms.SystemInformation.VirtualScreen;
+            // mode bureau : la fenêtre couvre L'ÉCRAN DU COMPAGNON. Position approximative ici (en coords logiques de
+            // l'écran principal) ; SetWindowPos à SourceInitialized la cale ensuite au pixel sur le bon écran (DPI mixte).
+            var b = mode.DesktopScreenBounds;
             var m = PresentationSource.FromVisual(mw)?.CompositionTarget?.TransformFromDevice ?? System.Windows.Media.Matrix.Identity;
-            var tl = m.Transform(new Point(v.Left, v.Top));
-            var br = m.Transform(new Point(v.Right, v.Bottom));
+            var tl = m.Transform(new Point(b.Left, b.Top));
+            var br = m.Transform(new Point(b.Right, b.Bottom));
             Left = tl.X;
             Top = tl.Y;
-            Width = br.X - tl.X;
-            Height = br.Y - tl.Y;
+            Width = Math.Max(MinWidth, br.X - tl.X);
+            Height = Math.Max(MinHeight, br.Y - tl.Y);
             return;
         }
         var cfg = mw.Set["vmax_habitat"];
@@ -351,4 +363,7 @@ public sealed class HabitatWindow : Window
     }
 
     [DllImport("dwmapi.dll")] private static extern int DwmSetWindowAttribute(IntPtr hwnd, int attr, ref int value, int size);
+
+    private const uint SWP_NOZORDER = 0x0004, SWP_NOACTIVATE = 0x0010;
+    [DllImport("user32.dll")] private static extern bool SetWindowPos(IntPtr hWnd, IntPtr hWndInsertAfter, int X, int Y, int cx, int cy, uint uFlags);
 }

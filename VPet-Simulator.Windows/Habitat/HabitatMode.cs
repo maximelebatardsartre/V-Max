@@ -216,31 +216,35 @@ public sealed class HabitatMode
     /// direct ; la carte (sols/zones) est en coordonnées du bureau virtuel, donc générique pour toute config
     /// (mono, multi, vertical, DPI mixte). Clé de carte = signature de la disposition des écrans.
     /// </summary>
+    /// <summary>Écran (pixels physiques) où l'habitat est défini : celui du compagnon au moment de l'activation.</summary>
+    public System.Drawing.Rectangle DesktopScreenBounds { get; private set; }
+
     public Task<string?> EnableDesktopAsync(bool persist = true)
     {
         if (IsActive)
             return Task.FromResult<string?>(null);
         this.persist = persist;
-        var vs = System.Windows.Forms.SystemInformation.VirtualScreen;
-        string key = $"desktop-{vs.Width}x{vs.Height}-{System.Windows.Forms.Screen.AllScreens.Length}";
+        // L'habitat se définit sur L'ÉCRAN OÙ SE TROUVE le compagnon (là où tu l'as posé), pas sur tout le bureau.
+        var screen = System.Windows.Forms.Screen.FromHandle(new System.Windows.Interop.WindowInteropHelper(mw).Handle);
+        var b = screen.Bounds;
+        DesktopScreenBounds = b;
+        string key = "screen-" + screen.DeviceName.Replace("\\", "").Replace(".", "") + "-" + b.Width + "x" + b.Height;
         var map = HabitatMap.TryLoad(key) ?? new HabitatMap();
-        map.Image = new HabitatImage { Sha256 = key, Width = vs.Width, Height = vs.Height, Name = "Bureau" };
-        // on capture le bureau RÉEL (tous les écrans, fenêtres comprises) comme décor : tu traces sur ce que tu vois,
-        // sur un canevas opaque fiable (l'interaction souris sur une fenêtre transparente était capricieuse).
-        var shot = CaptureVirtualDesktop();
+        map.Image = new HabitatImage { Sha256 = key, Width = b.Width, Height = b.Height, Name = "Écran" };
+        // on fige CET écran (ce que tu vois, fenêtres comprises) comme décor opaque : tracé fiable, par-dessus ton vrai écran.
+        var shot = CaptureScreen(b);
         Activate(map, shot, null, isDesktop: true);
         return Task.FromResult<string?>(null);
     }
 
-    /// <summary>Capture tout le bureau virtuel (tous les écrans) en image. Null si échec.</summary>
-    private static BitmapSource? CaptureVirtualDesktop()
+    /// <summary>Capture un écran (pixels physiques) en image figée. Null si échec.</summary>
+    private static BitmapSource? CaptureScreen(System.Drawing.Rectangle b)
     {
         try
         {
-            var vs = System.Windows.Forms.SystemInformation.VirtualScreen;
-            using var bmp = new System.Drawing.Bitmap(vs.Width, vs.Height, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
+            using var bmp = new System.Drawing.Bitmap(b.Width, b.Height, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
             using (var g = System.Drawing.Graphics.FromImage(bmp))
-                g.CopyFromScreen(vs.Left, vs.Top, 0, 0, new System.Drawing.Size(vs.Width, vs.Height), System.Drawing.CopyPixelOperation.SourceCopy);
+                g.CopyFromScreen(b.X, b.Y, 0, 0, new System.Drawing.Size(b.Width, b.Height), System.Drawing.CopyPixelOperation.SourceCopy);
             var h = bmp.GetHbitmap();
             try
             {

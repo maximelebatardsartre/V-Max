@@ -274,8 +274,8 @@ internal sealed class HabitatEditor
     /// </summary>
     private void DrawScreenGuides(Canvas o)
     {
-        if (!mode.SpanScreens)
-            return;
+        if (!mode.SpanScreens || mode.DesktopDecor)
+            return; // l'habitat bureau est désormais sur UN seul écran : pas de frontières à montrer
         System.Collections.Generic.List<Screens.ScreenDetail> ss;
         try { ss = Screens.All(); } catch { return; }
         if (ss.Count < 2)
