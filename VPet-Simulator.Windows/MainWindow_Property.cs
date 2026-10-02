@@ -48,7 +48,20 @@ public partial class MainWindow
 
     public GameSave_v2 GameSavesData { get; set; } = new GameSave_v2("VPET");
 
-    public static readonly string ModPath = ExtensionValue.BaseDirectory + @"\mod";
+    /// <summary>
+    /// Dossier des mods de base (0000_core). En développement il est à côté de l'exe ; sur une installation
+    /// « Web Installer », il vient des assets téléchargés depuis R2 (%LOCALAPPDATA%\V-Max\assets\mod).
+    /// </summary>
+    public static string ModPath
+    {
+        get
+        {
+            var local = ExtensionValue.BaseDirectory + @"\mod";
+            if (System.IO.Directory.Exists(System.IO.Path.Combine(local, "0000_core")))
+                return local;
+            return System.IO.Path.Combine(AssetService.Root, "mod");
+        }
+    }
 
     /// <summary>V-Max : nom du compagnon pour une nouvelle partie (valeur de base, modifiable ensuite par l'utilisateur)</summary>
     public const string DefaultPetName = "Maxine";
@@ -66,7 +79,8 @@ public partial class MainWindow
     /// </summary>
     public static System.Collections.Generic.IEnumerable<string> UserModRoots =>
     [
-        System.IO.Path.Combine(ExtensionValue.BaseDirectory, "mods-inclus"),
+        System.IO.Path.Combine(ExtensionValue.BaseDirectory, "mods-inclus"),   // dev / installeur complet
+        System.IO.Path.Combine(AssetService.Root, "mods-inclus"),              // Web Installer : assets R2
         UserModsDir,
         System.IO.Path.Combine(ExtensionValue.DataDirectory, "studio", "mods"),
     ];

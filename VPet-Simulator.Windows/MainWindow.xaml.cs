@@ -127,6 +127,16 @@ namespace VPet_Simulator.Windows
 
             Task.Run(async () =>
             {
+                // V-Max « Web Installer » : télécharge les gros assets (animations + mods) depuis R2 au premier
+                // lancement, avant de charger le jeu. Ne fait rien en développement (assets déjà présents).
+                var assetErr = await AssetService.EnsureAsync(this);
+                if (assetErr != null)
+                {
+                    ReportStartupError(assetErr, "AssetService");
+                    await Dispatcher.InvokeAsync(() =>
+                        VDialog.Show(assetErr, "Premier lancement", System.Windows.MessageBoxButton.OK, Panuon.WPF.UI.MessageBoxIcon.Warning));
+                    return;
+                }
                 //加载所有MOD
                 List<DirectoryInfo> Path = new(new DirectoryInfo(ModPath).EnumerateDirectories());
                 // V-Max : mods ajoutés par l'utilisateur, conservés hors du dossier d'installation (survivent aux mises

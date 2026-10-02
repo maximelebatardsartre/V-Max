@@ -16,6 +16,7 @@
 param(
     [Parameter(Mandatory = $true)][string]$Version,
     [switch]$Upload,
+    [switch]$FullOffline,   # inclure animations + mods dans l'installeur (sinon : installeur leger, assets sur R2)
     [string]$Runtime = "win-x64"
 )
 $ErrorActionPreference = "Stop"
@@ -36,23 +37,17 @@ dotnet publish $proj -c Release -r $Runtime --self-contained true `
     -p:Platform=x64 -p:PublishSingleFile=false -o $publish
 if ($LASTEXITCODE -ne 0) { throw "La publication a échoué." }
 
-Write-Host "==> Copie des animations de base (mod/0000_core)" -ForegroundColor Cyan
-$modSrc = Join-Path $root "VPet-Simulator.Windows\mod\0000_core"
-$modDst = Join-Path $publish "mod\0000_core"
-New-Item -ItemType Directory -Force -Path (Split-Path $modDst) | Out-Null
-# robocopy : rapide pour les ~6300 images (code de sortie < 8 = succès)
-robocopy $modSrc $modDst /E /NFL /NDL /NJH /NJS /NP | Out-Null
-if ($LASTEXITCODE -ge 8) { throw "La copie de mod/0000_core a échoué." }
-
-# Mods du Workshop traduits, livrés avec l'installeur (chargés et actifs d'office via " mods-inclus ").
-# Source stable : MOD/1920960 (contient les traductions lang/fr) ; repli sur %APPDATA%/V-Max/mods.
-# Mods refusés (contenu sexuel) exclus ; dossiers sans info.lps (vides) ignorés.
-$excluded = @("3027004255","3027542580","3030945675","3031981095","3035399894","3042568517",
-              "3044723043","3045450089","3046644833","3065265367","3290665653","3176916830")
-$bundledSrc = Join-Path $root "MOD\1920960"
-if (-not (Test-Path $bundledSrc)) { $bundledSrc = Join-Path $env:APPDATA "V-Max\mods" }
-if (Test-Path $bundledSrc) {
-    Write-Host "==> Copie des mods inclus (activités traduites) depuis $bundledSrc" -ForegroundColor Cyan
+if ($FullOffline) {
+    Write-Host "==> Installeur COMPLET : copie des animations de base et des mods" -ForegroundColor Cyan
+    $modSrc = Join-Path $root "VPet-Simulator.Windows\mod\0000_core"
+    $modDst = Join-Path $publish "mod\0000_core"
+    New-Item -ItemType Directory -Force -Path (Split-Path $modDst) | Out-Null
+    robocopy $modSrc $modDst /E /NFL /NDL /NJH /NJS /NP | Out-Null
+    if ($LASTEXITCODE -ge 8) { throw "La copie de mod/0000_core a echoue." }
+    $excluded = @("3027004255","3027542580","3030945675","3031981095","3035399894","3042568517",
+                  "3044723043","3045450089","3046644833","3065265367","3290665653","3176916830")
+    $bundledSrc = Join-Path $root "MOD\1920960"
+    if (-not (Test-Path $bundledSrc)) { $bundledSrc = Join-Path $env:APPDATA "V-Max\mods" }
     $bundledDst = Join-Path $publish "mods-inclus"
     New-Item -ItemType Directory -Force -Path $bundledDst | Out-Null
     $n = 0
@@ -60,13 +55,12 @@ if (Test-Path $bundledSrc) {
         if ($excluded -contains $dir.Name) { continue }
         if (-not (Test-Path (Join-Path $dir.FullName "info.lps"))) { continue }
         robocopy $dir.FullName (Join-Path $bundledDst $dir.Name) /E /NFL /NDL /NJH /NJS /NP /XF "*.bak" | Out-Null
-        if ($LASTEXITCODE -ge 8) { throw "La copie du mod $($dir.Name) a échoué." }
+        if ($LASTEXITCODE -ge 8) { throw "La copie du mod $($dir.Name) a echoue." }
         $n++
     }
     Write-Host "    $n mods inclus"
-    if ($n -eq 0) { throw "Aucun mod inclus trouvé dans $bundledSrc." }
 } else {
-    throw "Dossier des mods introuvable (MOD/1920960 et %APPDATA%/V-Max/mods absents)."
+    Write-Host "==> Installeur LEGER : animations et mods seront telecharges depuis R2 au premier lancement" -ForegroundColor Cyan
 }
 
 Write-Host "==> Fabrication de l'installeur Velopack ($Version)" -ForegroundColor Cyan
