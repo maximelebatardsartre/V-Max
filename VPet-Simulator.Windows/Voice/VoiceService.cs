@@ -20,7 +20,8 @@ public sealed class VoiceService : IDisposable
     private enum State { Idle, Listening, Transcribing }
 
     private readonly MainWindow mw;
-    private readonly TextToSpeech tts = new();
+    private readonly TextToSpeech tts = new();          // voix Windows (repli)
+    public readonly PiperTts Piper = new();             // voix premium neurale FR (par défaut une fois téléchargée)
     private readonly MicRecorder mic = new();
     private readonly PushToTalkKey ptt;
     private readonly WakeWord wake = new();
@@ -43,12 +44,14 @@ public sealed class VoiceService : IDisposable
             WakeEnabled = false;
             mw.Toast("« Hey Max » est désactivé : " + msg, HudToast.Kind.Warning, 8);
         });
-        tts.SpeakingChanged += s => mw.Dispatcher.BeginInvoke(() =>
+        void OnSpeaking(bool s) => mw.Dispatcher.BeginInvoke(() =>
         {
             mw.Main.PlayingVoice = s;
             if (!s)
                 ResumeWake();
         });
+        tts.SpeakingChanged += OnSpeaking;
+        Piper.SpeakingChanged += OnSpeaking;
         Apply();
     }
 
@@ -76,6 +79,17 @@ public sealed class VoiceService : IDisposable
     public bool WakeEnabled { get => Cfg.GetBool("wake"); set { Cfg.SetBool("wake", value); Apply(); } }
     public double WakeThreshold { get => Cfg.GetFloat("wake_threshold", 0.7); set { Cfg.SetFloat("wake_threshold", value); wake.Threshold = value; } }
 
+    /// <summary>
+    /// Voix premium neurale (Piper, « siwis » FR) : ACTIVÉE PAR DÉFAUT. Téléchargée une fois (~85 Mo) à la première
+    /// activation de la voix, puis utilisée à la place de la voix Windows (bien plus naturelle). On stocke l'inverse
+    /// pour que l'absence de réglage = premium. La désactiver repasse sur les voix Windows (SAPI).
+    /// </summary>
+    public bool PremiumVoice
+    {
+        get => !Cfg.GetBool("premium_off");
+        set { Cfg.SetBool("premium_off", !value); if (value && Enabled) _ = Piper.EnsureAsync(); }
+    }
+
     public System.Collections.Generic.List<string> Voices() => tts.Voices();
 
     /// <summary>Active ou coupe la touche et le mot d'activation selon les réglages</summary>
@@ -88,6 +102,9 @@ public sealed class VoiceService : IDisposable
             AbortCapture(); // si on décoche « Voix » en pleine capture, on coupe le micro et la transcription sur-le-champ
             return;
         }
+        // voix activée : on prépare la voix premium en arrière-plan (téléchargement unique), sans bloquer.
+        if (PremiumVoice && !Piper.Ready)
+            _ = Piper.EnsureAsync();
         if (ReplyMode == "always")
             HookAgent();
         if (PushToTalk) ptt.Enable(); else ptt.Disable();
@@ -96,8 +113,14 @@ public sealed class VoiceService : IDisposable
     }
     #endregion
 
-    /// <summary>Fait parler le compagnon (bouton « Écouter un exemple », réponses)</summary>
-    public void Say(string text) => tts.Speak(text, VoiceName, Rate);
+    /// <summary>Fait parler le compagnon (bouton « Écouter un exemple », réponses). Voix premium si prête, sinon Windows.</summary>
+    public void Say(string text)
+    {
+        if (PremiumVoice && Piper.Ready)
+            Piper.Speak(text, Rate);
+        else
+            tts.Speak(text, VoiceName, Rate);
+    }
 
     /// <summary>QA : transcription hors ligne forcée</summary>
     internal bool QaOffline { get; set; }
@@ -125,6 +148,7 @@ public sealed class VoiceService : IDisposable
         try { if (state == State.Listening) mic.Stop(); } catch { }
         try { cts?.Cancel(); } catch { }
         try { tts.Stop(); } catch { }
+        try { Piper.Stop(); } catch { }
         state = State.Idle;
         try { overlay?.HideAnimated(); } catch { }
     }
@@ -133,6 +157,7 @@ public sealed class VoiceService : IDisposable
     {
         // couper la parole : on parle par-dessus sa réponse
         tts.Stop();
+        Piper.Stop();
         if (state != State.Idle)
             return;
         if (!MicRecorder.Available)
@@ -234,7 +259,8 @@ public sealed class VoiceService : IDisposable
         }
         if (QaOutputFile != null)
         {
-            tts.SpeakToFile(text, VoiceName, Rate, QaOutputFile);
+            if (!(PremiumVoice && Piper.Ready && Piper.SpeakToFile(text, Rate, QaOutputFile)))
+                tts.SpeakToFile(text, VoiceName, Rate, QaOutputFile);
             return;
         }
         Say(text);
@@ -242,7 +268,7 @@ public sealed class VoiceService : IDisposable
 
     private void ResumeWake()
     {
-        if (WakeEnabled && state == State.Idle && !tts.IsSpeaking)
+        if (WakeEnabled && state == State.Idle && !tts.IsSpeaking && !Piper.IsSpeaking)
             wake.Start();
     }
 
@@ -252,5 +278,6 @@ public sealed class VoiceService : IDisposable
         wake.Dispose();
         mic.Dispose();
         tts.Dispose();
+        Piper.Dispose();
     }
 }

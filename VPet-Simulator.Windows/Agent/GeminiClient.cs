@@ -59,7 +59,14 @@ public sealed class GeminiClient
         {
             ["contents"] = contents.DeepClone(),
             ["systemInstruction"] = new JsonObject { ["parts"] = new JsonArray(new JsonObject { ["text"] = systemPrompt }) },
-            ["generationConfig"] = new JsonObject { ["temperature"] = 0.8, ["maxOutputTokens"] = 1024 },
+            // thinkingBudget = 0 : on désactive la phase de « réflexion » de Gemini 2.5 Flash. Pour un compagnon de
+            // bureau on veut des réponses IMMÉDIATES, pas un raisonnement interne qui ajoute plusieurs secondes de latence.
+            ["generationConfig"] = new JsonObject
+            {
+                ["temperature"] = 0.8,
+                ["maxOutputTokens"] = 1024,
+                ["thinkingConfig"] = new JsonObject { ["thinkingBudget"] = 0 },
+            },
         };
         if (functionDeclarations != null && functionDeclarations.Count > 0)
             body["tools"] = new JsonArray(new JsonObject { ["functionDeclarations"] = functionDeclarations.DeepClone() });
