@@ -8,6 +8,7 @@ using System.Windows.Controls.Primitives;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using VPet_Simulator.Core;
+using VPet_Simulator.Windows.Career;
 using VPet_Simulator.Windows.Interface;
 using static VPet_Simulator.Core.GraphHelper;
 using static VPet_Simulator.Windows.Interface.ScheduleTask;
@@ -60,9 +61,12 @@ public sealed class PlanningWindow : HudWindow
     private FrameworkElement BuildWorks()
     {
         MW.Main.WorkList(out var ws, out var ss, out var ps);
-        var all = ws.Concat(ss).Concat(ps).ToList();
-        var shown = favorites ? MW.WorkStar() : category switch { Work.WorkType.Study => ss, Work.WorkType.Play => ps, _ => ws };
-        selected ??= shown.FirstOrDefault(w => w.LevelLimit <= Level) ?? shown.FirstOrDefault();
+        // V-Max : les animations d'ambiance ne sont pas des occupations (jouées par le comportement autonome)
+        ws = ws.Where(w => !ActivityCatalog.IsAmbiance(w)).ToList();
+        ss = ss.Where(w => !ActivityCatalog.IsAmbiance(w)).ToList();
+        ps = ps.Where(w => !ActivityCatalog.IsAmbiance(w)).ToList();
+        var shown = favorites ? MW.WorkStar().Where(w => !ActivityCatalog.IsAmbiance(w)).ToList() : category switch { Work.WorkType.Study => ss, Work.WorkType.Play => ps, _ => ws };
+        selected ??= shown.FirstOrDefault(w => CareerState.I.IsUnlocked(w)) ?? shown.FirstOrDefault();
 
         // colonne de gauche : catégories et liste
         var chips = new WrapPanel { Margin = new Thickness(0, 0, 0, 10) };
@@ -110,11 +114,11 @@ public sealed class PlanningWindow : HudWindow
 
     private FrameworkElement WorkRow(Work w)
     {
-        bool locked = MW.Set.EnableFunction && w.LevelLimit > Level;
+        bool locked = !CareerState.I.IsUnlocked(w);
         bool sel = selected?.Name == w.Name;
         var icon = new TextBlock { Text = locked ? "" : Glyph(w.Type), FontFamily = (FontFamily)FindResource("HudIcons"), FontSize = 15, Foreground = Res(locked ? "HudTextMuted" : "HudText"), VerticalAlignment = VerticalAlignment.Center, Width = 26 };
         var name = new TextBlock { Text = w.NameTrans, FontSize = 14, FontWeight = FontWeights.SemiBold, Foreground = Res(locked ? "HudTextMuted" : "HudText"), TextTrimming = TextTrimming.CharacterEllipsis, VerticalAlignment = VerticalAlignment.Center };
-        var right = new TextBlock { Text = locked ? $"Niv. {w.LevelLimit}" : IsStar(w) ? "" : "", FontFamily = locked ? (FontFamily)FindResource("HudMono") : (FontFamily)FindResource("HudIcons"), FontSize = 11.5, Foreground = Res(locked ? "HudTextMuted" : "HudAmber"), VerticalAlignment = VerticalAlignment.Center };
+        var right = new TextBlock { Text = locked ? LockLabel(w) : IsStar(w) ? "" : "", FontFamily = locked ? (FontFamily)FindResource("HudMono") : (FontFamily)FindResource("HudIcons"), FontSize = 11.5, Foreground = Res(locked ? "HudTextMuted" : "HudAmber"), VerticalAlignment = VerticalAlignment.Center };
         var dock = new DockPanel();
         DockPanel.SetDock(icon, Dock.Left);
         DockPanel.SetDock(right, Dock.Right);
@@ -133,10 +137,14 @@ public sealed class PlanningWindow : HudWindow
         return row;
     }
 
+    /// <summary>Étiquette d'un métier verrouillé : le titre du palier qui le débloque.</summary>
+    private static string LockLabel(Work w) =>
+        ActivityCatalog.TrackOf(w) is { } t ? t.Tiers[Math.Min(ActivityCatalog.TierOf(w), t.Tiers.Length - 1)].Title : "verrouillé";
+
     private int Multiplier(Work w) => MW.Set["workmenu"].GetInt("double_" + w.Name, 1);
 
-    /// <summary>Multiplicateur maximal (règle de VPet) ; 1 = pas de multiplicateur</summary>
-    private int MaxMultiplier(Work w) => w.LevelLimit > Level ? 1 : Math.Max(1, Math.Min(4000, Level) / (w.LevelLimit + 10));
+    /// <summary>Multiplicateur maximal (règle de VPet) ; 1 = pas de multiplicateur. Désactivé sur les activités curatées.</summary>
+    private int MaxMultiplier(Work w) => ActivityCatalog.Of(w) != null || w.LevelLimit > Level ? 1 : Math.Max(1, Math.Min(4000, Level) / (w.LevelLimit + 10));
 
     private Work Displayed(Work w)
     {
@@ -152,7 +160,7 @@ public sealed class PlanningWindow : HudWindow
     private FrameworkElement WorkDetail(Work w)
     {
         var d = Displayed(w);
-        bool locked = MW.Set.EnableFunction && w.LevelLimit > Level;
+        bool locked = !CareerState.I.IsUnlocked(w);
         var sp = new StackPanel();
 
         // en-tête : image et nom
@@ -198,7 +206,9 @@ public sealed class PlanningWindow : HudWindow
         stats.Children.Add(Stat("Satiété", "−" + d.StrengthFood.ToString("0.##", Fr) + "/tick"));
         stats.Children.Add(Stat("Soif", "−" + d.StrengthDrink.ToString("0.##", Fr) + "/tick"));
         stats.Children.Add(Stat("Humeur", (d.Feeling > 0 ? "−" : "+") + Math.Abs(d.Feeling).ToString("0.##", Fr) + "/tick"));
-        stats.Children.Add(Stat("Niveau requis", d.LevelLimit.ToString(Fr), locked ? "HudAmber" : "HudText"));
+        stats.Children.Add(ActivityCatalog.TrackOf(w) is { } tr
+            ? Stat("Palier requis", tr.Tiers[Math.Min(ActivityCatalog.TierOf(w), tr.Tiers.Length - 1)].Title, locked ? "HudAmber" : "HudText")
+            : Stat("Accès", "Libre"));
         sp.Children.Add(stats);
 
         // multiplicateur
@@ -233,8 +243,11 @@ public sealed class PlanningWindow : HudWindow
         add.IsEnabled = !locked;
         actions.Children.Add(add);
         sp.Children.Add(actions);
-        if (locked)
-            sp.Children.Add(new TextBlock { Text = $"Disponible au niveau {w.LevelLimit} (tu es niveau {Level}).", Foreground = Res("HudAmber"), FontSize = 12.5, Margin = new Thickness(0, 8, 0, 0) });
+        if (locked && ActivityCatalog.TrackOf(w) is { } lt)
+        {
+            var lti = lt.Tiers[Math.Min(ActivityCatalog.TierOf(w), lt.Tiers.Length - 1)];
+            sp.Children.Add(new TextBlock { Text = $"Se débloque au palier « {lti.Title} » du métier {lt.Name} ({lti.XpRequired:0} XP).", Foreground = Res("HudAmber"), FontSize = 12.5, Margin = new Thickness(0, 8, 0, 0), TextWrapping = TextWrapping.Wrap });
+        }
         return sp;
     }
 

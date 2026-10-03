@@ -30,8 +30,8 @@ public sealed class PiperTts : IDisposable
     /// <summary>Catalogue des voix françaises proposées (toutes neurales, hors-ligne). La 1re est la voix par défaut.</summary>
     public static readonly PiperVoice[] Catalog =
     [
-        new("jessica", "Douce", "fr_FR-upmc-medium", "upmc/medium", 0),
         new("siwis", "Claire", "fr_FR-siwis-medium", "siwis/medium", null),
+        new("jessica", "Douce", "fr_FR-upmc-medium", "upmc/medium", 0),
     ];
 
     /// <summary>Voix sélectionnée (changer de voix télécharge son modèle si besoin au prochain usage).</summary>

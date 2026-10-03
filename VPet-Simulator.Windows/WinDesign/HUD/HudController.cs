@@ -27,7 +27,17 @@ public sealed class HudController
     private InventoryPanel? inventory;
     private ActivitiesPanel? activities;
     private MorePanel? more;
+    private MonitorPanel? monitor;
+    private AppLauncherPanel? launcher;
+    private ClipboardPanel? clipboard;
+    private ProcessPanel? processes;
+    private TimersPanel? timersPanel;
+    private NotesPanel? notes;
+    private WindowsPanel? windows;
+    private ScreenshotsPanel? screenshots;
+    private HelpPanel? help;
     private HudSidePanel? openPanel;
+    private ActivityReactions? reactions;
     /// <summary>QA : fenêtre de l'anneau</summary>
     public Window? OrbitWindow => orbit;
     /// <summary>QA : panneau de discussion</summary>
@@ -66,6 +76,10 @@ public sealed class HudController
             };
         mw.Main.NotifyHandler = text => HudToast.Show(mw, text, HudToast.Kind.Warning, 5);
         RegisterChatHotkey();
+        try { global::VPet_Simulator.Windows.Assistant.ClipboardHistory.Start(); } catch { }
+        try { reactions = new ActivityReactions(mw); } catch { }
+        try { global::VPet_Simulator.Windows.Career.ActivityCatalog.Apply(mw); } catch { }
+        try { global::VPet_Simulator.Windows.Career.CareerState.I.TryMonthly(mw); } catch { }
     }
 
     #region Raccourci global Ctrl+Alt+Espace : ouvre la discussion depuis n'importe où
@@ -213,6 +227,35 @@ public sealed class HudController
     public void OpenInventory() => Panel(ref inventory, () => new InventoryPanel(mw)).Toggle();
     public void OpenActivities() => Panel(ref activities, () => new ActivitiesPanel(mw)).Toggle();
     public void OpenStatus() => Panel(ref status, () => new StatusCard(mw)).Toggle();
+
+    /// <summary>Ouvre (ou ramène au premier plan) un panneau utilitaire par identifiant.</summary>
+    public void OpenPanel(string id)
+    {
+        // « Carrière » = l'onglet Métiers du panneau unique Occupations (plus de popup séparée)
+        if (id == "career")
+        {
+            var a = Panel(ref activities, () => new ActivitiesPanel(mw));
+            a.ShowMetiers();
+            if (!a.IsVisible) a.Toggle(); else a.Activate();
+            return;
+        }
+        HudSidePanel p = id switch
+        {
+            "launcher" => Panel(ref launcher, () => new AppLauncherPanel(mw)),
+            "clipboard" => Panel(ref clipboard, () => new ClipboardPanel(mw)),
+            "processes" => Panel(ref processes, () => new ProcessPanel(mw)),
+            "timers" => Panel(ref timersPanel, () => new TimersPanel(mw)),
+            "notes" => Panel(ref notes, () => new NotesPanel(mw)),
+            "windows" => Panel(ref windows, () => new WindowsPanel(mw)),
+            "screenshots" => Panel(ref screenshots, () => new ScreenshotsPanel(mw)),
+            "help" => Panel(ref help, () => new HelpPanel(mw)),
+            _ => Panel(ref monitor, () => new MonitorPanel(mw)),
+        };
+        if (!p.IsVisible)
+            p.Toggle();
+        else
+            p.Activate();
+    }
     public void OpenMore() => Panel(ref more, () => new MorePanel(mw)).Toggle();
 
     /// <summary>
