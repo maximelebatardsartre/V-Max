@@ -26,9 +26,12 @@ if (-not (Get-Command rclone -ErrorAction SilentlyContinue)) {
     throw "rclone introuvable dans le PATH."
 }
 
-$zip = Get-ChildItem $Dir -Filter "maxine-assets-*.zip" | Select-Object -First 1
 $manifest = Join-Path $Dir "assets.json"
-if (-not $zip -or -not (Test-Path $manifest)) { throw "Pack d'assets introuvable dans $Dir (lance pack-assets.ps1 d'abord)." }
+if (-not (Test-Path $manifest)) { throw "assets.json introuvable dans $Dir (lance pack-assets.ps1 d'abord)." }
+# on televerse le zip EXACTEMENT nomme dans le manifeste (evite d'envoyer un vieux zip si plusieurs trainent)
+$zipName = (Get-Content $manifest -Raw | ConvertFrom-Json).zip
+$zip = Get-Item (Join-Path $Dir $zipName) -ErrorAction SilentlyContinue
+if (-not $zip) { throw "Le zip '$zipName' reference par assets.json est introuvable dans $Dir." }
 
 # Meme prefixe que DefaultBaseUrl dans AssetService.cs : l'app lit https://pub-....r2.dev/maxine-assets/...
 $prefix = "maxine-assets"
