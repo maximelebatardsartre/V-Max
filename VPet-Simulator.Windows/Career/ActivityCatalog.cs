@@ -23,37 +23,37 @@ public static class ActivityCatalog
 {
     public static readonly Dictionary<string, ActivityDef> ByName = new()
     {
-        // ───────── MÉTIERS · Numérique ─────────
-        ["文案"]   = new(Bucket.Metier, "Rédiger",            "redaction", 0, 9),
-        ["写材料"] = new(Bucket.Metier, "Rédiger un dossier", "redaction", 0, 9),
-        ["做PPT"]  = new(Bucket.Metier, "Faire un diaporama", "redaction", 1, 16),
-        ["直播"]   = new(Bucket.Metier, "Faire un live",      "stream", 0, 24),
-        ["做图"]   = new(Bucket.Metier, "Faire un visuel",    "stream", 1, 22),
-        ["写代码"] = new(Bucket.Metier, "Programmer",             "dev", 0, 12),
-        ["Coding Lv.10"] = new(Bucket.Metier, "Programmer (confirmé)", "dev", 1, 22),
-        ["Coding Lv.20"] = new(Bucket.Metier, "Programmer (senior)",   "dev", 2, 35),
-        ["清屏"]   = new(Bucket.Metier, "Nettoyer les écrans", "maintenance", 0, 14),
-        ["修屏幕"] = new(Bucket.Metier, "Réparer un écran",    "maintenance", 2, 30),
+        // ───────── MÉTIERS · Numérique ─────────  (MoneyBase choisi pour un $/min resserré : Get()≈(base·1.075+1)^1.25)
+        ["文案"]   = new(Bucket.Metier, "Rédiger",            "redaction", 0, 6),   // ≈12 $/min
+        ["写材料"] = new(Bucket.Metier, "Rédiger un dossier", "redaction", 0, 6),   // ≈12
+        ["做PPT"]  = new(Bucket.Metier, "Faire un diaporama", "redaction", 1, 8),   // ≈16
+        ["直播"]   = new(Bucket.Metier, "Faire un live",      "stream", 0, 7),       // ≈14
+        ["做图"]   = new(Bucket.Metier, "Faire un visuel",    "stream", 1, 8),       // ≈16
+        ["写代码"] = new(Bucket.Metier, "Programmer",             "dev", 0, 6),       // ≈12
+        ["Coding Lv.10"] = new(Bucket.Metier, "Programmer (confirmé)", "dev", 1, 8),  // ≈16
+        ["Coding Lv.20"] = new(Bucket.Metier, "Programmer (senior)",   "dev", 2, 11), // ≈23
+        ["清屏"]   = new(Bucket.Metier, "Nettoyer les écrans", "maintenance", 0, 6),  // ≈12
+        ["修屏幕"] = new(Bucket.Metier, "Réparer un écran",    "maintenance", 2, 10), // ≈22
 
         // ───────── MÉTIERS · Restauration ─────────
-        ["烧烤"]   = new(Bucket.Metier, "Tenir le barbecue", "cuisine", 0, 14),
+        ["烧烤"]   = new(Bucket.Metier, "Tenir le barbecue", "cuisine", 0, 6),        // ≈12
 
-        // ───────── MÉTIERS · Indépendante ─────────
-        ["挂机工作Lv1"] = new(Bucket.Metier, "Petites missions",    "freelance", 0, 8),
-        ["挂机工作Lv2"] = new(Bucket.Metier, "Missions régulières", "freelance", 1, 18),
-        ["挂机工作Lv3"] = new(Bucket.Metier, "Gros contrats",       "freelance", 2, 35),
-        ["挂机工作Lv4"] = new(Bucket.Metier, "Contrats premium",    "freelance", 3, 55),
-        ["Syrian Summer Job"] = new(Bucket.Metier, "Job d'été",       "appoint", 0, 14),
-        ["Genshin Shift"]     = new(Bucket.Metier, "Genshin au boulot","appoint", 1, 20),
+        // ───────── MÉTIERS · Indépendante (échelle plus marquée : c'est sa progression propre) ─────────
+        ["挂机工作Lv1"] = new(Bucket.Metier, "Petites missions",    "freelance", 0, 5),  // ≈10
+        ["挂机工作Lv2"] = new(Bucket.Metier, "Missions régulières", "freelance", 1, 8),  // ≈16
+        ["挂机工作Lv3"] = new(Bucket.Metier, "Gros contrats",       "freelance", 2, 12), // ≈26
+        ["挂机工作Lv4"] = new(Bucket.Metier, "Contrats premium",    "freelance", 3, 17), // ≈40
+        ["Syrian Summer Job"] = new(Bucket.Metier, "Job d'été",       "appoint", 0, 6),  // ≈12
+        ["Genshin Shift"]     = new(Bucket.Metier, "Genshin au boulot","appoint", 1, 8), // ≈16
 
-        // ───────── MÉTIERS · Études (linéaire) ─────────
-        ["上学"]       = new(Bucket.Metier, "Aller à l'école",     "etudes", 0, 40),
-        ["上自习"]     = new(Bucket.Metier, "Étude en autonomie",  "etudes", 1, 35),
+        // ───────── MÉTIERS · Études (linéaire, Exp croissante) ─────────
+        ["上学"]       = new(Bucket.Metier, "Aller à l'école",     "etudes", 0, 35),
+        ["上自习"]     = new(Bucket.Metier, "Étude en autonomie",  "etudes", 1, 45),
         ["学习"]       = new(Bucket.Metier, "Étudier",             "etudes", 2, 60),
-        ["写作业"]     = new(Bucket.Metier, "Faire ses devoirs",   "etudes", 3, 55),
+        ["写作业"]     = new(Bucket.Metier, "Faire ses devoirs",   "etudes", 3, 70),
         ["研究"]       = new(Bucket.Metier, "Mener une recherche", "etudes", 4, 90),
-        ["Grind!!"]    = new(Bucket.Metier, "Réviser à fond",      "etudes", 4, 80),
-        ["挂机学习Lv1"] = new(Bucket.Metier, "Réviser en autonomie","etudes", 5, 100),
+        ["Grind!!"]    = new(Bucket.Metier, "Réviser à fond",      "etudes", 4, 90),
+        ["挂机学习Lv1"] = new(Bucket.Metier, "Réviser en autonomie","etudes", 5, 110),
 
         // ───────── LOISIRS (libres, sans argent) ─────────
         ["玩游戏"]  = new(Bucket.Loisir, "Jouer aux jeux vidéo"),
