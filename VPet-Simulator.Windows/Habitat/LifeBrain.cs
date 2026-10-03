@@ -104,7 +104,12 @@ public sealed class LifeBrain
         var due = RoutinePlanner.Due(Book.Routines, DateTime.Now, Book.WasPlayed);
         var o = due.FirstOrDefault();
         if (o == null)
+        {
+            // Aucune routine prévue maintenant : elle VIT quand même. Si une jauge le réclame (faim, soif,
+            // fatigue, moral), elle agit d'elle-même — c'est ce qui rend le compagnon « vivant » et pas scripté.
+            MaybeSpontaneous();
             return;
+        }
         // il souffle un peu entre deux routines, sauf si la plage se termine bientôt
         if (DateTime.Now < breatherUntil && o.WindowEnd - DateTime.Now > TimeSpan.FromMinutes(3))
             return;
@@ -120,6 +125,55 @@ public sealed class LifeBrain
             Book.Played.Add(skipped.Key);
         SaveBook();
         _ = StartAsync(o.Routine.Place, o.Routine.Action, o.Duration, "routine");
+    }
+
+    private DateTime lastSpontaneous = DateTime.MinValue;
+
+    /// <summary>
+    /// Comportement autonome « vivant » hors routine : quand rien n'est prévu, Maxine suit ses propres besoins
+    /// (dormir si épuisée, manger/boire si les jauges chutent, se divertir si le moral est bas, flâner sinon).
+    /// Cadencé (pas d'enchaînement) et ne tourne que si les fonctions/jauges sont actives.
+    /// </summary>
+    private void MaybeSpontaneous()
+    {
+        if (!mw.Set.EnableFunction)                                  // jauges désactivées → pas de besoins à suivre
+            return;
+        if (DateTime.Now < breatherUntil)                           // elle vient d'agir : elle souffle
+            return;
+        if (DateTime.Now - lastSpontaneous < TimeSpan.FromMinutes(2))
+            return;
+        var s = mw.Core.Save!;
+        double max = Math.Max(1, s.StrengthMax);
+        string? act =
+            s.Strength / max < 0.25 ? "sleep" :
+            s.StrengthFood / max < 0.4 ? "eat" :
+            s.StrengthDrink / max < 0.4 ? "drink" :
+            s.Feeling / Math.Max(1, s.FeelingMax) < 0.3 ? PickLeisure() :
+            Random.Shared.NextDouble() < 0.35 ? PickAmbiance() :     // la VIE : ménage, repos, émotes…
+            Random.Shared.NextDouble() < 0.25 ? "relax" :            // flânerie occasionnelle
+            null;
+        if (act == null)
+            return;
+        lastSpontaneous = DateTime.Now;
+        // sur place (ou là où l'animation l'emmène) : le fix « routines sans pièce » gère l'absence de carte
+        _ = StartAsync(null, act, TimeSpan.Zero, "autonomy");
+    }
+
+    /// <summary>Choisit un loisir faisable (remonte le moral) ; à défaut, une simple détente.</summary>
+    private string PickLeisure()
+    {
+        mw.Main.WorkList(out _, out _, out var ps);
+        // un vrai loisir (pas une animation d'ambiance), débloqué
+        var w = ps.Where(w => !Career.ActivityCatalog.IsAmbiance(w)).OrderBy(_ => Random.Shared.Next()).FirstOrDefault();
+        return w != null ? "work:" + w.Name : "relax";
+    }
+
+    /// <summary>Choisit une animation de VIE/ambiance (ménage, repos, émote…) à jouer sur place, sans gain.</summary>
+    private string PickAmbiance()
+    {
+        mw.Main.WorkList(out _, out _, out var ps);
+        var a = ps.Where(w => Career.ActivityCatalog.IsAmbiance(w)).OrderBy(_ => Random.Shared.Next()).FirstOrDefault();
+        return a != null ? "life:" + a.Name : "relax";
     }
 
     /// <summary>A-t-il besoin de cette action (jauge sous 80 %, 90 % pour le sommeil) ?</summary>
@@ -168,48 +222,42 @@ public sealed class LifeBrain
 
         if (habitat?.IsActive == true && !string.IsNullOrWhiteSpace(place))
         {
+            // On ESSAIE de rejoindre la pièce. Mais si elle n'existe pas (habitat sans pièces, pièce absente,
+            // pas de sol, ou pas de chemin), on NE renonce PAS : l'action se fait SUR PLACE. C'est le contrat
+            // annoncé dans les réglages (« Sans carte tracée, Maxine suit quand même ses routines, mais sur place »).
             var room = habitat.Map.RoomNamed(place);
-            if (room == null)
-            {
-                Current = null;
-                Changed?.Invoke();
-                return $"Il n'y a pas de pièce « {place} » dans cet habitat.";
-            }
-            var target = habitat.Map.TargetIn(room, activity == "relax" ? null : activity, Random.Shared);
+            var target = room != null ? habitat.Map.TargetIn(room, activity == "relax" ? null : activity, Random.Shared) : null;
             var here = habitat.Locate();
-            if (target == null || here == null)
+            System.Collections.Generic.List<NavStep>? path = null;
+            if (room != null && target != null && here != null)
             {
-                Current = null;
-                Changed?.Invoke();
-                return $"La pièce « {room.Name} » n'a pas de sol où se poser.";
+                pilot ??= new HabitatPilot(mw, habitat);
+                var nav = new HabitatNavigator(habitat.Map, pilot.Capabilities());
+                path = nav.FindPath(here.Value.floor.Id, here.Value.x, target.Value.floor.Id, target.Value.x);
             }
-            pilot ??= new HabitatPilot(mw, habitat);
-            var nav = new HabitatNavigator(habitat.Map, pilot.Capabilities());
-            var path = nav.FindPath(here.Value.floor.Id, here.Value.x, target.Value.floor.Id, target.Value.x);
-            if (path == null)
+            if (path != null)
             {
-                Current = null;
+                if (source == "routine")
+                    Announce(activity, room!.Name);
+                Navigating = true;
                 Changed?.Invoke();
-                return $"Je ne trouve pas de chemin jusqu'à « {room.Name} » (une échelle ou une chute manque ?).";
+                bool arrived = await pilot!.RunAsync(path, token);
+                if (Current != mine)
+                    return "Remplacé par une autre demande.";
+                Navigating = false;
+                if (!arrived || token.IsCancellationRequested)
+                {
+                    Current = null;
+                    Changed?.Invoke();
+                    return "Trajet interrompu.";
+                }
+                // pour flâner, il reste dans la pièce
+                var seg = habitat.Map.FloorsIn(room!).FirstOrDefault(s => s.floor.Id == target!.Value.floor.Id);
+                roomLeash = seg.floor != null ? (seg.left, seg.right) : null;
+                habitat.Leash = activity == "relax" ? roomLeash : null;
             }
-            if (source == "routine")
-                Announce(activity, room.Name);
-            Navigating = true;
-            Changed?.Invoke();
-            bool arrived = await pilot.RunAsync(path, token);
-            if (Current != mine)
-                return "Remplacé par une autre demande.";
-            Navigating = false;
-            if (!arrived || token.IsCancellationRequested)
-            {
-                Current = null;
-                Changed?.Invoke();
-                return "Trajet interrompu.";
-            }
-            // pour flâner, il reste dans la pièce
-            var seg = habitat.Map.FloorsIn(room).FirstOrDefault(s => s.floor.Id == target.Value.floor.Id);
-            roomLeash = seg.floor != null ? (seg.left, seg.right) : null;
-            habitat.Leash = activity == "relax" ? roomLeash : null;
+            else if (source == "routine")
+                Announce(activity, place); // pas de pièce/chemin : on annonce et on agit sur place
         }
         else if (source == "routine")
             Announce(activity, place);
@@ -265,6 +313,17 @@ public sealed class LifeBrain
                     if (work == null || !m.StartWork(ActivitiesPanel.Prepare(mw, work)))
                         Current = Current! with { Until = DateTime.Now };
                 }
+                else if (activity.StartsWith("life:"))
+                {
+                    // activité de VIE : on joue l'animation directement (A_Start puis boucle), sans travail ni gain
+                    var name = activity[5..];
+                    m.WorkList(out _, out _, out var ps);
+                    var w = ps.FirstOrDefault(x => string.Equals(x.Name, name, StringComparison.OrdinalIgnoreCase));
+                    if (w != null && m.State == Main.WorkingState.Nomal)
+                        try { w.Display(m); } catch { Current = Current! with { Until = DateTime.Now }; }
+                    else
+                        Current = Current! with { Until = DateTime.Now };
+                }
                 break;
         }
     }
@@ -300,6 +359,8 @@ public sealed class LifeBrain
                     else if (over)
                         m.WorkTimer?.Stop(reason: WorkTimer.FinishWorkInfo.StopReason.MenualStop);
                 }
+                else if (c.Activity.StartsWith("life:") && over)
+                    try { m.DisplayToNomal(); } catch { } // fin de l'animation de vie : retour à la normale
                 break;
         }
         if (grabbed)
@@ -334,7 +395,14 @@ public sealed class LifeBrain
             || DateTime.Now - lastEarn < TimeSpan.FromHours(2) || s.Mode == VPet_Simulator.Core.IGameSave.ModeType.Ill)
             return;
         mw.Main.WorkList(out var ws, out _, out _);
-        var best = ws.Where(w => w.LevelLimit <= s.Level).Select(w => ActivitiesPanel.Prepare(mw, w))
+        // seules les activités débloquées (progression de carrière) ; on privilégie le JOB ACTIF
+        var ok = ws.Where(w => Career.CareerState.I.IsUnlocked(w)).ToList();
+        var job = Career.CareerState.I.ActiveJobTrack;
+        Work? best = null;
+        if (job is { Kind: Career.CareerKind.Work })
+            best = ok.Where(w => Career.ActivityCatalog.TrackOf(w) == job).Select(w => ActivitiesPanel.Prepare(mw, w))
+                .OrderByDescending(w => VPet_Simulator.Windows.Interface.ExtensionFunction.Get(w)).FirstOrDefault();
+        best ??= ok.Select(w => ActivitiesPanel.Prepare(mw, w))
             .OrderByDescending(w => VPet_Simulator.Windows.Interface.ExtensionFunction.Get(w)).FirstOrDefault();
         if (best == null)
             return;
@@ -344,13 +412,18 @@ public sealed class LifeBrain
         _ = StartAsync(office, "work:" + best.Name, TimeSpan.Zero, "autonomy");
     }
 
-    private static TimeSpan DefaultDuration(string activity) => activity switch
+    private static TimeSpan DefaultDuration(string activity)
     {
-        "sleep" => TimeSpan.FromMinutes(450),
-        "relax" => TimeSpan.FromMinutes(20),
-        "eat" or "drink" => TimeSpan.FromSeconds(30),
-        _ => TimeSpan.FromHours(6), // une occupation s'arrête d'elle-même à la fin de sa durée native
-    };
+        if (activity.StartsWith("life:"))
+            return TimeSpan.FromSeconds(20 + Random.Shared.Next(40)); // une animation de vie dure un court moment
+        return activity switch
+        {
+            "sleep" => TimeSpan.FromMinutes(450),
+            "relax" => TimeSpan.FromMinutes(20),
+            "eat" or "drink" => TimeSpan.FromSeconds(30),
+            _ => TimeSpan.FromHours(6), // une occupation s'arrête d'elle-même à la fin de sa durée native
+        };
+    }
 
     /// <summary>Petite phrase au départ d'une routine</summary>
     private void Announce(string activity, string? place)
@@ -382,6 +455,7 @@ public sealed class LifeBrain
             "drink" => "Boire",
             "relax" => "Se détendre",
             _ when activity.StartsWith("work:") => activity[5..],
+            _ when activity.StartsWith("life:") => activity[5..],
             _ => activity,
         };
         return string.IsNullOrWhiteSpace(place) ? what : what + " · " + place;

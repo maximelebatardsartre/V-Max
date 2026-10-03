@@ -206,6 +206,12 @@ public sealed class CommandRouter
                   "affiche mes captures", "mes screenshots", "mes photos d ecran", "liste des captures"),
                 S()),
 
+            // Carrière / métiers
+            new(CmdCareer,
+                S("ma carriere", "mes metiers", "ma voie", "arbre des metiers", "ma progression de carriere",
+                  "mon metier", "montre ma carriere", "ouvre ma carriere", "mon arbre de metiers", "mes statuts"),
+                S("carriere", "metier", "metiers")),
+
             // Bloc-notes (≠ Bloc-notes Windows : « ouvre le bloc-notes » reste Notepad)
             new(CmdNotes,
                 S("prends une note", "prendre une note", "mes notes", "ouvre mes notes", "note a moi meme",
@@ -610,6 +616,12 @@ public sealed class CommandRouter
     {
         host.OpenPanel("notes");
         return new CommandOutcome("J'ouvre ton bloc-notes.", "📝 Notes", CommandTone.Success);
+    }
+
+    private CommandOutcome? CmdCareer(string n)
+    {
+        host.OpenPanel("career");
+        return new CommandOutcome("Voici ma progression de carrière et mes métiers.", "💼 Carrière", CommandTone.Success);
     }
     #endregion
 

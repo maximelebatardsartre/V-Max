@@ -78,6 +78,8 @@ public sealed class HudController
         RegisterChatHotkey();
         try { global::VPet_Simulator.Windows.Assistant.ClipboardHistory.Start(); } catch { }
         try { reactions = new ActivityReactions(mw); } catch { }
+        try { global::VPet_Simulator.Windows.Career.ActivityCatalog.Apply(mw); } catch { }
+        try { global::VPet_Simulator.Windows.Career.CareerState.I.TryMonthly(mw); } catch { }
     }
 
     #region Raccourci global Ctrl+Alt+Espace : ouvre la discussion depuis n'importe où
@@ -229,6 +231,14 @@ public sealed class HudController
     /// <summary>Ouvre (ou ramène au premier plan) un panneau utilitaire par identifiant.</summary>
     public void OpenPanel(string id)
     {
+        // « Carrière » = l'onglet Métiers du panneau unique Occupations (plus de popup séparée)
+        if (id == "career")
+        {
+            var a = Panel(ref activities, () => new ActivitiesPanel(mw));
+            a.ShowMetiers();
+            if (!a.IsVisible) a.Toggle(); else a.Activate();
+            return;
+        }
         HudSidePanel p = id switch
         {
             "launcher" => Panel(ref launcher, () => new AppLauncherPanel(mw)),

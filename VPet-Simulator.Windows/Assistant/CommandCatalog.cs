@@ -40,5 +40,9 @@ public static class CommandCatalog
         {
             "ce que j'ai copié", "prends une note",
         }),
+        new("💼", "Carrière de Maxine", new[]
+        {
+            "ma carrière", "mes métiers", "ma voie",
+        }),
     };
 }

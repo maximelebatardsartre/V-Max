@@ -194,6 +194,7 @@ namespace VPet_Simulator.Core
                 {
                     Type = this.Type,
                     Name = this.Name,
+                    nametrans = this.nametrans, // V-Max : conserver le titre d'affichage surchargé (sinon le clone le perd)
                     Graph = this.Graph,
                     MoneyBase = this.MoneyBase,
                     StrengthFood = this.StrengthFood,

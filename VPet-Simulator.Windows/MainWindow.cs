@@ -2120,7 +2120,9 @@ namespace VPet_Simulator.Windows
                   if (Set.MessageBarOutside)
                       Main.MsgBar?.SetPlaceOUT();
 
-                  Main.WorkCheck = WorkCheck;
+                  // V-Max : l'économie des occupations est curatée exprès (barème de carrière). On NEUTRALISE
+                  // l'alerte native « travail déséquilibré » (超模), sans objet ici. (Remplace le WorkCheck d'origine.)
+                  Main.WorkCheck = _ => true;
 
                   //加载图标
                   notifyIcon = new NotifyIcon();
@@ -2449,6 +2451,8 @@ namespace VPet_Simulator.Windows
                   //添加工作事件
                   Main.Event_WorkStart += (work) => ActivityLogs.Add(new ActivityLog("work_start", work.NameTrans));
                   Main.Event_WorkEnd += (workinfo) => ActivityLogs.Add(new ActivityLog("work_end", workinfo.work.NameTrans, workinfo.Reason.ToString(), workinfo.spendtime.ToString("f0"), workinfo.count.ToString("f0")));
+                  // V-Max : progression de carrière (XP de métier, salaire croissant, promotions) à la fin d'un travail
+                  Main.Event_WorkEnd += (workinfo) => { try { Career.CareerState.I.CreditWork(workinfo, this); } catch { } };
                   Main.SayProcess.Add((sayinfo) =>
                   {
                       Task.Run(async () =>

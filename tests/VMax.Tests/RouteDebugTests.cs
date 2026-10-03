@@ -47,6 +47,9 @@ public class RouteDebugTests
     [InlineData("mes captures", "CmdShots")]
     [InlineData("prends une note", "CmdNotes")]
     [InlineData("mes notes", "CmdNotes")]
+    [InlineData("ma carrière", "CmdCareer")]
+    [InlineData("mes métiers", "CmdCareer")]
+    [InlineData("ma voie", "CmdCareer")]
     public void RoutePanels(string phrase, string expected)
     {
         var r = new CommandRouter(new FakeHost());
