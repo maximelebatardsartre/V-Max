@@ -33,9 +33,8 @@ $zipName = (Get-Content $manifest -Raw | ConvertFrom-Json).zip
 $zip = Get-Item (Join-Path $Dir $zipName) -ErrorAction SilentlyContinue
 if (-not $zip) { throw "Le zip '$zipName' reference par assets.json est introuvable dans $Dir." }
 
-# Meme prefixe que DefaultBaseUrl dans AssetService.cs : l'app lit https://pub-....r2.dev/maxine-assets/...
-$prefix = "maxine-assets"
-
+# L'URL publique sert pub-....r2.dev/<bucket>/<cle> : comme le bucket est "maxine-assets", la cle est JUSTE le
+# nom de fichier (ne PAS re-prefixer par "maxine-assets/", sinon double prefixe maxine-assets/maxine-assets/...).
 # backend S3 a la volee (pas besoin de configurer un remote rclone)
 $common = @(
     "--s3-provider", "Cloudflare",
@@ -48,12 +47,12 @@ $common = @(
 
 # 1) le zip D'ABORD (le manifeste ne doit pointer que vers un zip deja en place)
 Write-Host "==> Televersement de $($zip.Name) ($([math]::Round($zip.Length/1GB,2)) Go) sur R2..." -ForegroundColor Cyan
-rclone copyto $zip.FullName ":s3:$($env:R2_BUCKET)/$prefix/$($zip.Name)" @common --progress
+rclone copyto $zip.FullName ":s3:$($env:R2_BUCKET)/$($zip.Name)" @common --progress
 if ($LASTEXITCODE -ne 0) { throw "Televersement du zip echoue." }
 
 # 2) le manifeste en dernier (content-type JSON)
 Write-Host "==> Televersement de assets.json" -ForegroundColor Cyan
-rclone copyto $manifest ":s3:$($env:R2_BUCKET)/$prefix/assets.json" @common --header-upload "Content-Type: application/json"
+rclone copyto $manifest ":s3:$($env:R2_BUCKET)/assets.json" @common --header-upload "Content-Type: application/json"
 if ($LASTEXITCODE -ne 0) { throw "Televersement du manifeste echoue." }
 
 Write-Host ""
