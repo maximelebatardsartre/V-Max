@@ -144,8 +144,30 @@ public sealed class HudController
         yield return new OrbitAction("Occupations", "", OpenActivities);
         yield return new OrbitAction(mw.Main.State == Main.WorkingState.Sleep ? "Réveiller" : "Dormir", "", ToggleSleep);
         yield return new OrbitAction("État", "", OpenStatus);
+        yield return new OrbitAction(mw.Habitat?.IsActive == true ? "Modifier l'habitat" : "Zone autonome", "", () => _ = ToggleHabitatQuickAsync());
         yield return new OrbitAction("Plus", "", OpenMore);
         yield return new OrbitAction("Paramètres", "", () => mw.ShowSetting());
+    }
+
+    /// <summary>
+    /// Accès rapide à la zone autonome depuis le menu : l'active (l'éditeur s'ouvre si aucune carte n'est tracée),
+    /// ou, si elle est déjà active, rouvre l'éditeur de carte pour la modifier.
+    /// </summary>
+    private async System.Threading.Tasks.Task ToggleHabitatQuickAsync()
+    {
+        if (mw.Habitat == null)
+            return;
+        try
+        {
+            if (!mw.Habitat.IsActive)
+                await mw.ToggleHabitat();
+            else if (mw.Habitat.Window is { IsEditing: false } w)
+            {
+                w.StartEditing();
+                w.Activate();
+            }
+        }
+        catch { }
     }
 
     /// <summary>
@@ -164,6 +186,15 @@ public sealed class HudController
         activities = null;
         more = null;
         openPanel = null;
+
+        // V-Max : la bulle de parole (Main.MsgBar) fixe ses pinceaux à la construction → elle garderait les couleurs
+        // de l'ancien thème. On la reconstruit pour qu'elle suive le nouveau thème, comme les autres surcouches.
+        if (mw.Main?.MsgBar is HudBubble oldBubble)
+        {
+            try { oldBubble.ForceClose(); } catch { }
+            try { oldBubble.Dispose(); } catch { }
+            mw.Main.MsgBar = new HudBubble(mw);
+        }
     }
 
     #region Actions

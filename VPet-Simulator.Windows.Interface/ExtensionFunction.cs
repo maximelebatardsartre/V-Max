@@ -277,16 +277,41 @@ namespace VPet_Simulator.Windows.Interface
         {
             string dir = IsPortable ? BaseDirectory
                 : Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "V-Max");
-            Directory.CreateDirectory(dir);
-            return dir;
+            return EnsureWritableDir(dir, "data");
         }
 
         private static string ResolveCacheDirectory()
         {
             string dir = IsPortable ? Path.Combine(BaseDirectory, "cache")
                 : Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "V-Max", "cache");
-            Directory.CreateDirectory(dir);
-            return dir;
+            return EnsureWritableDir(dir, "cache");
+        }
+
+        /// <summary>
+        /// V-Max : crée le dossier demandé ; si c'est impossible (profil restreint, OneDrive bloqué/hors-ligne,
+        /// lecture seule, quota…), se rabat sur un dossier temporaire au lieu de faire échouer l'initialiseur de type
+        /// statique — ce qui rendrait Maxine définitivement non démarrable (TypeInitializationException en cascade).
+        /// </summary>
+        private static string EnsureWritableDir(string preferred, string tempSub)
+        {
+            try
+            {
+                Directory.CreateDirectory(preferred);
+                return preferred;
+            }
+            catch
+            {
+                try
+                {
+                    var fallback = Path.Combine(Path.GetTempPath(), "V-Max", tempSub);
+                    Directory.CreateDirectory(fallback);
+                    return fallback;
+                }
+                catch
+                {
+                    return preferred; // dernier recours : les écritures ultérieures échoueront mais sont, elles, gérées
+                }
+            }
         }
         /// <summary>
         /// 获取MOD存储目录 (会自动创建)

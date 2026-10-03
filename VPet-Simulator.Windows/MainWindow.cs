@@ -443,21 +443,17 @@ namespace VPet_Simulator.Windows
                     //timecount = DateTime.Now;
                 }
                 Set.StartRecordLastPoint = new Point(Dispatcher.Invoke(() => Left), Dispatcher.Invoke(() => Top));
-                if (PrefixSave == "" && File.Exists(ExtensionValue.DataDirectory + @"\Setting.lps"))
-                {//对于主设置的备份
-                    if (new FileInfo(ExtensionValue.DataDirectory + @"\Setting.lps").Length < 10)
-                    {//文件大小小于10字节,可能是损坏的文件
-                        File.Delete(ExtensionValue.DataDirectory + @"\Setting.lps");
-                    }
-                    else
-                    {
-                        if (File.Exists(ExtensionValue.DataDirectory + @"\Setting.bkp"))
-                            File.Delete(ExtensionValue.DataDirectory + @"\Setting.bkp");
-                        File.Move(ExtensionValue.DataDirectory + @"\Setting.lps", ExtensionValue.DataDirectory + @"\Setting.bkp");
-                    }
-
+                // V-Max : écriture atomique des réglages. On écrit d'abord un .tmp (si ça échoue, l'ancien Setting.lps
+                // reste intact), on sauvegarde l'ancien bon fichier en .bkp, puis on remplace d'un coup. Évite de se
+                // retrouver SANS Setting.lps si une écriture est interrompue (antivirus, disque plein, droits).
+                var settingPath = ExtensionValue.DataDirectory + @$"\Setting{PrefixSave}.lps";
+                var settingTmp = settingPath + ".tmp";
+                File.WriteAllText(settingTmp, Set.ToString());
+                if (PrefixSave == "" && File.Exists(settingPath) && new FileInfo(settingPath).Length >= 10)
+                {
+                    try { File.Copy(settingPath, ExtensionValue.DataDirectory + @"\Setting.bkp", true); } catch { }
                 }
-                File.WriteAllText(ExtensionValue.DataDirectory + @$"\Setting{PrefixSave}.lps", Set.ToString());
+                File.Move(settingTmp, settingPath, true);
 
                 if (!Directory.Exists(ExtensionValue.DataDirectory + @"\Saves"))
                     Directory.CreateDirectory(ExtensionValue.DataDirectory + @"\Saves");
@@ -1453,15 +1449,10 @@ namespace VPet_Simulator.Windows
                     Topmost = true;
                 }
 
-                //不存在就关掉
-                var modpath = new DirectoryInfo(ModPath + @"\0000_core\pet\vup");
-                if (!modpath.Exists)
-                {
-                    VDialog.Show("缺少模组Core,无法启动桌宠\nMissing module Core, can't start up", "启动错误 boot error", Panuon.WPF.UI.MessageBoxIcon.Error);
-                    Close();
-                    return;
-                }
-
+                // V-Max : le contrôle « module Core présent » a été déplacé APRÈS le téléchargement des assets R2
+                // (voir MainWindow.xaml.cs, juste après AssetService.EnsureAsync). En mode web-installer, les
+                // animations de base ne sont pas encore là à ce stade du démarrage : vérifier ici afficherait à tort
+                // l'erreur « module Core manquant ».
             }
             catch (Exception e)
             {
@@ -1507,7 +1498,15 @@ namespace VPet_Simulator.Windows
             List<DirectoryInfo> Path = new(new DirectoryInfo(ModPath).EnumerateDirectories());
 
 
-            Task.Run(() => GameLoad(Path));
+            Task.Run(async () =>
+            {// V-Max : garde-fou (comme au 1er lancement) pour ne pas laisser un compagnon supplémentaire figé
+                try { await GameLoad(Path); }
+                catch (Exception ex)
+                {
+                    ReportStartupError(ex.ToString(), "Démarrage (compagnon)");
+                    await Dispatcher.InvokeAsync(() => Close());
+                }
+            });
         }
         /// <summary>
         /// MOD地址
@@ -1533,8 +1532,8 @@ namespace VPet_Simulator.Windows
             {
                 if (!File.Exists(di.FullName + @"\info.lps"))
                     continue;
-                if (ModBlocklist.IsBlocked(di))
-                {// V-Max : mod refusé (voir ModBlocklist)
+                if (ModBlocklist.IsBlocked(di) || ModBlocklist.IsSexualContent(di))
+                {// V-Max : mod refusé (identifiant bloqué OU contenu à caractère sexuel dans sa fiche — voir ModBlocklist)
                     Console.WriteLine("Mod bloqué, non chargé : " + di.FullName);
                     continue;
                 }
@@ -1587,7 +1586,18 @@ namespace VPet_Simulator.Windows
 
             //当前桌宠动画
             var petloader = Pets.Find(x => x.Name == Set.PetGraph);
-            petloader ??= Pets[0];
+            petloader ??= Pets.Count > 0 ? Pets[0] : null;
+            if (petloader == null)
+            {// V-Max : aucun personnage chargé (Core absent/corrompu) → message clair plutôt qu'un crash
+                await Dispatcher.InvokeAsync(() =>
+                {
+                    VDialog.Show(
+                        "Les animations de Maxine n'ont pas pu être chargées. Relance Maxine ; si le souci persiste, réinstalle-la.",
+                        "Erreur au démarrage", System.Windows.MessageBoxButton.OK, Panuon.WPF.UI.MessageBoxIcon.Error);
+                    Close();
+                });
+                return;
+            }
             //去除其他语言内容
             var tag = petloader!.Config.Data.GetString("tag", "all")!.Split(',');
             LowDrinkText.RemoveAll(x => !x.FindTag(tag));
@@ -1691,30 +1701,14 @@ namespace VPet_Simulator.Windows
                 AutoSaveTimer.Interval = Set.AutoSaveInterval * 60000;
                 AutoSaveTimer.Start();
             }
-            ClickTexts.Add(new ClickText("你知道吗? 鼠标右键可以打开菜单栏"));
-            ClickTexts.Add(new ClickText("你知道吗? 你可以在设置里面修改游戏的缩放比例"));
-            ClickTexts.Add(new ClickText("想要宠物不乱动? 设置里可以设置智能移动或者关闭移动"));
-            ClickTexts.Add(new ClickText("这游戏开发这么慢,都怪画师太咕了"));
-            //ClickTexts.Add(new ClickText("有建议/游玩反馈? 来 菜单-系统-反馈中心 反馈吧"));
-            ClickTexts.Add(new ClickText("长按脑袋拖动桌宠到你喜欢的任意位置"));
-
-            ////临时聊天内容
-            //ClickTexts.Add(new ClickText("主人，sbema秋季促销开始了哦，还有游戏大奖赛，快去给{name}去投一票吧。"));
-            //ClickTexts.Add(new ClickText("主人主人，{name}参加了sbeam大奖赛哦，给人家投一票喵"));
-            //ClickTexts.Add(new ClickText("那个。。主人。。\n人家参加了sbeam大奖赛哦。能不能。。给{name}投一票呢～"));
-            //ClickTexts.Add(new ClickText("电脑里有一款《虚拟桌宠模拟器》的游戏正在参加2023的sbeam大奖赛，快来给桌宠投一票吧"));
-            //"如果你觉得目前功能太少,那就多挂会机. 宠物会自己动的".Translate(),
-            //"你知道吗? 你可以在设置里面修改游戏的缩放比例".Translate(),
-            //"你现在乱点说话是说话系统的一部分,不过还没做,在做了在做了ing".Translate(),
-            //"你添加了虚拟主播模拟器和虚拟桌宠模拟器到愿望单了吗? 快去加吧".Translate(),
-            //"这游戏开发这么慢,都怪画师太咕了".Translate(),
-            //"欢迎加入 虚拟主播模拟器群 430081239".Translate()
-
-            //给正在玩这个游戏的主播/游戏up主做个小功能
-            ClickTexts.Add(new ClickText("关注 {0} 谢谢喵")
-            {
-                TranslateText = "关注 {0} 谢谢喵".Translate(Environment.UserName)
-            });
+            // V-Max : on remplace TOUT le bavardage d'origine (ton « maître », pubs datées, chinois résiduel)
+            // par la voix propre à Maxine — chaleureuse, taquine, qui t'appelle par ton prénom. Voir Res/vmax-bubbles.txt.
+            ClickTexts.Clear();
+            ClickTexts.AddRange(VMaxBubbles.Load());
+            // Réclamations « j'ai faim / soif » : on AJOUTE des variantes V-Max (en plus des originales nettoyées de
+            // leur « maître ») pour plus de variété et le prénom du propriétaire quand elle réclame à manger/boire.
+            LowFoodText.AddRange(VMaxBubbles.Hunger());
+            LowDrinkText.AddRange(VMaxBubbles.Thirst());
 
             //音乐识别timer加载
             MusicTimer = new System.Timers.Timer(200)
@@ -2505,8 +2499,9 @@ namespace VPet_Simulator.Windows
                               ReportStartupError($"Le mod « {cm.Name} » est abîmé et n'a pas été chargé.", cm.ErrorMessage);
                           else if (cm.IsPassMOD(this) || !string.IsNullOrEmpty(cm.ErrorMessage))
                               ReportStartupError($"Le code du mod « {cm.Name} » n'a pas été chargé.", cm.ErrorMessage);
-                          else if (Set.IsMSGMOD(cm.Name))
-                              Toast($"Le mod « {cm.Name} » contient du code : il attend ton autorisation dans Paramètres › Extensions.", HUD.HudToast.Kind.Info, 8);
+                  // V-Max : plus de rappel au démarrage pour les mods à code non autorisés. L'expérience est native
+                  // (agent IA + routines) ; les plugins tiers restent SILENCIEUSEMENT désactivés et consultables dans
+                  // Paramètres › Extensions. Ça évite d'inonder le lancement de notices que l'utilisateur ne comprend pas.
                   //动画错误
                   if (Main.ErrorMessage.Count != 0)
                   {
@@ -2634,16 +2629,26 @@ namespace VPet_Simulator.Windows
                           await Task.Delay(8000);
                           await Dispatcher.InvokeAsync(async () =>
                           {
-                              var err = await Habitat!.EnableAsync(qaHabitat.Info, persist: false);
-                              System.IO.File.WriteAllText(System.IO.Path.Combine(System.IO.Path.GetTempPath(), "vmax-qa-debug.txt"), "image=" + qaHabitat.Info + " erreur=" + (err ?? "aucune"));
-                              if (qaHabitat.GetString("edit") != null)
+                              var dbg = System.IO.Path.Combine(System.IO.Path.GetTempPath(), "vmax-qa-debug.txt");
+                              var err = qaHabitat.Info == "desktop"
+                                  ? await Habitat!.EnableDesktopAsync(persist: false)
+                                  : await Habitat!.EnableAsync(qaHabitat.Info, persist: false);
+                              System.IO.File.WriteAllText(dbg, "décor=" + qaHabitat.Info + " erreur=" + (err ?? "aucune") + " desktopDecor=" + Habitat.DesktopDecor);
+                              if (qaHabitat.GetString("edit") != null || Args.FindLine("edit") != null)
                               {
                                   Habitat.Window?.StartEditing();
+                                  if (Habitat.Window is { } hw)
+                                      System.IO.File.AppendAllText(dbg, $"\nfenêtre: état={hw.WindowState} left={hw.Left:0} top={hw.Top:0} W={hw.ActualWidth:0} H={hw.ActualHeight:0} éditeur={hw.IsEditing} proj.OffX={Habitat.Window!.ScreenProjection.OffsetX:0} scaleY={Habitat.Window!.ScreenProjection.ScaleY:0.000}");
                                   Habitat.Window?.QaHover(new Point(560, 520), qaHabitat.GetString("sel") ?? "f2");
-                                  if (qaHabitat.GetString("detect") != null)
+                                  if (qaHabitat.GetString("detect") != null || Args.FindLine("detect") != null)
                                       Habitat.Window?.QaDetect();
-                                  if (qaHabitat.GetString("rooms") != null)
+                                  if (qaHabitat.GetString("rooms") != null || Args.FindLine("rooms") != null)
                                       Habitat.Window?.QaSuggestRooms();
+                              }
+                              if ((qaHabitat.GetString("draw") != null || Args.FindLine("draw") != null) && Habitat.Window != null)
+                              {
+                                  Habitat.Window.StartEditing();
+                                  System.IO.File.AppendAllText(dbg, "\ndraw+finish: " + Habitat.Window.QaDrawAndFinish());
                               }
                           }).Task.Unwrap();
                           var trace = new System.Text.StringBuilder();
@@ -3277,7 +3282,7 @@ namespace VPet_Simulator.Windows
                 Habitat.Disable();
                 return;
             }
-            var error = await Habitat.EnableAsync();
+            var error = Habitat.DesktopMode ? await Habitat.EnableDesktopAsync() : await Habitat.EnableAsync();
             if (error != null)
                 Toast(error, HUD.HudToast.Kind.Warning, 6);
         }

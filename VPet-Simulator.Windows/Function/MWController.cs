@@ -53,6 +53,17 @@ namespace VPet_Simulator.Windows
         public void ResetScreenBorder()
         {
             IsPrimaryScreen = true;
+            // Recale l'index sur l'écran principal (sinon un ancien -1 « tous écrans » ou un index périmé
+            // laisse IfInActivateScreen désynchronisé de la zone réellement choisie).
+            var screens = Screen.AllScreens;
+            for (int i = 0; i < screens.Length; i++)
+            {
+                if (screens[i].Primary)
+                {
+                    mw.Set.GameScreenIndex = i;
+                    break;
+                }
+            }
         }
 
         public double GetWindowsDistanceLeft()
@@ -111,6 +122,9 @@ namespace VPet_Simulator.Windows
                 }
             }
             catch { }
+            // Mode « tous les écrans » : la zone couvre tout le bureau virtuel, le compagnon est TOUJOURS
+            // dans sa zone active → on ne doit jamais le rappeler sur un écran unique (sinon « libre partout » casse).
+            if (mw.Set.GameScreenIndex == -1) return true;
             return mw.Dispatcher.Invoke(() =>
             {
                 try
@@ -134,6 +148,43 @@ namespace VPet_Simulator.Windows
                     return true;
                 }
             });
+        }
+
+        /// <summary>
+        /// V-Max : la zone de déplacement couvre TOUS les écrans (bureau virtuel). Le compagnon se promène et se
+        /// glisse LIBREMENT d'un écran à l'autre, sans collision aux bords d'écran. Générique (mono, multi, vertical).
+        /// </summary>
+        public void SetAllScreens()
+        {
+            mw.Dispatcher.Invoke(() =>
+            {
+                if (!mw.IsLoaded) return;
+                var vs = SystemInformation.VirtualScreen;
+                var src = HwndSource.FromHwnd(new WindowInteropHelper(mw).Handle);
+                Rectangle logical;
+                if (src?.CompositionTarget != null)
+                {
+                    var dpi = src.CompositionTarget.TransformToDevice;
+                    logical = new Rectangle((int)(vs.X / dpi.M11), (int)(vs.Y / dpi.M22), (int)(vs.Width / dpi.M11), (int)(vs.Height / dpi.M22));
+                }
+                else
+                    logical = new Rectangle(vs.X, vs.Y, vs.Width, vs.Height);
+                ScreenBorder = logical;
+                mw.Set.GameScreenIndex = -1; // tous les écrans
+            });
+        }
+
+        /// <summary>Vrai si la zone de déplacement couvre (à peu près) tout le bureau virtuel</summary>
+        public bool IsAllScreens
+        {
+            get
+            {
+                if (IsPrimaryScreen) return false;
+                var vs = SystemInformation.VirtualScreen;
+                var src = HwndSource.FromHwnd(new WindowInteropHelper(mw).Handle);
+                double sx = src?.CompositionTarget?.TransformToDevice.M11 ?? 1, sy = src?.CompositionTarget?.TransformToDevice.M22 ?? 1;
+                return Math.Abs(ScreenBorder.Width - vs.Width / sx) < 8 && Math.Abs(ScreenBorder.Height - vs.Height / sy) < 8;
+            }
         }
 
         public void SetNowScreenActivate()

@@ -81,8 +81,15 @@ namespace VPet_Simulator.Windows
                 return null;
             };
 
-            CultureInfo.CurrentCulture = new CultureInfo(CultureInfo.CurrentCulture.Name);
-            CultureInfo.CurrentCulture.NumberFormat = new CultureInfo("en-US").NumberFormat;
+            // V-Max : point décimal forcé pour TOUS les threads (pas seulement l'UI). Sans DefaultThreadCurrentCulture,
+            // l'autosave et le chargement des animations (threads de fond) repartaient sur la culture Windows de l'ami
+            // (virgule décimale en fr-FR/de-DE) → positions/opacités/stats lues et écrites de travers (compagnon hors
+            // écran, animations cassées). Indispensable pour une distribution hors des PC anglophones.
+            var vmaxCulture = new CultureInfo(CultureInfo.CurrentCulture.Name);
+            vmaxCulture.NumberFormat = new CultureInfo("en-US").NumberFormat;
+            CultureInfo.CurrentCulture = vmaxCulture;
+            CultureInfo.DefaultThreadCurrentCulture = vmaxCulture;
+            CultureInfo.DefaultThreadCurrentUICulture = vmaxCulture;
 
 
             //更新存档系统
@@ -127,6 +134,11 @@ namespace VPet_Simulator.Windows
 
             Task.Run(async () =>
             {
+              // V-Max : garde-fou global du démarrage. Sans ce try/catch, toute exception pendant le chargement
+              // (téléchargement, thème, plugin/mod, ressource manquante…) remontait dans un Task non observé et
+              // laissait l'écran d'accueil figé à l'infini. On transforme désormais tout échec en message FR + fermeture.
+              try
+              {
                 // V-Max « Web Installer » : télécharge les gros assets (animations + mods) depuis R2 au premier
                 // lancement, avant de charger le jeu. Ne fait rien en développement (assets déjà présents).
                 var assetErr = await AssetService.EnsureAsync(this);
@@ -135,6 +147,20 @@ namespace VPet_Simulator.Windows
                     ReportStartupError(assetErr, "AssetService");
                     await Dispatcher.InvokeAsync(() =>
                         VDialog.Show(assetErr, "Premier lancement", System.Windows.MessageBoxButton.OK, Panuon.WPF.UI.MessageBoxIcon.Warning));
+                    return;
+                }
+                // V-Max : les animations de base (module Core) doivent être présentes — téléchargées depuis R2 au
+                // premier lancement, ou fournies à côté de l'exe en développement — avant de charger le jeu.
+                if (!Directory.Exists(ModPath + @"\0000_core\pet\vup"))
+                {
+                    ReportStartupError("Module Core introuvable après préparation des assets (ModPath=" + ModPath + ")", "Core");
+                    await Dispatcher.InvokeAsync(() =>
+                    {
+                        VDialog.Show(
+                            "Les animations de base de Maxine sont introuvables. Vérifie ta connexion Internet puis relance Maxine — elles se téléchargeront automatiquement.",
+                            "Premier lancement", System.Windows.MessageBoxButton.OK, Panuon.WPF.UI.MessageBoxIcon.Error);
+                        Close();
+                    });
                     return;
                 }
                 //加载所有MOD
@@ -282,6 +308,20 @@ namespace VPet_Simulator.Windows
                       }
                       return false;
                   }]);
+              }
+              catch (Exception ex)
+              {
+                  // échec de démarrage : on journalise, on ferme l'écran d'accueil et on prévient en français
+                  ReportStartupError(ex.ToString(), "Démarrage");
+                  await Dispatcher.InvokeAsync(() =>
+                  {
+                      try { splash?.Close(); } catch { }
+                      VDialog.Show(
+                          "Maxine n'a pas réussi à démarrer. Relance-la ; si le souci persiste, réinstalle Maxine.\n\nDétail : " + ex.Message,
+                          "Erreur au démarrage", System.Windows.MessageBoxButton.OK, Panuon.WPF.UI.MessageBoxIcon.Error);
+                      Close();
+                  });
+              }
             });
         }
 
@@ -320,6 +360,8 @@ namespace VPet_Simulator.Windows
                 var psi = new ProcessStartInfo
                 {
                     FileName = System.IO.Path.ChangeExtension(System.Reflection.Assembly.GetExecutingAssembly().Location, "exe"),
+                    // V-Max : marqueur pour que le nouveau processus attende que celui-ci libère le verrou d'instance unique
+                    Arguments = "vmax-restart:|",
                     UseShellExecute = true
                 };
                 Process.Start(psi);
@@ -558,8 +600,17 @@ namespace VPet_Simulator.Windows
 
         private void AutoSaveTimer_Elapsed(object? sender, ElapsedEventArgs? e)
         {
-            CheckGalleryUnlock();
-            Save();
+            // autosave sur thread de fond : une écriture bloquée (antivirus, disque plein, droits restreints) ne doit
+            // JAMAIS terminer le processus — AppDomain.UnhandledException ne peut pas être « gérée » pour un thread de fond.
+            try
+            {
+                CheckGalleryUnlock();
+                Save();
+            }
+            catch (Exception ex)
+            {
+                ReportStartupError("La sauvegarde automatique a échoué (elle sera retentée).", ex.ToString());
+            }
         }
 
 

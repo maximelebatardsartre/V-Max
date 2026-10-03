@@ -218,8 +218,13 @@ internal sealed class HabitatPilot
             Main.Display(name, AnimatType.B_Loop, () => Loop(name));
         }
 
+        // si l'intention est annulée alors que le timer est déjà mort (ex. tick qui a levé), on complète quand même
+        ct.Register(() => { try { mw.Dispatcher.BeginInvoke(() => Finish(false)); } catch { } });
+
         timer.Tick += (_, _) =>
         {
+          try
+          {
             var now = DateTime.Now;
             double dt = Math.Min(0.1, (now - last).TotalSeconds);
             last = now;
@@ -260,10 +265,19 @@ internal sealed class HabitatPilot
                     guard.Start();
                 }
             }
+          }
+          catch
+          {
+              Finish(false); // un tick qui lève ne doit jamais figer l'intention (pet bloqué, vie autonome gelée)
+          }
         };
         timer.Start();
-        if (graph != null)
-            Main.Display(graph, AnimatType.A_Start, () => Loop(graph));
+        try
+        {
+            if (graph != null)
+                Main.Display(graph, AnimatType.A_Start, () => Loop(graph));
+        }
+        catch { Finish(false); }
         return tcs.Task;
     }
 }

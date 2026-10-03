@@ -14,7 +14,7 @@ public sealed class MicRecorder : IDisposable
     public static readonly WaveFormat Format = new(16000, 16, 1);
     private const double SpeechLevel = 0.06;   // niveau au-dessus duquel on considère qu'on parle
 
-    private WaveInEvent? input;
+    private WaveIn? input;
     private MemoryStream? pcm;
     private DateTime started, lastVoice;
     private bool heardVoice;
@@ -37,7 +37,7 @@ public sealed class MicRecorder : IDisposable
         heardVoice = false;
         pcm = new MemoryStream();
         started = lastVoice = DateTime.Now;
-        input = new WaveInEvent { WaveFormat = Format, BufferMilliseconds = 50 };
+        input = new WaveIn { WaveFormat = Format, BufferMilliseconds = 50 };
         input.DataAvailable += OnData;
         input.StartRecording();
     }
@@ -99,7 +99,7 @@ public sealed class MicRecorder : IDisposable
     }
 
     /// <summary>Un micro est-il branché ?</summary>
-    public static bool Available => WaveInEvent.DeviceCount > 0;
+    public static bool Available => WaveIn.DeviceCount > 0;
 
     public void Dispose() => Stop();
 }

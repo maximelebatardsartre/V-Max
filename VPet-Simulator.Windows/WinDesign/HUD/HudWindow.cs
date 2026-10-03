@@ -179,6 +179,17 @@ public abstract class HudWindow : Window
     /// <summary>Ramène la fenêtre au premier plan (si elle est déjà ouverte)</summary>
     public void Present()
     {
+        // V-Max : réouverture immédiate pendant le fondu de fermeture (ex. Échap puis reclic) → on annule le fondu
+        // et on restaure l'opacité, sinon la fenêtre resterait invisible puis se refermerait.
+        if (closing)
+        {
+            closing = false;
+            if (Content is UIElement root)
+            {
+                root.BeginAnimation(OpacityProperty, null);
+                root.Opacity = 1;
+            }
+        }
         if (!IsVisible)
             Show();
         if (WindowState == WindowState.Minimized)

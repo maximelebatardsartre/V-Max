@@ -152,6 +152,7 @@
 	<ItemGroup>
 		<Resource Include="Res\Font\OPPOSans B.ttf" />
 		<Resource Include="Res\Font\OPPOSans R.ttf" />
+		<EmbeddedResource Include="Res\vmax-bubbles.txt" />
 		<Resource Include="Res\Gallery.png" />
 		<Resource Include="Res\hash0.png" />
 		<Resource Include="Res\hash1.png" />
@@ -255,7 +256,6 @@
 	<ItemGroup>
 		<PackageReference Include="LinePutScript" Version="1.11.9" />
 		<PackageReference Include="LinePutScript.Localization.WPF" Version="1.0.7" />
-		<PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
 		<PackageReference Include="NAudio" Version="3.0.1" />
 		<PackageReference Include="Panuon.WPF" Version="1.1.3" />
 		<PackageReference Include="Panuon.WPF.UI" Version="1.2.4.10" />

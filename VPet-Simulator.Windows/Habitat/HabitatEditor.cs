@@ -74,28 +74,20 @@ internal sealed class HabitatEditor
         caps = new HabitatPilot(mode.MW, mode).Capabilities();
         ghost.Source = mode.Metrics.Standing;
 
-        var row = new StackPanel { Orientation = Orientation.Horizontal };
-        foreach (var (t, glyph, label, tip) in new[]
-        {
-            (Tool.Select, "", "Sélection", "Sélectionner, déplacer, supprimer (1)"),
-            (Tool.Floor, "", "Sol", "Tracer un sol : glisser horizontalement (2)"),
-            (Tool.Climb, "", "Escalade", "Tracer une échelle ou un pilier : glisser verticalement entre deux sols (3)"),
-            (Tool.Drop, "", "Chute", "Cliquer sur un sol à l'endroit d'où le compagnon peut sauter vers le sol du dessous (4)"),
-            (Tool.Room, "", "Pièce", "Encadrer une pièce puis la nommer (5)"),
-            (Tool.Spot, "", "Emplacement", "Cliquer sur un sol pour y placer une activité (dormir, manger…) (6)"),
-        })
-        {
-            var chip = ToolChip(glyph, label, tip, t);
-            toolChips[t] = chip;
-            row.Children.Add(chip);
-        }
-        row.Children.Add(Separator());
+        // outils préremplis dans toolChips, puis assemblés par groupes thématiques (barre structurée)
+        toolChips[Tool.Select] = ToolChip("", "Sélection", "Sélectionner, déplacer, supprimer (1)", Tool.Select);
+        toolChips[Tool.Floor] = ToolChip("", "Sol", "Tracer un sol : glisser horizontalement (2)", Tool.Floor);
+        toolChips[Tool.Climb] = ToolChip("", "Escalade", "Tracer une échelle ou un pilier : glisser verticalement entre deux sols (3)", Tool.Climb);
+        toolChips[Tool.Drop] = ToolChip("", "Chute", "Cliquer sur un sol d'où le compagnon peut sauter vers le sol du dessous (4)", Tool.Drop);
+        toolChips[Tool.Room] = ToolChip("", "Pièce", "Encadrer une pièce puis la nommer (5)", Tool.Room);
+        toolChips[Tool.Spot] = ToolChip("", "Emplacement", "Cliquer sur un sol pour y placer une activité (dormir, manger…) (6)", Tool.Spot);
+
         size = new Slider
         {
             Minimum = Math.Round(work.Image.Height * 0.04),
             Maximum = Math.Round(work.Image.Height * 0.6),
             Value = work.PetHeight,
-            Width = 110,
+            Width = 104,
             VerticalAlignment = VerticalAlignment.Center,
             ToolTip = "Taille du compagnon dans ce décor",
         };
@@ -107,21 +99,43 @@ internal sealed class HabitatEditor
             work.PetHeight = Math.Round(e.NewValue);
             Render();
         };
-        row.Children.Add(new TextBlock { Text = "", FontFamily = Font("HudIcons"), FontSize = 14, Foreground = Res("HudTextMuted"), VerticalAlignment = VerticalAlignment.Center, Margin = new Thickness(0, 0, 8, 0), ToolTip = "Taille du compagnon" });
-        row.Children.Add(size);
-        row.Children.Add(Separator());
-        row.Children.Add(IconButton("", "Annuler (Ctrl+Z)", Undo));
-        row.Children.Add(IconButton("", "Rétablir (Ctrl+Y)", Redo));
-        row.Children.Add(IconButton("", "Ajuster la vue (F)", FitView));
-        row.Children.Add(IconButton("", "Détecter les sols automatiquement", DetectFloors));
-        row.Children.Add(IconButton("", "Suggérer les pièces avec l'IA (vision)", AskRoomSuggestions));
-        row.Children.Add(Separator());
+        var sizeIcon = new TextBlock { Text = "", FontFamily = Font("HudIcons"), FontSize = 14, Foreground = Res("HudTextMuted"), VerticalAlignment = VerticalAlignment.Center, Margin = new Thickness(0, 0, 6, 0), ToolTip = "Taille du compagnon" };
+
         var cancel = new Button { Style = (Style)win.FindResource("HudGhostButton"), Content = "Annuler", Margin = new Thickness(0, 0, 6, 0), ToolTip = "Quitter sans enregistrer" };
         cancel.Click += (_, _) => win.StopEditing(null);
+        var test = new Button { Style = (Style)win.FindResource("HudGhostButton"), Content = "Tester", Margin = new Thickness(0, 0, 6, 0), ToolTip = "Prévisualiser : Maxine parcourt tes sols et étages (sans enregistrer)" };
+        test.Click += (_, _) => StartTest();
         var done = new Button { Style = (Style)win.FindResource("HudPrimaryButton"), Content = "Terminer", ToolTip = "Enregistrer la carte (Entrée)" };
         done.Click += (_, _) => Finish();
-        row.Children.Add(cancel);
-        row.Children.Add(done);
+
+        // un groupe = petit intitulé + rangée d'éléments ; séparateurs verticaux entre groupes
+        StackPanel Grp(string? label, params UIElement[] items)
+        {
+            var col = new StackPanel { Margin = new Thickness(7, 0, 7, 0), VerticalAlignment = VerticalAlignment.Center };
+            if (label != null)
+                col.Children.Add(new TextBlock { Text = label, FontSize = 9, FontWeight = FontWeights.SemiBold, Foreground = Res("HudTextMuted"), Margin = new Thickness(3, 0, 0, 3), Opacity = 0.75 });
+            var rr = new StackPanel { Orientation = Orientation.Horizontal };
+            foreach (var it in items)
+                rr.Children.Add(it);
+            col.Children.Add(rr);
+            return col;
+        }
+        Border Div() => new Border { Width = 1, Margin = new Thickness(3, 10, 3, 6), Background = new SolidColorBrush(Color.FromArgb(0x33, 0x9A, 0xA2, 0xB4)) };
+
+        var row = new StackPanel { Orientation = Orientation.Horizontal, VerticalAlignment = VerticalAlignment.Center };
+        row.Children.Add(Grp(null, toolChips[Tool.Select]));
+        row.Children.Add(Div());
+        row.Children.Add(Grp("STRUCTURE", toolChips[Tool.Floor], toolChips[Tool.Climb], toolChips[Tool.Drop]));
+        row.Children.Add(Div());
+        row.Children.Add(Grp("ZONES", toolChips[Tool.Room], toolChips[Tool.Spot]));
+        row.Children.Add(Div());
+        row.Children.Add(Grp("TAILLE", sizeIcon, size));
+        row.Children.Add(Div());
+        row.Children.Add(Grp("ASSISTANTS", IconButton("", "Détecter les sols automatiquement", DetectFloors), IconButton("", "Suggérer les pièces avec l'IA (vision)", AskRoomSuggestions)));
+        row.Children.Add(Div());
+        row.Children.Add(Grp("VUE", IconButton("", "Annuler (Ctrl+Z)", Undo), IconButton("", "Rétablir (Ctrl+Y)", Redo), IconButton("", "Ajuster la vue (F)", FitView)));
+        row.Children.Add(Div());
+        row.Children.Add(Grp(null, test, cancel, done));
 
         issueText = new TextBlock { FontSize = 12, Foreground = Res("HudAmber"), Margin = new Thickness(4, 6, 4, 0), TextWrapping = TextWrapping.Wrap, MaxWidth = 640, HorizontalAlignment = HorizontalAlignment.Center, TextAlignment = TextAlignment.Center, Cursor = Cursors.Hand, ToolTip = "Cliquer pour sélectionner l'élément concerné" };
         issueText.MouseLeftButtonUp += (_, e) =>
@@ -180,6 +194,12 @@ internal sealed class HabitatEditor
 
     public void Detach()
     {
+        mode.StopTest();
+        if (testBar != null)
+        {
+            win.Stage.Children.Remove(testBar);
+            testBar = null;
+        }
         win.Stage.MouseLeftButtonDown -= OnDown;
         win.Stage.MouseRightButtonDown -= OnPanDown;
         win.Stage.MouseDown -= OnMiddleDown;
@@ -201,12 +221,159 @@ internal sealed class HabitatEditor
         win.StopEditing(work);
     }
 
+    #region Test de parcours
+    private Border? testBar;
+
+    /// <summary>Lance la prévisualisation : masque l'édition, Maxine devient visible et parcourt les sols tracés.</summary>
+    private void StartTest()
+    {
+        if (mode.IsTesting)
+            return;
+        work.Floors.RemoveAll(f => f.Length < 1);
+        if (work.Floors.Count == 0)
+        {
+            mode.MW.Toast("Trace au moins un sol avant de tester le parcours.", HUD.HudToast.Kind.Info, 5);
+            return;
+        }
+        toolbar.Visibility = Visibility.Collapsed;
+        props.Visibility = Visibility.Collapsed;
+        win.Overlay.Children.Clear(); // retire la surcouche d'édition (fantôme, poignées) pendant le test
+
+        var row = new StackPanel { Orientation = Orientation.Horizontal, VerticalAlignment = VerticalAlignment.Center };
+        row.Children.Add(new TextBlock { Text = "Test en cours — Maxine parcourt ses étages.", VerticalAlignment = VerticalAlignment.Center, Margin = new Thickness(4, 0, 14, 0), Foreground = Res("HudText") });
+        var back = new Button { Style = (Style)win.FindResource("HudGhostButton"), Content = "Revenir à l'édition", Margin = new Thickness(0, 0, 6, 0) };
+        back.Click += (_, _) => EndTest(validate: false);
+        var validate = new Button { Style = (Style)win.FindResource("HudPrimaryButton"), Content = "Valider et enregistrer" };
+        validate.Click += (_, _) => EndTest(validate: true);
+        row.Children.Add(back);
+        row.Children.Add(validate);
+        testBar = new Border
+        {
+            Style = (Style)win.FindResource("HudPanel"),
+            CornerRadius = new CornerRadius(20),
+            Padding = new Thickness(14, 10, 14, 10),
+            Margin = new Thickness(12, 0, 12, 14),
+            HorizontalAlignment = HorizontalAlignment.Center,
+            VerticalAlignment = VerticalAlignment.Bottom,
+            Child = row,
+        };
+        win.Stage.Children.Add(testBar);
+        VPet_Simulator.Core.UiMotion.SlideIn(testBar, 12, 220);
+        _ = mode.StartTestAsync(work);
+    }
+
+    private void EndTest(bool validate)
+    {
+        if (testBar != null)
+        {
+            win.Stage.Children.Remove(testBar);
+            testBar = null;
+        }
+        if (validate)
+        {
+            mode.StopTest(); // on garde la carte testée telle quelle
+            Finish();        // enregistre work et sort de l'édition
+        }
+        else
+        {
+            mode.EndTest(backToEditing: true); // le compagnon se re-masque, l'éditeur reprend
+            toolbar.Visibility = Visibility.Visible;
+            Render();
+        }
+    }
+    #endregion
+
+    /// <summary>QA : trace un sol au milieu du décor puis « Terminer », en capturant toute erreur (debug de l'éditeur).</summary>
+    internal string QaDrawAndFinish()
+    {
+        try
+        {
+            Checkpoint();
+            work.Floors.Add(new HabitatFloor
+            {
+                Id = "qa-" + Guid.NewGuid().ToString("N")[..6],
+                Y = work.Image.Height * 0.82,
+                X1 = work.Image.Width * 0.2,
+                X2 = work.Image.Width * 0.8,
+            });
+            Render();
+            int before = work.Floors.Count;
+            Finish();
+            return $"sols avant Terminer={before} ; Terminer OK (view scaleY={win.ViewProjection.ScaleY:0.000}, image={work.Image.Width}x{work.Image.Height})";
+        }
+        catch (Exception e)
+        {
+            return "EXCEPTION Terminer: " + e.GetType().Name + " — " + e.Message + " @ " + (e.StackTrace?.Split('\n')[0]?.Trim() ?? "");
+        }
+    }
+
+    private bool windowsHidden;
+
+    /// <summary>
+    /// Masque / réaffiche toutes les fenêtres ouvertes (touche H) pour tracer sur le bureau nu, puis les récupérer.
+    /// En mode bureau transparent, pratique pour voir le fond sans les fenêtres par-dessus.
+    /// </summary>
+    private void ToggleWindows()
+    {
+        try
+        {
+            var t = Type.GetTypeFromProgID("Shell.Application");
+            if (t == null)
+                return;
+            dynamic shell = Activator.CreateInstance(t)!;
+            if (windowsHidden)
+                shell.UndoMinimizeALL();
+            else
+                shell.MinimizeAll();
+            windowsHidden = !windowsHidden;
+        }
+        catch { }
+    }
+
     /// <summary>QA : simule le survol d'un point de l'image (fantôme) et la sélection d'un élément</summary>
     internal void QaHover(Point image, string? select)
     {
         selected = select == null ? null : Find(select);
         lastMouse = image;
         Render();
+    }
+
+    /// <summary>
+    /// En multi-écrans « Span », trace des repères verticaux là où tombent les frontières entre écrans sur le décor.
+    /// Aide au tracé : tu vois où commence/finit chaque écran. Détecté automatiquement (aucune valeur en dur).
+    /// </summary>
+    private void DrawScreenGuides(Canvas o)
+    {
+        if (!mode.SpanScreens || mode.DesktopDecor)
+            return; // l'habitat bureau est désormais sur UN seul écran : pas de frontières à montrer
+        System.Collections.Generic.List<Screens.ScreenDetail> ss;
+        try { ss = Screens.All(); } catch { return; }
+        if (ss.Count < 2)
+            return;
+        double minX = ss.Min(s => (double)s.X), maxX = ss.Max(s => (double)s.X + s.Width);
+        double vw = maxX - minX;
+        if (vw <= 0)
+            return;
+        double imgW = work.Image.Width, imgH = work.Image.Height;
+        var accent = Res("HudAccent");
+        foreach (var bx in ss.Select(s => (double)s.X + s.Width).Where(x => x < maxX - 1).Distinct())
+        {
+            double ix = (bx - minX) / vw * imgW;
+            o.Children.Add(new Line
+            {
+                X1 = ix, X2 = ix, Y1 = 0, Y2 = imgH, Stroke = accent, StrokeThickness = Px(1.5),
+                StrokeDashArray = new DoubleCollection { 6, 5 }, Opacity = 0.45, IsHitTestVisible = false,
+            });
+            var tag = new Border
+            {
+                Background = accent, CornerRadius = new CornerRadius(Px(7)), Opacity = 0.9, IsHitTestVisible = false,
+                Padding = new Thickness(Px(7), Px(2), Px(7), Px(3)),
+                Child = new TextBlock { Text = "bord d'écran", FontSize = Px(11), Foreground = Res("HudOnAccent") },
+            };
+            Canvas.SetLeft(tag, ix + Px(5));
+            Canvas.SetTop(tag, Px(6));
+            o.Children.Add(tag);
+        }
     }
 
     #region Rendu
@@ -227,6 +394,8 @@ internal sealed class HabitatEditor
         var silver = Res("HudSilver");
         var success = Res("HudSuccess");
         var surface = Res("HudSurface");
+
+        DrawScreenGuides(o);
 
         // pièces (sous tout le reste)
         foreach (var r in work.Rooms)
@@ -439,6 +608,8 @@ internal sealed class HabitatEditor
 
     private void OnDown(object sender, MouseButtonEventArgs e)
     {
+        if (mode.IsTesting)
+            return;
         if (toolbar.IsMouseOver || props.IsMouseOver || win.IsOverChrome || e.OriginalSource is DependencyObject d && IsInChrome(d))
             return;
         var p = ImagePoint(e);
@@ -500,6 +671,8 @@ internal sealed class HabitatEditor
 
     private void OnPanDown(object sender, MouseButtonEventArgs e)
     {
+        if (mode.IsTesting)
+            return;
         drag = Drag.Pan;
         panStart = e.GetPosition(win.Stage);
         panView = win.ViewProjection;
@@ -509,6 +682,8 @@ internal sealed class HabitatEditor
 
     private void OnMiddleDown(object sender, MouseButtonEventArgs e)
     {
+        if (mode.IsTesting)
+            return;
         if (e.ChangedButton == MouseButton.Middle)
             OnPanDown(sender, e);
     }
@@ -521,6 +696,8 @@ internal sealed class HabitatEditor
 
     private void OnMove(object sender, MouseEventArgs e)
     {
+        if (mode.IsTesting)
+            return;
         var p = ImagePoint(e);
         lastMouse = p;
         switch (drag)
@@ -572,7 +749,7 @@ internal sealed class HabitatEditor
 
     private void OnWheel(object sender, MouseWheelEventArgs e)
     {
-        if (props.IsMouseOver)
+        if (mode.IsTesting || props.IsMouseOver)
             return;
         // molette : zoom autour du curseur
         var at = e.GetPosition(win.Stage);
@@ -834,6 +1011,8 @@ internal sealed class HabitatEditor
     #region Clavier
     public void OnKey(KeyEventArgs e)
     {
+        if (mode.IsTesting)
+            return;
         // la saisie d'un nom de pièce garde ses touches
         if (e.OriginalSource is TextBox)
         {
@@ -873,6 +1052,9 @@ internal sealed class HabitatEditor
                 break;
             case Key.F when !ctrl:
                 FitView();
+                break;
+            case Key.H when !ctrl:
+                ToggleWindows();
                 break;
             case Key.Enter:
                 Finish();

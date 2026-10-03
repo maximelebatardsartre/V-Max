@@ -59,8 +59,16 @@ public sealed class GeminiClient
         {
             ["contents"] = contents.DeepClone(),
             ["systemInstruction"] = new JsonObject { ["parts"] = new JsonArray(new JsonObject { ["text"] = systemPrompt }) },
-            ["generationConfig"] = new JsonObject { ["temperature"] = 0.8, ["maxOutputTokens"] = 1024 },
+            ["generationConfig"] = new JsonObject
+            {
+                ["temperature"] = 0.8,
+                ["maxOutputTokens"] = 1024,
+            },
         };
+        // thinkingBudget=0 désactive la « réflexion » (réponses immédiates), MAIS seuls les modèles 2.5+/latest
+        // l'acceptent — l'envoyer à un modèle 1.x renvoie un 400 qui casse la requête. On ne l'ajoute donc que si besoin.
+        if (Model.Contains("2.5") || Model.Contains("latest") || Model.StartsWith("gemini-3") || Model.Contains("flash-lite"))
+            body["generationConfig"]!["thinkingConfig"] = new JsonObject { ["thinkingBudget"] = 0 };
         if (functionDeclarations != null && functionDeclarations.Count > 0)
             body["tools"] = new JsonArray(new JsonObject { ["functionDeclarations"] = functionDeclarations.DeepClone() });
 
@@ -123,6 +131,10 @@ public sealed class GeminiClient
     {
         using var req = new HttpRequestMessage(HttpMethod.Get, BaseUrl + "models?pageSize=200");
         req.Headers.Add("x-goog-api-key", apiKey);
+        // borne la vérification de clé : sans ça, sur réseau instable, « Vérifier la clé » tourne indéfiniment
+        using var cts = CancellationTokenSource.CreateLinkedTokenSource(ct);
+        cts.CancelAfter(TimeSpan.FromSeconds(15));
+        ct = cts.Token;
         using var resp = await Http.SendAsync(req, ct).ConfigureAwait(false);
         if (!resp.IsSuccessStatusCode)
             throw await ToException(resp).ConfigureAwait(false);

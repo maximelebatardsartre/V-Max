@@ -3,7 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:ll="clr-namespace:LinePutScript.Localization.WPF;assembly=LinePutScript.Localization.WPF"
         Title="{ll:Str Paramètres de V-Max}" Width="980" Height="680" MinWidth="720" MinHeight="480"
-        WindowStartupLocation="CenterScreen" ResizeMode="CanResize"
+        WindowStyle="None" WindowStartupLocation="CenterScreen" ResizeMode="CanResize"
         Background="{DynamicResource VMaxWindowFallback}" Foreground="{DynamicResource PrimaryText}"
         FontFamily="{DynamicResource MainFont}" FontSize="14" UseLayoutRounding="True"
         TextOptions.TextFormattingMode="Display" SourceInitialized="Window_SourceInitialized"
@@ -12,7 +12,7 @@
         <Style TargetType="ScrollBar" BasedOn="{StaticResource VMaxScrollBar}" />
     </Window.Resources>
     <WindowChrome.WindowChrome>
-        <WindowChrome CaptionHeight="48" GlassFrameThickness="-1" ResizeBorderThickness="6" CornerRadius="0"
+        <WindowChrome CaptionHeight="56" GlassFrameThickness="-1" ResizeBorderThickness="6" CornerRadius="0"
                 UseAeroCaptionButtons="False" />
     </WindowChrome.WindowChrome>
     <Grid x:Name="Root" RenderTransformOrigin="0.5,0.5">
@@ -20,7 +20,7 @@
             <ScaleTransform x:Name="RootScale" ScaleX="0.98" ScaleY="0.98" />
         </Grid.RenderTransform>
         <Grid.RowDefinitions>
-            <RowDefinition Height="48" />
+            <RowDefinition Height="56" />
             <RowDefinition Height="Auto" />
             <RowDefinition />
         </Grid.RowDefinitions>
@@ -30,13 +30,13 @@
         </Grid.ColumnDefinitions>
 
         <!-- Barre de titre -->
-        <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="18,0,0,0">
+        <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="22,0,0,0">
             <Image Width="24" Height="24" Source="/Res/maxine-logo.png" RenderOptions.BitmapScalingMode="HighQuality" />
-            <TextBlock Margin="10,0,0,0" VerticalAlignment="Center" FontSize="13" Text="{ll:Str Paramètres}" />
+            <TextBlock Margin="11,0,0,0" VerticalAlignment="Center" FontSize="13" Text="{ll:Str Paramètres}" />
         </StackPanel>
         <Grid Grid.Column="1">
-            <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="12,0,0,0">
-                <Border CornerRadius="7" Padding="2" Background="{DynamicResource VMaxCard}" BorderBrush="{DynamicResource VMaxStroke}"
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="16,0,0,0">
+                <Border CornerRadius="8" Padding="2" Background="{DynamicResource VMaxCard}" BorderBrush="{DynamicResource VMaxStroke}"
                         BorderThickness="1" WindowChrome.IsHitTestVisibleInChrome="True">
                     <StackPanel Orientation="Horizontal">
                         <RadioButton x:Name="RbBasic" GroupName="mode" Style="{StaticResource VMaxSegment}"
@@ -47,17 +47,20 @@
                                 ToolTip="{ll:Str 'Tous les réglages y compris les plus techniques'}" />
                     </StackPanel>
                 </Border>
-                <TextBox x:Name="TbSearch" Width="260" Margin="12,0,0,0" Style="{StaticResource VMaxTextBox}"
+                <TextBox x:Name="TbSearch" Width="280" Margin="14,0,0,0" Style="{StaticResource VMaxTextBox}"
                         Tag="{ll:Str 'Rechercher un réglage (Ctrl+F)'}" TextChanged="TbSearch_TextChanged"
                         WindowChrome.IsHitTestVisibleInChrome="True" />
             </StackPanel>
-            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Top">
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,8,10,0">
                 <Button Style="{StaticResource VMaxCaptionButton}" Content="&#xE921;" Click="Minimize_Click"
                         WindowChrome.IsHitTestVisibleInChrome="True" ToolTip="{ll:Str Réduire}" />
                 <Button Style="{StaticResource VMaxCaptionButton}" Content="&#xE8BB;" Tag="close" Click="Close_Click"
                         WindowChrome.IsHitTestVisibleInChrome="True" ToolTip="{ll:Str Fermer}" />
             </StackPanel>
         </Grid>
+
+        <!-- Filet de séparation sous la barre de titre -->
+        <Border Grid.Row="0" Grid.ColumnSpan="2" Height="1" VerticalAlignment="Bottom" Background="{DynamicResource VMaxStroke}" />
 
         <!-- Bandeau « redémarrage requis » -->
         <Border x:Name="RestartBar" Grid.Row="1" Grid.ColumnSpan="2" Margin="16,0,16,8" Padding="14,8" CornerRadius="8"

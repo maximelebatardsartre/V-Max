@@ -60,7 +60,10 @@ public static class ScreenGuard
         if (visible >= area * 0.3)
             return false;
 
-        var work = Forms.Screen.PrimaryScreen!.WorkingArea;
+        var prim = Forms.Screen.PrimaryScreen ?? Forms.Screen.AllScreens.FirstOrDefault();
+        if (prim == null)
+            return false; // aucun écran marqué principal (RDP, bascule GPU) : on ne recentre pas plutôt que de planter
+        var work = prim.WorkingArea;
         var toDip = src.CompositionTarget.TransformFromDevice;
         var wtl = toDip.Transform(new Point(work.Left, work.Top));
         var wbr = toDip.Transform(new Point(work.Right, work.Bottom));

@@ -65,9 +65,11 @@ if ($FullOffline) {
 
 Write-Host "==> Fabrication de l'installeur Velopack ($Version)" -ForegroundColor Cyan
 New-Item -ItemType Directory -Force -Path $releases | Out-Null
+# NB : packId reste "Maxine" (identité interne Velopack = NE PAS changer, sinon les installs existantes ne se
+# mettent plus à jour). packTitle est le nom VISIBLE (menu Démarrer, Programmes et fonctionnalités, raccourci).
 vpk pack `
     --packId Maxine `
-    --packTitle Maxine `
+    --packTitle "V-Max Compagnon" `
     --packAuthors "V-Max" `
     --packVersion $Version `
     --packDir $publish `
@@ -77,6 +79,9 @@ vpk pack `
     --outputDir $releases
 if ($LASTEXITCODE -ne 0) { throw "vpk pack a échoué." }
 
+# NB : on NE renomme PAS le Setup.exe ici — vpk garde le nom d'origine dans son manifeste et « vpk upload » ne
+# retrouverait plus le fichier. Le nom de fichier reste Maxine-win-Setup.exe (interne) ; l'app installée s'appelle
+# « V-Max Compagnon » via packTitle. Pour un nom de téléchargement plus joli, renommer l'asset sur GitHub après coup.
 $setup = Get-ChildItem $releases -Filter "*Setup.exe" | Select-Object -First 1
 Write-Host "Installeur prêt : $($setup.FullName)" -ForegroundColor Green
 
@@ -87,7 +92,7 @@ if ($Upload) {
         --repoUrl $repo `
         --token $env:GITHUB_TOKEN `
         --publish `
-        --releaseName "Maxine $Version" `
+        --releaseName "V-Max Compagnon $Version" `
         --tag "v$Version" `
         --outputDir $releases
     if ($LASTEXITCODE -ne 0) { throw "La publication GitHub a échoué." }

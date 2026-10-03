@@ -55,7 +55,26 @@ public static class ModBlocklist
                 }
             }
         }
-        catch (IOException) { }
+        catch { }
         return IsBlocked(modDir, itemId);
+    }
+
+    /// <summary>
+    /// Contrôle de CONTENU : refuse un mod dont la fiche info.lps (titre/description) est à caractère sexuel, même
+    /// si son identifiant n'est pas dans la liste connue. Complète IsBlocked pour les mods copiés à la main sous un
+    /// nom non numérique. Lecture seule de info.lps (léger) ; en cas de doute on NE bloque pas (évite les faux
+    /// positifs au démarrage). Le veto « jamais chargé » tient ainsi aussi hors des 12 IDs connus et de l'import Studio.
+    /// </summary>
+    public static bool IsSexualContent(DirectoryInfo modDir)
+    {
+        try
+        {
+            var info = Path.Combine(modDir.FullName, "info.lps");
+            if (!File.Exists(info))
+                return false;
+            var text = File.ReadAllText(info);
+            return TitlePattern.IsMatch(text) || ContentPattern.IsMatch(text);
+        }
+        catch { return false; }
     }
 }

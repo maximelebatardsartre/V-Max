@@ -8,9 +8,11 @@ using Velopack.Sources;
 namespace VPet_Simulator.Windows;
 
 /// <summary>
-/// V-Max : mise à jour automatique via les Releases GitHub (Velopack). Au lancement, l'application regarde s'il
-/// existe une version plus récente publiée ; si oui, elle propose de l'installer. Rien ne se télécharge ni ne
-/// s'installe sans un oui. N'a d'effet que sur une installation faite par l'installeur (en développement, no-op).
+/// V-Max : mise à jour automatique via les Releases GitHub (Velopack). Au lancement, l'application regarde en
+/// arrière-plan s'il existe une version plus récente publiée ; si oui, elle la télécharge silencieusement et la
+/// prépare. La nouvelle version est appliquée toute seule au prochain démarrage — aucun popup, aucun clic, aucune
+/// interruption. L'illusion d'un logiciel entièrement autonome est préservée.
+/// N'a d'effet que sur une installation faite par l'installeur (en développement, no-op).
 /// </summary>
 public static class UpdateService
 {
@@ -21,7 +23,8 @@ public static class UpdateService
 
     /// <summary>
     /// À appeler une fois au lancement (hors de l'amorçage Velopack). Vérifie en arrière-plan et, si une mise à
-    /// jour existe, la propose à l'utilisateur.
+    /// jour existe, la télécharge et la prépare silencieusement : elle sera appliquée automatiquement au prochain
+    /// démarrage de Maxine, sans jamais rien demander à l'utilisateur.
     /// </summary>
     public static void CheckInBackground(MainWindow mw)
     {
@@ -38,8 +41,10 @@ public static class UpdateService
                 var update = await mgr.CheckForUpdatesAsync();
                 if (update == null)
                     return;
-                var version = update.TargetFullRelease.Version.ToString();
-                await mw.Dispatcher.InvokeAsync(() => Offer(mw, mgr, update, version));
+                // téléchargement silencieux, puis mise en attente : Velopack appliquera la mise à jour quand Maxine
+                // se fermera (silent: true, restart: false). Au prochain lancement, la nouvelle version est déjà là.
+                await mgr.DownloadUpdatesAsync(update);
+                mgr.WaitExitThenApplyUpdates(update.TargetFullRelease, silent: true, restart: false);
             }
             catch (Exception e)
             {
@@ -71,34 +76,16 @@ public static class UpdateService
                     return;
                 }
                 var version = update.TargetFullRelease.Version.ToString();
-                await mw.Dispatcher.InvokeAsync(() => Offer(mw, mgr, update, version));
+                await mw.Dispatcher.InvokeAsync(() => mw.Toast($"Téléchargement de la version {version}…", HUD.HudToast.Kind.Info, 5));
+                await mgr.DownloadUpdatesAsync(update);
+                mgr.WaitExitThenApplyUpdates(update.TargetFullRelease, silent: true, restart: false);
+                await mw.Dispatcher.InvokeAsync(() => mw.Toast(
+                    $"Version {version} prête — elle s'appliquera au prochain démarrage de Maxine.",
+                    HUD.HudToast.Kind.Success, 7));
             }
             catch (Exception e)
             {
                 await mw.Dispatcher.InvokeAsync(() => mw.Toast("Impossible de vérifier les mises à jour : " + e.Message, HUD.HudToast.Kind.Warning, 7));
-            }
-        });
-    }
-
-    private static void Offer(MainWindow mw, UpdateManager mgr, UpdateInfo update, string version)
-    {
-        var answer = VDialog.Show(mw,
-            $"Une nouvelle version de Maxine ({version}) est disponible.\nL'installer maintenant ? Maxine se fermera un instant puis redémarrera.",
-            "Mise à jour disponible", MessageBoxButton.YesNo, Panuon.WPF.UI.MessageBoxIcon.Info);
-        if (answer != MessageBoxResult.Yes)
-            return;
-        mw.Toast("Téléchargement de la mise à jour…", HUD.HudToast.Kind.Info, 6);
-        _ = Task.Run(async () =>
-        {
-            try
-            {
-                await mgr.DownloadUpdatesAsync(update);
-                mgr.ApplyUpdatesAndRestart(update); // ferme l'application et relance la nouvelle version
-            }
-            catch (Exception e)
-            {
-                await mw.Dispatcher.InvokeAsync(() =>
-                    mw.Toast("La mise à jour a échoué : " + e.Message, HUD.HudToast.Kind.Warning, 8));
             }
         });
     }

@@ -2,6 +2,8 @@ using LinePutScript;
 using System;
 using System.ComponentModel;
 using System.IO;
+using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media.Imaging;
@@ -81,6 +83,40 @@ public sealed class HabitatMode
     {
         get => !Cfg.GetBool("desktop_off");
         set => Cfg.SetBool("desktop_off", !value);
+    }
+
+    /// <summary>
+    /// Multi-écrans : sur le bureau, le décor et les déplacements s'étendent sur TOUS les écrans (bureau virtuel),
+    /// comme le mode « Étendu » des fonds d'écran Windows — Maxine passe d'un écran à l'autre. Activé par défaut ;
+    /// sans effet sur un seul écran. Optimal quand les écrans partagent la même mise à l'échelle Windows ; pour des
+    /// DPI différents le raccord peut être imparfait (amélioration prévue).
+    /// </summary>
+    public bool SpanScreens
+    {
+        get => !Cfg.GetBool("span_off");
+        set => Cfg.SetBool("span_off", !value);
+    }
+
+    /// <summary>
+    /// Vivre directement sur le bureau en TRANSPARENT (temps réel) : on voit le vrai bureau à travers, et on trace
+    /// les sols/zones dessus. Activé par défaut (c'est l'expérience principale). Désactivé = ancien mode « décor image ».
+    /// </summary>
+    public bool DesktopMode
+    {
+        get => !Cfg.GetBool("desktop_mode_off");
+        set => Cfg.SetBool("desktop_mode_off", !value);
+    }
+
+    /// <summary>Position du compagnon sur le bureau : « front » = toujours DEVANT les fenêtres ; « behind » = DERRIÈRE.</summary>
+    public string Position
+    {
+        get => Cfg.GetString("position", "front") ?? "front";
+        set
+        {
+            Cfg.SetString("position", value);
+            if (Window != null && DesktopDecor)
+                Window.Topmost = value != "behind";
+        }
     }
 
     /// <summary>Expérimental : vivre en permanence dans la couche du fond d'écran, derrière les fenêtres</summary>
@@ -170,9 +206,115 @@ public sealed class HabitatMode
         {
             return "Impossible d'ouvrir cette image : " + e.Message;
         }
+        Activate(map, image, path);
+        return null;
+    }
+
+    /// <summary>Décor « bureau » : pas d'image, le vrai bureau est visible à travers la fenêtre transparente.</summary>
+    public bool DesktopDecor { get; private set; }
+
+    /// <summary>
+    /// Active l'habitat TRANSPARENT sur le bureau : aucune image, on voit le vrai bureau (fenêtres comprises) en
+    /// direct ; la carte (sols/zones) est en coordonnées du bureau virtuel, donc générique pour toute config
+    /// (mono, multi, vertical, DPI mixte). Clé de carte = signature de la disposition des écrans.
+    /// </summary>
+    /// <summary>Écran (pixels physiques) où l'habitat est défini : celui du compagnon au moment de l'activation.</summary>
+    public System.Drawing.Rectangle DesktopScreenBounds { get; private set; }
+
+    public async Task<string?> EnableDesktopAsync(bool persist = true)
+    {
+        if (IsActive)
+            return null;
+        this.persist = persist;
+        // L'habitat se définit sur L'ÉCRAN OÙ SE TROUVE le compagnon (là où tu l'as posé), pas sur tout le bureau.
+        var screen = System.Windows.Forms.Screen.FromHandle(new System.Windows.Interop.WindowInteropHelper(mw).Handle);
+        var b = screen.Bounds;
+        DesktopScreenBounds = b;
+        string key = "screen-" + screen.DeviceName.Replace("\\", "").Replace(".", "") + "-" + b.Width + "x" + b.Height;
+        var map = HabitatMap.TryLoad(key) ?? new HabitatMap();
+        map.Image = new HabitatImage { Sha256 = key, Width = b.Width, Height = b.Height, Name = "Écran" };
+        // Nouvelle carte d'écran : donne une taille de compagnon par défaut sensée (sinon PetHeight=0 → compagnon minuscule).
+        if (map.PetHeight < 1)
+            map.PetHeight = HabitatMap.DefaultPetHeight(b.Height);
+        // On fige CET écran comme décor opaque. On masque d'abord le compagnon (et les fenêtres V-Max) pour qu'il ne
+        // soit pas « photographié » dans le décor — sinon un fantôme immobile reste collé à sa position de départ.
+        var shot = await CaptureWithoutPet(b);
+        if (shot == null)
+            // Sans capture on retomberait sur un décor vide/transparent inutilisable : mieux vaut un message clair.
+            return "Impossible de capturer l'écran pour la zone autonome. Réessaie, ou utilise un décor image.";
+        Activate(map, shot, null, isDesktop: true);
+        return null;
+    }
+
+    /// <summary>
+    /// Capture l'écran en masquant d'abord le compagnon et les fenêtres V-Max visibles sur cet écran, puis les restaure.
+    /// Évite d'avoir le compagnon « photographié » dans le décor figé.
+    /// </summary>
+    private async Task<BitmapSource?> CaptureWithoutPet(System.Drawing.Rectangle b)
+    {
+        var hidden = new System.Collections.Generic.List<Window>();
+        foreach (Window w in Application.Current.Windows)
+        {
+            if (!w.IsVisible || w.Visibility != Visibility.Visible)
+                continue;
+            try
+            {
+                var h = new System.Windows.Interop.WindowInteropHelper(w).Handle;
+                if (h == IntPtr.Zero)
+                    continue;
+                // ne masque que ce qui est SUR l'écran capturé (inutile de faire clignoter les fenêtres des autres écrans)
+                if (System.Windows.Forms.Screen.FromHandle(h).Bounds.IntersectsWith(b))
+                {
+                    hidden.Add(w);
+                    w.Visibility = Visibility.Hidden;
+                }
+            }
+            catch { }
+        }
+        try
+        {
+            // laisse le bureau se redessiner là où étaient le compagnon et les fenêtres avant de capturer
+            await Task.Delay(90);
+            return CaptureScreen(b);
+        }
+        finally
+        {
+            foreach (var w in hidden)
+            {
+                try { w.Visibility = Visibility.Visible; } catch { }
+            }
+        }
+    }
+
+    /// <summary>Capture un écran (pixels physiques) en image figée. Null si échec.</summary>
+    private static BitmapSource? CaptureScreen(System.Drawing.Rectangle b)
+    {
+        try
+        {
+            using var bmp = new System.Drawing.Bitmap(b.Width, b.Height, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
+            using (var g = System.Drawing.Graphics.FromImage(bmp))
+                g.CopyFromScreen(b.X, b.Y, 0, 0, new System.Drawing.Size(b.Width, b.Height), System.Drawing.CopyPixelOperation.SourceCopy);
+            var h = bmp.GetHbitmap();
+            try
+            {
+                var src = System.Windows.Interop.Imaging.CreateBitmapSourceFromHBitmap(h, IntPtr.Zero, Int32Rect.Empty, BitmapSizeOptions.FromEmptyOptions());
+                src.Freeze();
+                return src;
+            }
+            finally { DeleteObject(h); }
+        }
+        catch { return null; }
+    }
+
+    [System.Runtime.InteropServices.DllImport("gdi32.dll")] private static extern bool DeleteObject(IntPtr hObject);
+
+    /// <summary>Partie commune d'activation (image, bureau capturé, ou bureau transparent).</summary>
+    private void Activate(HabitatMap map, BitmapSource? image, string? path, bool isDesktop = false)
+    {
         Map = WindowMap = map;
         Image = image;
         ImagePath = path;
+        DesktopDecor = isDesktop;
         Metrics = PetMetrics.Measure(mw);
 
         classicController = mw.Core.Controller;
@@ -184,7 +326,8 @@ public sealed class HabitatMode
         classicOwner = mw.Owner;
 
         Window = new HabitatWindow(mw, this);
-        Window.Topmost = AlwaysOnTop;
+        // mode bureau : la position (devant/derrière les fenêtres) choisie par l'utilisateur ; sinon l'épingle.
+        Window.Topmost = DesktopDecor ? Position != "behind" : AlwaysOnTop;
         Window.Show();
         mw.Owner = Window;
         mw.Topmost = false;
@@ -205,7 +348,6 @@ public sealed class HabitatMode
         desktop ??= new HabitatDesktop(mw, this);
         desktop.Start();
         Changed?.Invoke();
-        return null;
     }
 
     /// <summary>Détache le compagnon de la fenêtre habitat (avant toute fermeture de celle-ci)</summary>
@@ -234,6 +376,9 @@ public sealed class HabitatMode
             mw.Core.Controller = classicController;
         mw.SetZoomLevel(classicZoom > 0 ? classicZoom : Cfg.GetFloat("classic_zoom", 0.5));
         mw.Topmost = mw.Set.TopMost;
+        // garantit que le compagnon redevient cliquable : si on ferme la fenêtre habitat PENDANT l'édition (où
+        // IsHitTestVisible est passé à false pour laisser passer les clics vers l'éditeur), il resterait sinon figé.
+        mw.IsHitTestVisible = true;
         mw.Opacity = mw.Set.OpacityMain ? mw.Set.Opacity : 1;
         mw.Main.SetMoveMode(mw.Set.AllowMove, mw.Set.SmartMove, mw.Set.SmartMoveInterval * 1000);
         var w = Window;
@@ -242,7 +387,7 @@ public sealed class HabitatMode
         if (w is { IsClosed: false })
             w.Close();
         // le compagnon revient sur l'écran, posé en bas comme d'habitude
-        mw.Core.Controller.ResetPosition();
+        mw.Core.Controller?.ResetPosition();
         Changed?.Invoke();
     }
 
@@ -250,10 +395,14 @@ public sealed class HabitatMode
     public async Task<string?> UseImageAsync(string? path)
     {
         ChosenImage = path;
+        // Choisir (ou importer) une image de décor = basculer en mode « décor image ». Revenir au fond d'écran
+        // laisse le mode courant décider. Évite l'incohérence « capture d'écran » affichée alors qu'une image est choisie.
+        if (!string.IsNullOrEmpty(path))
+            DesktopMode = false;
         if (!IsActive)
             return null;
         Disable();
-        return await EnableAsync();
+        return DesktopMode ? await EnableDesktopAsync() : await EnableAsync();
     }
 
     private static (HabitatMap, BitmapSource) LoadFor(string path)
@@ -344,7 +493,20 @@ public sealed class HabitatMode
     internal void QaEnterDesktop(bool layer = false)
     {
         qaForceLayer = layer;
-        EnterDesktop(WindowMap, new Rect(0, 0, SystemParameters.PrimaryScreenWidth, SystemParameters.PrimaryScreenHeight), ImageFit.Fill, 1, topmost: !layer);
+        Rect bounds; ImageFit fit;
+        if (SpanScreens)
+        {// même logique que HabitatDesktop : couvre le bureau virtuel (tous les écrans)
+            var v = System.Windows.Forms.SystemInformation.VirtualScreen;
+            var m = System.Windows.PresentationSource.FromVisual(mw)?.CompositionTarget?.TransformFromDevice ?? System.Windows.Media.Matrix.Identity;
+            bounds = new Rect(m.Transform(new Point(v.Left, v.Top)), m.Transform(new Point(v.Right, v.Bottom)));
+            fit = ImageFit.Span;
+        }
+        else
+        {
+            bounds = new Rect(0, 0, SystemParameters.PrimaryScreenWidth, SystemParameters.PrimaryScreenHeight);
+            fit = ImageFit.Fill;
+        }
+        EnterDesktop(WindowMap, bounds, fit, 1, topmost: !layer);
         qaForceLayer = false;
     }
     private bool qaForceLayer;
@@ -407,7 +569,13 @@ public sealed class HabitatMode
         desktopTopmost = false;
         mw.Topmost = false;
         if (Window != null)
+        {
+            // Win+D a pu réduire la fenêtre habitat ; une fenêtre « owned » par une fenêtre réduite est masquée, donc
+            // le compagnon disparaîtrait au retour sur le bureau. On restaure d'abord la fenêtre habitat.
+            if (Window.WindowState == System.Windows.WindowState.Minimized)
+                Window.WindowState = System.Windows.WindowState.Normal;
             mw.Owner = Window;
+        }
         if (!sameMap)
         {
             petX = double.NaN;
@@ -426,6 +594,97 @@ public sealed class HabitatMode
         mw.IsHitTestVisible = !editing;
         mw.Main.SetMoveMode(!editing, false, mw.Set.SmartMoveInterval * 1000);
     }
+
+    #region Test de parcours (prévisualisation avant d'enregistrer)
+    private CancellationTokenSource? testCts;
+    private HabitatMap? testBaseMap;
+
+    /// <summary>Un test de parcours est en cours (le compagnon se promène sur la carte en cours d'édition)</summary>
+    public bool IsTesting => testCts != null;
+
+    /// <summary>
+    /// Prévisualise la carte en cours d'édition : le compagnon devient visible et parcourt en boucle tous les sols
+    /// tracés (en montant/descendant par les échelles et les chutes), SANS rien enregistrer. Permet de vérifier que
+    /// Maxine atteint bien chaque étage avant de valider.
+    /// </summary>
+    internal async Task StartTestAsync(HabitatMap work)
+    {
+        if (Window == null)
+            return;
+        StopTest();
+        testBaseMap = Map;
+        Map = WindowMap = work;
+        // le compagnon redevient visible (en édition il est masqué, opacité 0). On COUPE le déplacement natif
+        // autonome : c'est le pilote du test qui conduit entièrement Maxine, sinon le mouvement aléatoire natif
+        // la tire dans l'autre sens en plein trajet (impression qu'elle « reste coincée » près d'une échelle).
+        mw.Opacity = mw.Set.OpacityMain ? mw.Set.Opacity : 1;
+        mw.IsHitTestVisible = true;
+        mw.Main.SetMoveMode(false, false, mw.Set.SmartMoveInterval * 1000);
+        Reproject();
+        PlacePet();
+        var cts = testCts = new CancellationTokenSource();
+        var ct = cts.Token;
+        var pilot = new HabitatPilot(mw, this);
+        var nav = new HabitatNavigator(work, pilot.Capabilities());
+        // Parcours DÉTERMINISTE : chaque sol est visité d'un bout à l'autre (Maxine traverse toute sa largeur, donc
+        // passe DEVANT les échelles), et on alterne les étages pour la voir monter/descendre. Bien plus parlant qu'un
+        // tirage au hasard qui pouvait donner l'impression qu'elle « reste coincée » près d'une échelle.
+        var targets = new System.Collections.Generic.List<(string floor, double x)>();
+        foreach (var f in work.Floors.Where(f => f.Length >= Math.Max(1, work.PetHeight * 0.5)).OrderBy(f => f.Y))
+        {
+            double m = Math.Min(f.Length * 0.15, Math.Max(1, work.PetHeight * 0.5));
+            targets.Add((f.Id, f.Clamp(f.Left + m)));
+            targets.Add((f.Id, f.Clamp(f.Right - m)));
+        }
+        try
+        {
+            int i = 0;
+            while (!ct.IsCancellationRequested)
+            {
+                var here = Locate();
+                if (here == null || targets.Count == 0)
+                {
+                    await Task.Delay(500, ct);
+                    continue;
+                }
+                var (tfId, tx) = targets[i++ % targets.Count];
+                var path = nav.FindPath(here.Value.floor.Id, here.Value.x, tfId, tx);
+                if (path != null)
+                    await pilot.RunAsync(path, ct);
+                await Task.Delay(650, ct);
+            }
+        }
+        catch (OperationCanceledException) { }
+        catch { }
+        finally
+        {
+            // ne jamais laisser le compagnon figé dans une animation de marche après le test
+            try { mw.Main.DisplayToNomal(); } catch { }
+        }
+    }
+
+    internal void StopTest()
+    {
+        testCts?.Cancel();
+        testCts = null;
+    }
+
+    /// <summary>Fin du test : soit on garde la carte testée (validation), soit on revient à l'état d'édition masqué.</summary>
+    internal void EndTest(bool backToEditing)
+    {
+        StopTest();
+        if (backToEditing)
+        {
+            if (testBaseMap != null)
+            {
+                Map = WindowMap = testBaseMap;
+                Reproject();
+            }
+            SetEditing(true); // le compagnon se re-masque, l'éditeur reprend la main
+        }
+        testBaseMap = null;
+    }
+    #endregion
 
     private void KeepPetBelowTop(object? sender, EventArgs e)
     {

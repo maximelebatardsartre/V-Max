@@ -35,22 +35,31 @@ public sealed class HabitatWindow : Window
         Title = "V-Max · Habitat";
         Icon = mw.Icon;
         WindowStyle = WindowStyle.None;
-        ResizeMode = ResizeMode.CanResize;
+        // Mode « bureau » avec capture d'écran (mode.Image != null) : fenêtre opaque plein écran montrant ton bureau,
+        // tracé fiable. Mode « bureau » sans image : fenêtre réellement transparente. Aquarium (image choisie) : opaque.
+        bool transparentDesktop = mode.DesktopDecor && mode.Image == null;
+        AllowsTransparency = transparentDesktop;
+        ResizeMode = mode.DesktopDecor ? ResizeMode.NoResize : ResizeMode.CanResize;
         ShowInTaskbar = true;
         MinWidth = 320;
         MinHeight = 200;
-        Background = (Brush)FindResource("HudSurface");
+        Background = transparentDesktop ? System.Windows.Media.Brushes.Transparent : (Brush)FindResource("HudSurface");
         FontFamily = (FontFamily)FindResource("HudBody");
         Foreground = (Brush)FindResource("HudText");
-        WindowChrome.SetWindowChrome(this, new WindowChrome { CaptionHeight = 0, ResizeBorderThickness = new Thickness(6), GlassFrameThickness = new Thickness(0), UseAeroCaptionButtons = false });
+        if (!mode.DesktopDecor)
+            WindowChrome.SetWindowChrome(this, new WindowChrome { CaptionHeight = 0, ResizeBorderThickness = new Thickness(6), GlassFrameThickness = new Thickness(0), UseAeroCaptionButtons = false });
         RestoreBounds_();
 
-        var image = new Image { Source = mode.Image, Width = mode.Map.Image.Width, Height = mode.Map.Image.Height, Stretch = Stretch.Fill };
-        RenderOptions.SetBitmapScalingMode(image, BitmapScalingMode.HighQuality);
         World.Width = mode.Map.Image.Width;
         World.Height = mode.Map.Image.Height;
         World.RenderTransform = view;
-        World.Children.Add(image);
+        if (mode.Image != null)
+        {
+            // décor image (aquarium) : on l'affiche. En mode bureau, pas d'image → le vrai bureau reste visible.
+            var image = new Image { Source = mode.Image, Width = mode.Map.Image.Width, Height = mode.Map.Image.Height, Stretch = Stretch.Fill };
+            RenderOptions.SetBitmapScalingMode(image, BitmapScalingMode.HighQuality);
+            World.Children.Add(image);
+        }
         Overlay.Width = World.Width;
         Overlay.Height = World.Height;
         World.Children.Add(Overlay);
@@ -80,7 +89,9 @@ public sealed class HabitatWindow : Window
             Background = new LinearGradientBrush(Color.FromArgb(0xCC, 0x14, 0x15, 0x1D), Color.FromArgb(0x00, 0x14, 0x15, 0x1D), 90),
             Opacity = 0,
         };
-        chrome.MouseLeftButtonDown += (_, e) => { if (e.ButtonState == MouseButtonState.Pressed && e.OriginalSource is not Button) DragMove(); };
+        // En mode « capture de l'écran », la fenêtre est épinglée aux pixels physiques d'un écran précis :
+        // la déplacer la désynchroniserait du décor figé. On n'autorise le glissement qu'en mode « décor image ».
+        chrome.MouseLeftButtonDown += (_, e) => { if (e.ButtonState == MouseButtonState.Pressed && e.OriginalSource is not Button && !mode.DesktopDecor) DragMove(); };
         Stage.Children.Add(chrome);
 
         emptyHint = new Border
@@ -171,14 +182,52 @@ public sealed class HabitatWindow : Window
     public bool IsEditing => editor != null;
 
     internal void QaHover(Point image, string? select) => editor?.QaHover(image, select);
+    internal string QaDrawAndFinish() => editor?.QaDrawAndFinish() ?? "pas d'éditeur";
     internal void QaDetect() => editor?.DetectFloors();
     internal void QaSuggestRooms() => editor?.SuggestRooms();
+
+    private Rect? aquariumBounds; // taille de l'« aquarium » mémorisée pendant l'édition
 
     public void StartEditing()
     {
         if (editor != null)
             return;
         mode.ExitDesktop();
+        // V-Max : en édition, on passe en espace de travail confortable et centré au lieu de garder la taille de
+        // l'« aquarium » (qui épouse le ratio de l'image → « bande étirée » pour une image panoramique).
+        aquariumBounds = new Rect(Left, Top, ActualWidth, ActualHeight);
+        if (WindowState == WindowState.Minimized)
+            WindowState = WindowState.Normal;
+        if (mode.DesktopDecor)
+        {
+            // mode bureau : la fenêtre est DÉJÀ l'overlay transparent plein écran → on ne la redimensionne pas,
+            // on trace directement sur le vrai bureau visible à travers.
+            aquariumBounds = null;
+        }
+        else if (mode.SpanScreens && System.Windows.Forms.Screen.AllScreens.Length > 1)
+        {
+            // MULTI-ÉCRANS : on édite EN PLEIN ÉCRAN sur tout le bureau virtuel, directement sur le décor qui couvre
+            // tous tes écrans (ton fond d'écran) → tu traces tes sols/zones/limites là où Maxine les verra vraiment.
+            var v = System.Windows.Forms.SystemInformation.VirtualScreen;
+            var m = PresentationSource.FromVisual(mw)?.CompositionTarget?.TransformFromDevice ?? System.Windows.Media.Matrix.Identity;
+            var tl = m.Transform(new Point(v.Left, v.Top));
+            var br = m.Transform(new Point(v.Right, v.Bottom));
+            Left = tl.X;
+            Top = tl.Y;
+            Width = br.X - tl.X;
+            Height = br.Y - tl.Y;
+        }
+        else
+        {
+            // mono-écran : espace de travail confortable et centré (évite la « bande étirée »).
+            var wa = SystemParameters.WorkArea;
+            double ew = Math.Min(wa.Width * 0.92, 1320), eh = Math.Min(wa.Height * 0.92, 860);
+            Width = ew;
+            Height = eh;
+            Left = wa.Left + (wa.Width - ew) / 2;
+            Top = wa.Top + (wa.Height - eh) / 2;
+        }
+        SetView(FitView());
         mode.SetEditing(true);
         editor = new HabitatEditor(this, mode);
         ShowChrome(true);
@@ -192,10 +241,26 @@ public sealed class HabitatWindow : Window
             return;
         editor.Detach();
         editor = null;
+        // retour à la taille de l'« aquarium » mémorisée à l'entrée en édition
+        if (aquariumBounds is { } b)
+        {
+            Left = b.X;
+            Top = b.Y;
+            Width = b.Width;
+            Height = b.Height;
+            aquariumBounds = null;
+        }
         SetView(FitView());
         if (save != null)
             mode.SaveMap(save);
         mode.SetEditing(false);
+        // bureau : si on annule ou qu'aucun sol n'a été tracé, on QUITTE proprement l'habitat (sinon la fenêtre et
+        // la bulle « Trace les sols » restaient affichées sans moyen de les fermer).
+        if (mode.DesktopDecor && mode.Map.Floors.Count == 0)
+        {
+            mode.Disable();
+            return;
+        }
         mode.Reproject();
         mode.PlacePet();
         RefreshTitle();
@@ -222,6 +287,34 @@ public sealed class HabitatWindow : Window
     #region Position et taille mémorisées
     private void RestoreBounds_()
     {
+        if (mode.DesktopDecor)
+        {
+            // mode bureau : la fenêtre couvre L'ÉCRAN DU COMPAGNON, dans le MÊME repère logique (DIP) que lui.
+            // On s'ancre sur la position connue du compagnon et on n'utilise que des écarts de pixels RELATIFS sur
+            // le même écran → exact quel que soit le DPI (y compris un écran secondaire à l'échelle différente).
+            // Plus de SetWindowPos en pixels physiques (qui désynchronisait la mise en page WPF → éditeur hors écran),
+            // ni de maximisation (dont Left/Top renvoient la position restaurée, pas l'origine de l'écran).
+            try
+            {
+                var petHwnd = new WindowInteropHelper(mw).Handle;
+                var petDevice = mw.PointToScreen(new Point(0, 0));          // origine du compagnon, pixels physiques
+                var dpi = VisualTreeHelper.GetDpi(mw);                      // échelle de l'écran du compagnon
+                var sb = System.Windows.Forms.Screen.FromHandle(petHwnd).Bounds; // bornes physiques de cet écran
+                Left = mw.Left - (petDevice.X - sb.X) / dpi.DpiScaleX;
+                Top = mw.Top - (petDevice.Y - sb.Y) / dpi.DpiScaleY;
+                Width = sb.Width / dpi.DpiScaleX;
+                Height = sb.Height / dpi.DpiScaleY;
+            }
+            catch
+            {
+                // repli : écran principal en coordonnées logiques
+                Left = 0;
+                Top = 0;
+                Width = SystemParameters.PrimaryScreenWidth;
+                Height = SystemParameters.PrimaryScreenHeight;
+            }
+            return;
+        }
         var cfg = mw.Set["vmax_habitat"];
         double w = cfg.GetFloat("w", 0), h = cfg.GetFloat("h", 0);
         var wa = SystemParameters.WorkArea;
