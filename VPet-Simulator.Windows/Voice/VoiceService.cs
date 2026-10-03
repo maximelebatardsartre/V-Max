@@ -104,8 +104,6 @@ public sealed class VoiceService : IDisposable
         }
     }
 
-    public System.Collections.Generic.List<string> Voices() => tts.Voices();
-
     /// <summary>Active ou coupe la touche et le mot d'activation selon les réglages</summary>
     public void Apply()
     {
@@ -131,7 +129,9 @@ public sealed class VoiceService : IDisposable
     public void Say(string text)
     {
         if (PremiumVoice && Piper.Ready)
-            Piper.Speak(text, Rate);
+            // Repli automatique sur la voix Windows si la synthèse Piper échoue au moment de parler
+            // (moteur introuvable, périphérique audio occupé…), pour que le compagnon ne reste jamais muet.
+            Piper.Speak(text, Rate, () => mw.Dispatcher.BeginInvoke(() => { try { tts.Speak(text, VoiceName, Rate); } catch { } }));
         else
             tts.Speak(text, VoiceName, Rate);
     }

@@ -59,15 +59,16 @@ public sealed class GeminiClient
         {
             ["contents"] = contents.DeepClone(),
             ["systemInstruction"] = new JsonObject { ["parts"] = new JsonArray(new JsonObject { ["text"] = systemPrompt }) },
-            // thinkingBudget = 0 : on désactive la phase de « réflexion » de Gemini 2.5 Flash. Pour un compagnon de
-            // bureau on veut des réponses IMMÉDIATES, pas un raisonnement interne qui ajoute plusieurs secondes de latence.
             ["generationConfig"] = new JsonObject
             {
                 ["temperature"] = 0.8,
                 ["maxOutputTokens"] = 1024,
-                ["thinkingConfig"] = new JsonObject { ["thinkingBudget"] = 0 },
             },
         };
+        // thinkingBudget=0 désactive la « réflexion » (réponses immédiates), MAIS seuls les modèles 2.5+/latest
+        // l'acceptent — l'envoyer à un modèle 1.x renvoie un 400 qui casse la requête. On ne l'ajoute donc que si besoin.
+        if (Model.Contains("2.5") || Model.Contains("latest") || Model.StartsWith("gemini-3") || Model.Contains("flash-lite"))
+            body["generationConfig"]!["thinkingConfig"] = new JsonObject { ["thinkingBudget"] = 0 };
         if (functionDeclarations != null && functionDeclarations.Count > 0)
             body["tools"] = new JsonArray(new JsonObject { ["functionDeclarations"] = functionDeclarations.DeepClone() });
 

@@ -333,6 +333,8 @@ namespace VPet_Simulator.Core
             }
             using var pixmap = combinedBitmap.PeekPixels();
             using var data = pixmap.Encode(new SKPngEncoderOptions(SKPngEncoderFilterFlags.AllFilters, 3));
+            if (data == null)
+                return; // l'encodage PNG a échoué : on n'écrit pas de fichier tronqué (évite un NRE + un .tmp orphelin)
             string tmp = Path + ".tmp";
             using (var stream = File.Create(tmp))
             {

@@ -43,6 +43,15 @@ internal sealed class HabitatDesktop
 
     private void Tick()
     {
+        // Mode « capture de l'écran » (expérience par défaut) : Maxine vit déjà sur un décor de bureau figé.
+        // La sortie historique vers le vrai fond d'écran (logique span multi-écrans) ne s'applique pas ici et
+        // entrerait en conflit — on la neutralise entièrement tant que ce mode est actif.
+        if (mode.DesktopDecor)
+        {
+            if (mode.OnDesktop)
+                mode.ExitDesktop();
+            return;
+        }
         if (!mode.IsActive || mode.Window == null || mode.Window.IsEditing || !mode.DesktopEnabled)
         {
             if (mode.OnDesktop)

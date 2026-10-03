@@ -48,7 +48,7 @@ public sealed class PiperTts : IDisposable
 
     private readonly SemaphoreSlim gate = new(1, 1);
     private readonly object playLock = new();
-    private WaveOutEvent? output;
+    private WaveOut? output;
     private Process? proc;
     private volatile bool stopRequested;
     private volatile bool speaking;
@@ -130,12 +130,20 @@ public sealed class PiperTts : IDisposable
         }
     }
 
-    /// <summary>Lit un texte (remplace une lecture en cours). rate : -10 (lent) à 10 (rapide).</summary>
-    public void Speak(string text, int rate)
+    /// <summary>
+    /// Lit un texte (remplace une lecture en cours). rate : -10 (lent) à 10 (rapide).
+    /// onFailure est appelé si la synthèse/lecture échoue (ex. moteur absent) pour permettre un repli (voix Windows).
+    /// </summary>
+    public void Speak(string text, int rate, Action? onFailure = null)
     {
         var clean = TextToSpeech.Clean(text);
-        if (clean.Length == 0 || !Ready)
+        if (clean.Length == 0)
             return;
+        if (!Ready)
+        {
+            onFailure?.Invoke();
+            return;
+        }
         Stop();
         _ = Task.Run(() =>
         {
@@ -143,11 +151,14 @@ public sealed class PiperTts : IDisposable
             {
                 var wav = Synthesize(clean, rate);
                 if (wav == null)
+                {
+                    onFailure?.Invoke();
                     return;
+                }
                 try { Play(wav); }
                 finally { TryDelete(wav); }
             }
-            catch { }
+            catch { onFailure?.Invoke(); }
         });
     }
 
@@ -220,15 +231,26 @@ public sealed class PiperTts : IDisposable
 
     private void Play(string wav)
     {
-        WaveOutEvent dev;
+        WaveOut dev;
         WaveFileReader reader;
         lock (playLock)
         {
             if (stopRequested)
                 return;
             reader = new WaveFileReader(wav);
-            dev = new WaveOutEvent();
-            dev.Init(reader);
+            dev = new WaveOut();
+            try
+            {
+                dev.Init(reader);
+            }
+            catch
+            {
+                // Init a échoué (WAV illisible, périphérique indisponible) : on libère avant de propager,
+                // sinon le lecteur et le périphérique audio fuient (le finally n'est pas encore en place).
+                try { dev.Dispose(); } catch { }
+                try { reader.Dispose(); } catch { }
+                throw;
+            }
             output = dev;
             speaking = true;
         }

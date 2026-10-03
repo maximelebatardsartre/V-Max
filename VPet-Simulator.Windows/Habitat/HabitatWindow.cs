@@ -89,7 +89,9 @@ public sealed class HabitatWindow : Window
             Background = new LinearGradientBrush(Color.FromArgb(0xCC, 0x14, 0x15, 0x1D), Color.FromArgb(0x00, 0x14, 0x15, 0x1D), 90),
             Opacity = 0,
         };
-        chrome.MouseLeftButtonDown += (_, e) => { if (e.ButtonState == MouseButtonState.Pressed && e.OriginalSource is not Button) DragMove(); };
+        // En mode « capture de l'écran », la fenêtre est épinglée aux pixels physiques d'un écran précis :
+        // la déplacer la désynchroniserait du décor figé. On n'autorise le glissement qu'en mode « décor image ».
+        chrome.MouseLeftButtonDown += (_, e) => { if (e.ButtonState == MouseButtonState.Pressed && e.OriginalSource is not Button && !mode.DesktopDecor) DragMove(); };
         Stage.Children.Add(chrome);
 
         emptyHint = new Border

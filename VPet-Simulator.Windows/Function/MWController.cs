@@ -53,6 +53,17 @@ namespace VPet_Simulator.Windows
         public void ResetScreenBorder()
         {
             IsPrimaryScreen = true;
+            // Recale l'index sur l'écran principal (sinon un ancien -1 « tous écrans » ou un index périmé
+            // laisse IfInActivateScreen désynchronisé de la zone réellement choisie).
+            var screens = Screen.AllScreens;
+            for (int i = 0; i < screens.Length; i++)
+            {
+                if (screens[i].Primary)
+                {
+                    mw.Set.GameScreenIndex = i;
+                    break;
+                }
+            }
         }
 
         public double GetWindowsDistanceLeft()
@@ -111,6 +122,9 @@ namespace VPet_Simulator.Windows
                 }
             }
             catch { }
+            // Mode « tous les écrans » : la zone couvre tout le bureau virtuel, le compagnon est TOUJOURS
+            // dans sa zone active → on ne doit jamais le rappeler sur un écran unique (sinon « libre partout » casse).
+            if (mw.Set.GameScreenIndex == -1) return true;
             return mw.Dispatcher.Invoke(() =>
             {
                 try

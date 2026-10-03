@@ -120,7 +120,7 @@ public sealed class StatusCard : HudSidePanel
             return;
         TitleText.Text = s.Name;
         EyebrowText.Text = $"NIVEAU {s.Level}";
-        modeNote.Text = !Pet.Core.Controller.EnableFunction ? "Les besoins sont en pause (mode sans gestion)."
+        modeNote.Text = Pet.Core.Controller?.EnableFunction == false ? "Les besoins sont en pause (mode sans gestion)."
             : s.Mode switch
             {
                 IGameSave.ModeType.Happy => "En pleine forme.",

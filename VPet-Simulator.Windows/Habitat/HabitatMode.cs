@@ -233,6 +233,9 @@ public sealed class HabitatMode
         map.Image = new HabitatImage { Sha256 = key, Width = b.Width, Height = b.Height, Name = "Écran" };
         // on fige CET écran (ce que tu vois, fenêtres comprises) comme décor opaque : tracé fiable, par-dessus ton vrai écran.
         var shot = CaptureScreen(b);
+        if (shot == null)
+            // Sans capture on retomberait sur un décor vide/transparent inutilisable : mieux vaut un message clair.
+            return Task.FromResult<string?>("Impossible de capturer l'écran pour la zone autonome. Réessaie, ou utilise un décor image.");
         Activate(map, shot, null, isDesktop: true);
         return Task.FromResult<string?>(null);
     }
@@ -338,7 +341,7 @@ public sealed class HabitatMode
         if (w is { IsClosed: false })
             w.Close();
         // le compagnon revient sur l'écran, posé en bas comme d'habitude
-        mw.Core.Controller.ResetPosition();
+        mw.Core.Controller?.ResetPosition();
         Changed?.Invoke();
     }
 
@@ -346,10 +349,14 @@ public sealed class HabitatMode
     public async Task<string?> UseImageAsync(string? path)
     {
         ChosenImage = path;
+        // Choisir (ou importer) une image de décor = basculer en mode « décor image ». Revenir au fond d'écran
+        // laisse le mode courant décider. Évite l'incohérence « capture d'écran » affichée alors qu'une image est choisie.
+        if (!string.IsNullOrEmpty(path))
+            DesktopMode = false;
         if (!IsActive)
             return null;
         Disable();
-        return await EnableAsync();
+        return DesktopMode ? await EnableDesktopAsync() : await EnableAsync();
     }
 
     private static (HabitatMap, BitmapSource) LoadFor(string path)

@@ -128,7 +128,7 @@ public class TrayMenu : Window
         grid.ColumnDefinitions.Add(new ColumnDefinition());
         grid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
         var icon = new TextBlock { Text = IconFor(mi.Name ?? ""), FontFamily = (FontFamily)FindResource("VMaxIconFont"), FontSize = 15, VerticalAlignment = VerticalAlignment.Center, HorizontalAlignment = HorizontalAlignment.Center };
-        var text = new TextBlock { Text = mi.Text.Replace("&", ""), VerticalAlignment = VerticalAlignment.Center, Margin = new Thickness(4, 0, 12, 0) };
+        var text = new TextBlock { Text = (mi.Text ?? "").Replace("&", ""), VerticalAlignment = VerticalAlignment.Center, Margin = new Thickness(4, 0, 12, 0) };
         grid.Children.Add(icon);
         Grid.SetColumn(text, 1);
         grid.Children.Add(text);

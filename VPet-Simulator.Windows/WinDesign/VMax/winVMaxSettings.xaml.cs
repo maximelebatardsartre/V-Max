@@ -411,7 +411,8 @@ public partial class winVMaxSettings : Window
     {
         categories.Add(new("general", T("Général"), "", T("Démarrage, comportement de la fenêtre et langue.")));
         categories.Add(new("apparence", T("Apparence"), "", T("Thème, taille et rendu du compagnon.")));
-        categories.Add(new("compagnon", T("Compagnon"), "", T("Identité, déplacements et comportement de ton compagnon.")));
+        categories.Add(new("compagnon", T("Compagnon"), "", T("Identité, déplacements et mode autonome de ton compagnon.")));
+        categories.Add(new("jeu", T("Jeu & simulation"), "", T("Besoins, économie, bac à sable et interactions.")));
         categories.Add(new("routines", T("Routines de vie"), "", T("Le rythme de vie de ton compagnon, avec des horaires qui varient comme les tiens.")));
         categories.Add(new("voix", T("Voix"), "", T("Parler à ton compagnon et l'entendre répondre.")));
         categories.Add(new("ia", T("Intelligence artificielle"), "", T("Discussion et agent IA.")));
@@ -598,8 +599,11 @@ public partial class winVMaxSettings : Window
                         mw.GameSavesData.SetDateTime("HostBDay", d);
                 }, "JJ/MM/AAAA", 140));
 
-        Add("compagnon", "Déplacements", "Se déplacer librement", "Le compagnon se promène, grimpe et explore ton bureau.",
+        Add("compagnon", "Déplacements", "Se déplacer librement", "En mode classique (hors mode autonome) : le compagnon se promène, grimpe et explore ton bureau.",
             () => Toggle(() => set.AllowMove, v => set.SetAllowMove(v)));
+        Add("compagnon", "Déplacements", "Zone de déplacement",
+            "Jusqu'où Maxine peut aller en mode classique. « Suivre l'écran » s'adapte là où tu la déposes ; « Tous les écrans » la laisse circuler partout sans collision ; sinon fixe-la sur l'écran principal ou une zone. (Le mode autonome, lui, gère ses déplacements tout seul.)",
+            MoveAreaEditor, fullWidth: true);
         var smartIntervals = new[] { 30, 60, 120, 300, 600, 1200, 1800, 2400, 3000, 3600 };
         Add("compagnon", "Déplacements", "Déplacement intelligent", "Ne bouge que pendant un moment après ta dernière interaction.",
             () => Toggle(() => set.SmartMove, v => set.SetSmartMove(v)), advancedOnly: true);
@@ -607,67 +611,66 @@ public partial class winVMaxSettings : Window
             () => Combo(smartIntervals.Select(s => s < 60 ? $"{s} s" : $"{s / 60} min").ToList(),
                 () => Math.Max(0, Array.IndexOf(smartIntervals, set.SmartMoveInterval)),
                 i => set.SetSmartMoveInterval(smartIntervals[i]), width: 140), advancedOnly: true);
-        Add("compagnon", "Déplacements", "Où Maxine peut aller",
-            "Choisis sa liberté : « Tous les écrans » → elle se balade partout et passe d'un écran à l'autre sans collision (tu peux aussi la glisser à la main où tu veux). Ou limite-la à un seul écran, ou à une zone. À toi de voir.",
-            MoveAreaEditor, fullWidth: true);
-        Add("compagnon", "Déplacements", "Changer d'écran automatiquement", "Adapte la zone de déplacement à l'écran où tu déposes le compagnon.",
-            () => Toggle(() => set.AutoChangeWindow, v => set.AutoChangeWindow = v), advancedOnly: true);
 
-        Add("compagnon", "Habitat (mode autonome)", "Mode autonome",
-            "Maxine vit sur ton bureau et se promène sur les sols/zones que tu traces. En l'activant la première fois, l'éditeur s'ouvre pour tracer ta carte.",
+        // ----- Zone autonome : « où » Maxine vit et « sur quoi » elle marche. Le détail des routines est un onglet à part.
+        Add("compagnon", "Zone autonome", "Mode autonome",
+            "Maxine prend vie toute seule : elle se promène sur les sols que tu traces et suit ses routines. En l'activant la première fois, l'éditeur s'ouvre pour délimiter sa zone sur l'écran où elle se trouve.",
             () => Toggle(() => mw.Habitat?.IsActive == true, v =>
             {
                 if (mw.Habitat == null) return;
                 if (v != mw.Habitat.IsActive) _ = mw.ToggleHabitat();
             }));
-        Add("compagnon", "Habitat (mode autonome)", "Vivre directement sur le bureau (transparent)",
-            "Maxine vit sur ton VRAI bureau, en transparence temps réel : tu vois ton bureau et tes fenêtres, et tu traces sols/zones directement dessus (touche H pour masquer les fenêtres le temps du tracé). Désactive pour l'ancien mode « décor image ».",
+        Add("compagnon", "Zone autonome", "Vivre sur ton bureau (capture de l'écran)",
+            "Au lancement, V-Max fige une capture de l'écran où se trouve Maxine et s'en sert de décor : tu traces ses sols et ses zones directement sur ce que tu vois (touche H pour masquer les fenêtres avant de figer). Désactive pour utiliser une image de décor à la place.",
             () => Toggle(() => mw.Habitat?.DesktopMode != false, v => { if (mw.Habitat != null) mw.Habitat.DesktopMode = v; }));
         var habitatPositions = new[] { ("front", "Devant les fenêtres"), ("behind", "Derrière les fenêtres") };
-        Add("compagnon", "Habitat (mode autonome)", "Position de Maxine",
-            "Sur le bureau : toujours au-dessus de tes fenêtres, ou derrière (comme un fond d'écran vivant).",
+        Add("compagnon", "Zone autonome", "Premier plan",
+            "Maxine reste au-dessus de tes fenêtres, ou derrière (comme un décor vivant). S'applique aussi au décor image.",
             () => Combo(habitatPositions.Select(p => T(p.Item2)).ToList(),
                 () => Math.Max(0, Array.FindIndex(habitatPositions, p => p.Item1 == (mw.Habitat?.Position ?? "front"))),
-                i => { if (mw.Habitat != null) mw.Habitat.Position = habitatPositions[i].Item1; }, width: 220));
-        Add("compagnon", "Habitat (mode autonome)", "Décor",
-            "Une image avec des espaces dégagés (une maison en coupe, par exemple). Chaque image garde sa propre carte.",
-            HabitatImagePicker, fullWidth: true);
-        Add("compagnon", "Habitat (mode autonome)", "Écrans détectés",
-            "V-Max reconnaît automatiquement tes écrans (position, résolution, échelle). Rien à régler : tout s'adapte à ta configuration.",
-            ScreenPanel, fullWidth: true);
-        Add("compagnon", "Habitat (mode autonome)", "Sur tous les écrans",
-            "Sur le bureau, le décor et les déplacements de Maxine s'étendent sur TOUS tes écrans (comme le fond d'écran « Étendu » de Windows) : elle se balade et passe d'un écran à l'autre. Détecté automatiquement — sans effet si tu n'as qu'un écran.",
-            () => Toggle(() => mw.Habitat?.SpanScreens != false, v => { if (mw.Habitat != null) mw.Habitat.SpanScreens = v; }));
-        Add("compagnon", "Habitat (mode autonome)", "Modifier la carte", "Trace les sols sur lesquels le compagnon marche et règle sa taille dans ce décor.",
+                i =>
+                {
+                    if (mw.Habitat == null) return;
+                    mw.Habitat.Position = habitatPositions[i].Item1;
+                    // Fusionné avec l'ancien toggle « toujours au premier plan » : un seul réglage pilote les deux modes.
+                    mw.Habitat.AlwaysOnTop = habitatPositions[i].Item1 == "front";
+                }, width: 220));
+        Add("compagnon", "Zone autonome", "Modifier la carte", "Trace les sols sur lesquels Maxine marche et règle sa taille dans sa zone.",
             () => ActionButton(T("Ouvrir l'éditeur"), async () =>
             {
                 if (mw.Habitat == null) return;
                 if (!mw.Habitat.IsActive)
                 {
-                    var err = await mw.Habitat.EnableAsync();
+                    var err = mw.Habitat.DesktopMode ? await mw.Habitat.EnableDesktopAsync() : await mw.Habitat.EnableAsync();
                     if (err != null) { Pulse(T(err)); return; }
                 }
                 mw.Habitat.Window?.StartEditing();
                 mw.Habitat.Window?.Activate();
             }));
-        Add("compagnon", "Habitat (mode autonome)", "Partager",
+        Add("compagnon", "Zone autonome", "Décor",
+            "Pour le mode « décor image » : une image avec des espaces dégagés (une maison en coupe, par exemple). Chaque image garde sa propre carte.",
+            HabitatImagePicker, fullWidth: true);
+        Add("compagnon", "Zone autonome", "Partager",
             "Un fichier .vmaxhome réunit l'image du décor et sa carte (sols, échelles, pièces, emplacements). Ne partage que des images dont tu as les droits.",
             HabitatSharing, fullWidth: true);
-        Add("compagnon", "Habitat (mode autonome)", "Sortir sur le bureau",
-            "Quand tu affiches le bureau (Win+D), le compagnon quitte l'habitat et vit sur ton fond d'écran, si une carte a été tracée pour cette image.",
-            () => Toggle(() => mw.Habitat?.DesktopEnabled != false, v => { if (mw.Habitat != null) mw.Habitat.DesktopEnabled = v; }));
+        Add("compagnon", "Zone autonome", "Écrans détectés",
+            "V-Max reconnaît automatiquement tes écrans (position, résolution, échelle). Rien à régler : tout s'adapte à ta configuration.",
+            ScreenPanel, fullWidth: true);
+
+        // ----- Sortir sur le bureau : comportements avancés quand Maxine quitte sa zone pour le fond d'écran.
+        Add("compagnon", "Sortir sur le bureau", "Sortir quand j'affiche le bureau",
+            "Quand tu affiches le bureau (Win+D), Maxine quitte sa zone et vit sur ton fond d'écran, si une carte a été tracée pour cette image.",
+            () => Toggle(() => mw.Habitat?.DesktopEnabled != false, v => { if (mw.Habitat != null) mw.Habitat.DesktopEnabled = v; }), advancedOnly: true);
         var idleChoices = new[] { 0, 2, 5, 10, 20, 30 };
-        Add("compagnon", "Habitat (mode autonome)", "Au repos, sortir sur le bureau après",
-            "Quand le PC est inactif, le compagnon passe sur le fond d'écran, au-dessus des fenêtres ; il revient dès que tu touches la souris ou le clavier.",
+        Add("compagnon", "Sortir sur le bureau", "Au repos, sortir après",
+            "Quand le PC est inactif, Maxine passe sur le fond d'écran, au-dessus des fenêtres ; elle revient dès que tu touches la souris ou le clavier.",
             () => Combo(idleChoices.Select(m => m == 0 ? T("Jamais") : $"{m} min").ToList(),
                 () => Math.Max(0, Array.IndexOf(idleChoices, mw.Habitat?.IdleMinutes ?? 5)),
                 i => { if (mw.Habitat != null) mw.Habitat.IdleMinutes = idleChoices[i]; }, width: 140), advancedOnly: true);
-        Add("compagnon", "Habitat (mode autonome)", "Vivre dans le fond d'écran (expérimental)",
-            "Le compagnon vit en permanence sur ton fond d'écran, derrière les fenêtres, comme un fond d'écran animé (carte du fond d'écran requise). "
-            + "Il n'est alors plus cliquable : parle-lui avec Ctrl+Alt+Espace.",
+        Add("compagnon", "Sortir sur le bureau", "Vivre dans le fond d'écran (expérimental)",
+            "Maxine vit en permanence sur ton fond d'écran, derrière les fenêtres, comme un fond d'écran animé (carte du fond d'écran requise). "
+            + "Elle n'est alors plus cliquable : parle-lui avec Ctrl+Alt+Espace.",
             () => Toggle(() => mw.Habitat?.WallpaperLayerEnabled == true, v => { if (mw.Habitat != null) mw.Habitat.WallpaperLayerEnabled = v; }), advancedOnly: true);
-        Add("compagnon", "Habitat (mode autonome)", "Habitat toujours au premier plan", "Garde la fenêtre habitat au-dessus des autres fenêtres.",
-            () => Toggle(() => mw.Habitat?.AlwaysOnTop == true, v => { if (mw.Habitat != null) mw.Habitat.AlwaysOnTop = v; }), advancedOnly: true);
 
         // ---------------- Voix
         Add("voix", "Micro", "Activer le micro",
@@ -729,17 +732,17 @@ public partial class winVMaxSettings : Window
         Add("routines", "Routines de vie", "Mes routines", "Action, lieu, plage de départ, jours et durée. Les modifications sont enregistrées aussitôt.",
             () => new RoutineEditor(mw, this).Build(), fullWidth: true);
 
-        Add("compagnon", "Bac à sable", "Argent illimité",
+        Add("jeu", "Bac à sable", "Argent illimité",
             "Le porte-monnaie ne se vide jamais. Ta vraie somme est mise de côté et rendue quand tu désactives l'option.",
             () => Toggle(() => mw.Sandbox?.UnlimitedMoney == true, v => { if (mw.Sandbox != null) mw.Sandbox.UnlimitedMoney = v; }));
-        Add("compagnon", "Bac à sable", "Jauges qui ne baissent jamais",
+        Add("jeu", "Bac à sable", "Jauges qui ne baissent jamais",
             "Faim, soif, humeur, énergie et santé peuvent remonter, mais ne descendent plus avec le temps.",
             () => Toggle(() => mw.Sandbox?.FrozenGauges == true, v => { if (mw.Sandbox != null) mw.Sandbox.FrozenGauges = v; }));
-        Add("compagnon", "Bac à sable", "Repas et cadeaux gratuits",
+        Add("jeu", "Bac à sable", "Repas et cadeaux gratuits",
             "Les objets gardent leurs effets mais ne coûtent rien.",
             () => Toggle(() => mw.Sandbox?.FreeItems == true, v => { if (mw.Sandbox != null) mw.Sandbox.FreeItems = v; }));
 
-        Add("compagnon", "Économie", "Achat automatique",
+        Add("jeu", "Économie", "Achat automatique",
             "Quand il a faim ou soif et qu'il te reste au moins 100 $, il achète lui-même de quoi manger ou boire.",
             () => Toggle(() => set.AutoBuy, v =>
             {
@@ -751,10 +754,10 @@ public partial class winVMaxSettings : Window
                 }
                 set.AutoBuy = v;
             }));
-        Add("compagnon", "Économie", "Cadeaux automatiques", "Avec l'achat automatique, il s'offre aussi de temps en temps un cadeau.",
+        Add("jeu", "Économie", "Cadeaux automatiques", "Avec l'achat automatique, il s'offre aussi de temps en temps un cadeau.",
             () => Toggle(() => set.AutoGift, v => set.AutoGift = v), advancedOnly: true);
 
-        Add("compagnon", "Simulation", "Besoins du compagnon", "Faim, soif, humeur et endurance évoluent avec le temps. Désactive-les pour un simple fond d'écran animé, sans contrainte.",
+        Add("jeu", "Simulation", "Besoins du compagnon", "Faim, soif, humeur et endurance évoluent avec le temps. Désactive-les pour un simple fond d'écran animé, sans contrainte.",
             () => Toggle(() => set.EnableFunction, v =>
             {
                 set.EnableFunction = v;
@@ -765,24 +768,24 @@ public partial class winVMaxSettings : Window
                 }
             }));
         var moods = new[] { T("Joyeux"), T("Normal"), T("Fatigué"), T("Malade") };
-        Add("compagnon", "Simulation", "Humeur sans simulation", "Humeur affichée quand les besoins sont désactivés.",
+        Add("jeu", "Simulation", "Humeur sans simulation", "Humeur affichée quand les besoins sont désactivés.",
             () => Combo(moods, () => (int)set.CalFunState, i =>
             {
                 set.CalFunState = (IGameSave.ModeType)i;
                 mw.Main.NoFunctionMOD = (IGameSave.ModeType)i;
                 mw.Main.EventTimer_Elapsed();
             }, width: 160), advancedOnly: true);
-        Add("compagnon", "Simulation", "Intervalle de calcul", "Fréquence de mise à jour des besoins et des comportements.",
+        Add("jeu", "Simulation", "Intervalle de calcul", "Fréquence de mise à jour des besoins et des comportements.",
             () => SliderRow(5, 60, 0.5, () => set.LogicInterval, v => set.SetLogicInterval(v), v => $"{v:0.#} s"), advancedOnly: true);
-        Add("compagnon", "Simulation", "Fréquence des interactions spontanées", "Plus la valeur est basse, plus le compagnon agit de lui-même.",
+        Add("jeu", "Simulation", "Fréquence des interactions spontanées", "Plus la valeur est basse, plus le compagnon agit de lui-même.",
             () => SliderRow(30, 1000, 10, () => set.InteractionCycle, v => set.InteractionCycle = (int)v, v => $"{v:0}"), advancedOnly: true);
-        Add("compagnon", "Interactions", "Durée de l'appui long", "Temps d'appui avant de pouvoir soulever le compagnon.",
+        Add("jeu", "Interactions", "Durée de l'appui long", "Temps d'appui avant de pouvoir soulever le compagnon.",
             () => SliderRow(0.05, 5, 0.05, () => set.PressLength / 1000.0, v => set.PressLength = (int)(v * 1000), v => $"{v:0.00} s"), advancedOnly: true);
-        Add("compagnon", "Interactions", "Sensibilité à la musique", "Volume à partir duquel le compagnon se met à danser.",
+        Add("jeu", "Interactions", "Sensibilité à la musique", "Volume à partir duquel le compagnon se met à danser.",
             () => SliderRow(0.02, 1, 0.01, () => set.MusicCatch, v => set.MusicCatch = v, v => $"{v * 100:0} %"), advancedOnly: true);
-        Add("compagnon", "Interactions", "Volume pour danser à fond", "Au-delà de ce volume, la danse devient plus énergique.",
+        Add("jeu", "Interactions", "Volume pour danser à fond", "Au-delà de ce volume, la danse devient plus énergique.",
             () => SliderRow(0.02, 1, 0.01, () => set.MusicMax, v => set.MusicMax = v, v => $"{v * 100:0} %"), advancedOnly: true);
-        Add("compagnon", "Interactions", "Volume actuel", "Ce que le compagnon entend en ce moment : règle les deux seuils ci-dessus d'après cette valeur.",
+        Add("jeu", "Interactions", "Volume actuel", "Ce que le compagnon entend en ce moment : règle les deux seuils ci-dessus d'après cette valeur.",
             MusicMeter, advancedOnly: true);
 
         // ---------------- IA
@@ -1051,34 +1054,74 @@ public partial class winVMaxSettings : Window
 
     private FrameworkElement MoveAreaEditor()
     {
+        // Un SEUL réglage « Zone de déplacement » (au lieu des anciens boutons muets + un toggle « Changer d'écran »
+        // caché qui écrasait le choix). « Suivre l'écran » = AutoChangeWindow ON ; tout autre choix = OFF + zone fixée,
+        // pour qu'un seul des deux puisse être vrai.
         var root = new StackPanel();
-        var status = new TextBlock { Foreground = (Brush)FindResource("VMaxSubtleText"), FontSize = 12, Margin = new Thickness(0, 6, 0, 0) };
-        void Refresh()
+        var status = new TextBlock { Foreground = (Brush)FindResource("VMaxSubtleText"), FontSize = 12, TextWrapping = TextWrapping.Wrap, Margin = new Thickness(0, 6, 0, 0) };
+        var choices = new[]
         {
-            if (mw.Core.Controller is not MWController c)
-                status.Text = T("Le mode habitat gère les déplacements.");
-            else if (mw.Set.AutoChangeWindow)
-                status.Text = T("Écran choisi automatiquement (là où tu poses le compagnon).");
-            else if (c.IsAllScreens)
-                status.Text = T("Libre sur tous les écrans — Maxine passe d'un écran à l'autre sans collision.");
-            else if (c.IsPrimaryScreen)
-                status.Text = T("Écran principal.");
-            else
-                status.Text = T("Écran / zone choisi : ") + $"{c.ScreenBorder.X}, {c.ScreenBorder.Y} — {c.ScreenBorder.Width} × {c.ScreenBorder.Height}";
+            ("auto",    T("Suivre l'écran où je la pose")),
+            ("primary", T("Écran principal")),
+            ("all",     T("Tous les écrans (libre, sans collision)")),
+            ("custom",  T("Zone personnalisée…")),
+        };
+        int CurrentIndex()
+        {
+            if (mw.Set.AutoChangeWindow) return 0;
+            if (mw.Core.Controller is MWController c)
+                return c.IsAllScreens ? 2 : c.IsPrimaryScreen ? 1 : 3;
+            // Mode autonome actif (le contrôleur n'est plus un MWController) : on lit les réglages persistés.
+            if (mw.Set.GameScreenIndex == -1) return 2;
+            return mw.Set.MoveAreaDefault ? 1 : 3;
         }
-        var line = new StackPanel { Orientation = Orientation.Horizontal };
-        var all = (Button)ActionButton(T("Tous les écrans (libre)"), () => { (mw.Core.Controller as MWController)?.SetAllScreens(); Refresh(); });
-        var primary = (Button)ActionButton(T("Écran principal"), () => { (mw.Core.Controller as MWController)?.ResetScreenBorder(); Refresh(); });
-        var current = (Button)ActionButton(T("Cet écran"), () => { (mw.Core.Controller as MWController)?.SetNowScreenActivate(); Refresh(); });
-        var custom = (Button)ActionButton(T("Zone personnalisée…"), () => new HUD.MoveAreaWindow(mw, Refresh).Show());
-        primary.Margin = current.Margin = custom.Margin = new Thickness(8, 0, 0, 0);
-        line.Children.Add(all);
-        line.Children.Add(primary);
-        line.Children.Add(current);
-        line.Children.Add(custom);
-        root.Children.Add(line);
+        bool habitat = mw.Habitat?.IsActive == true;
+        var combo = new ComboBox { Width = 300, IsEnabled = !habitat };
+        if (TryFindResource("VMaxComboBox") is Style cs) combo.Style = cs;
+        foreach (var ch in choices) combo.Items.Add(ch.Item2);
+        combo.SelectedIndex = Math.Max(0, CurrentIndex());
+        void RefreshStatus()
+        {
+            if (habitat)
+                status.Text = T("Le mode autonome gère les déplacements. Désactive-le ci-dessous pour régler la zone en mode classique.");
+            else
+                status.Text = combo.SelectedIndex switch
+                {
+                    0 => T("La zone s'adapte à l'écran où tu déposes le compagnon."),
+                    1 => T("Maxine reste sur l'écran principal."),
+                    2 => T("Libre sur tous les écrans — elle passe de l'un à l'autre sans collision (glisse-la où tu veux)."),
+                    _ => mw.Core.Controller is MWController c2 && !c2.IsPrimaryScreen && !c2.IsAllScreens
+                            ? T("Zone choisie : ") + $"{c2.ScreenBorder.X}, {c2.ScreenBorder.Y} — {c2.ScreenBorder.Width} × {c2.ScreenBorder.Height}"
+                            : T("Zone personnalisée."),
+                };
+        }
+        combo.SelectionChanged += (_, _) =>
+        {
+            if (combo.SelectedIndex < 0) return;
+            var ctrl = mw.Core.Controller as MWController;
+            switch (choices[combo.SelectedIndex].Item1)
+            {
+                case "auto":
+                    mw.Set.AutoChangeWindow = true;
+                    break;
+                case "primary":
+                    mw.Set.AutoChangeWindow = false;
+                    ctrl?.ResetScreenBorder();
+                    break;
+                case "all":
+                    mw.Set.AutoChangeWindow = false;
+                    ctrl?.SetAllScreens();
+                    break;
+                case "custom":
+                    mw.Set.AutoChangeWindow = false;
+                    new HUD.MoveAreaWindow(mw, RefreshStatus).Show();
+                    break;
+            }
+            RefreshStatus();
+        };
+        root.Children.Add(combo);
         root.Children.Add(status);
-        Refresh();
+        RefreshStatus();
         return root;
     }
 
@@ -1112,8 +1155,8 @@ public partial class winVMaxSettings : Window
         foreach (var api in mw.TalkAPI.Where(a => a.APIName != Agent.VMaxAgentPlugin.TalkName))
             options.Add(("DIY", api.APIName, T("Plugin : ") + api.APIName));
         options.Add(("OFF", null, T("Désactivée")));
-        string curType = mw.Set["CGPT"][(gstr)"type"];
-        string curApi = mw.Set["CGPT"][(gstr)"DIY"];
+        string? curType = mw.Set["CGPT"][(gstr)"type"];
+        string? curApi = mw.Set["CGPT"][(gstr)"DIY"];
         int current = options.FindIndex(o => o.type == curType && (o.type != "DIY" || o.api == curApi));
         var settingsButton = (Button)ActionButton(T("Réglages du plugin"), () => mw.TalkBoxCurr?.Setting());
         settingsButton.Margin = new Thickness(8, 0, 0, 0);
@@ -1246,21 +1289,6 @@ public partial class winVMaxSettings : Window
         }
         mw.HashCheck = true;
         Pulse(T("C'est reparti de zéro"));
-    }
-
-    private FrameworkElement VoicePicker()
-    {
-        var line = new StackPanel { Orientation = Orientation.Horizontal };
-        if (mw.Voice == null)
-            return new TextBlock { Text = T("La voix n'est pas disponible."), Foreground = (Brush)FindResource("VMaxSubtleText") };
-        var voices = mw.Voice.Voices();
-        var combo = (ComboBox)Combo(voices, () => Math.Max(0, voices.FindIndex(v => v.Contains(mw.Voice.VoiceName, StringComparison.OrdinalIgnoreCase))),
-            i => mw.Voice.VoiceName = voices[i], width: 320);
-        line.Children.Add(combo);
-        var test = (Button)ActionButton(T("Écouter un exemple"), () => mw.Voice.Say("Bonjour ! Je suis " + (mw.Core.Save?.Name ?? "Max") + ". Maintiens la touche et parle-moi quand tu veux."));
-        test.Margin = new Thickness(8, 0, 0, 0);
-        line.Children.Add(test);
-        return line;
     }
 
     private FrameworkElement HabitatSharing()
