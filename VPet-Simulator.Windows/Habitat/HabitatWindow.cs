@@ -116,18 +116,7 @@ public sealed class HabitatWindow : Window
         MouseLeave += (_, _) => ShowChrome(editor != null);
         SizeChanged += (_, _) => { UpdateView(); Moved(); };
         LocationChanged += (_, _) => Moved();
-        SourceInitialized += (_, _) =>
-        {
-            RoundCorners();
-            // mode bureau : on cale la fenêtre EXACTEMENT sur l'écran du compagnon en pixels PHYSIQUES (fiable même en
-            // DPI mixte sur un écran non principal, là où les coordonnées logiques WPF sont ambiguës).
-            if (mode.DesktopDecor)
-            {
-                var b = mode.DesktopScreenBounds;
-                var hwnd = new WindowInteropHelper(this).Handle;
-                SetWindowPos(hwnd, IntPtr.Zero, b.X, b.Y, b.Width, b.Height, SWP_NOZORDER | SWP_NOACTIVATE);
-            }
-        };
+        SourceInitialized += (_, _) => RoundCorners();
         // WPF ferme les fenêtres possédées avec leur propriétaire : on détache le compagnon AVANT la fermeture
         Closing += (_, _) =>
         {
@@ -300,16 +289,30 @@ public sealed class HabitatWindow : Window
     {
         if (mode.DesktopDecor)
         {
-            // mode bureau : la fenêtre couvre L'ÉCRAN DU COMPAGNON. Position approximative ici (en coords logiques de
-            // l'écran principal) ; SetWindowPos à SourceInitialized la cale ensuite au pixel sur le bon écran (DPI mixte).
-            var b = mode.DesktopScreenBounds;
-            var m = PresentationSource.FromVisual(mw)?.CompositionTarget?.TransformFromDevice ?? System.Windows.Media.Matrix.Identity;
-            var tl = m.Transform(new Point(b.Left, b.Top));
-            var br = m.Transform(new Point(b.Right, b.Bottom));
-            Left = tl.X;
-            Top = tl.Y;
-            Width = Math.Max(MinWidth, br.X - tl.X);
-            Height = Math.Max(MinHeight, br.Y - tl.Y);
+            // mode bureau : la fenêtre couvre L'ÉCRAN DU COMPAGNON, dans le MÊME repère logique (DIP) que lui.
+            // On s'ancre sur la position connue du compagnon et on n'utilise que des écarts de pixels RELATIFS sur
+            // le même écran → exact quel que soit le DPI (y compris un écran secondaire à l'échelle différente).
+            // Plus de SetWindowPos en pixels physiques (qui désynchronisait la mise en page WPF → éditeur hors écran),
+            // ni de maximisation (dont Left/Top renvoient la position restaurée, pas l'origine de l'écran).
+            try
+            {
+                var petHwnd = new WindowInteropHelper(mw).Handle;
+                var petDevice = mw.PointToScreen(new Point(0, 0));          // origine du compagnon, pixels physiques
+                var dpi = VisualTreeHelper.GetDpi(mw);                      // échelle de l'écran du compagnon
+                var sb = System.Windows.Forms.Screen.FromHandle(petHwnd).Bounds; // bornes physiques de cet écran
+                Left = mw.Left - (petDevice.X - sb.X) / dpi.DpiScaleX;
+                Top = mw.Top - (petDevice.Y - sb.Y) / dpi.DpiScaleY;
+                Width = sb.Width / dpi.DpiScaleX;
+                Height = sb.Height / dpi.DpiScaleY;
+            }
+            catch
+            {
+                // repli : écran principal en coordonnées logiques
+                Left = 0;
+                Top = 0;
+                Width = SystemParameters.PrimaryScreenWidth;
+                Height = SystemParameters.PrimaryScreenHeight;
+            }
             return;
         }
         var cfg = mw.Set["vmax_habitat"];
@@ -365,7 +368,4 @@ public sealed class HabitatWindow : Window
     }
 
     [DllImport("dwmapi.dll")] private static extern int DwmSetWindowAttribute(IntPtr hwnd, int attr, ref int value, int size);
-
-    private const uint SWP_NOZORDER = 0x0004, SWP_NOACTIVATE = 0x0010;
-    [DllImport("user32.dll")] private static extern bool SetWindowPos(IntPtr hWnd, IntPtr hWndInsertAfter, int X, int Y, int cx, int cy, uint uFlags);
 }

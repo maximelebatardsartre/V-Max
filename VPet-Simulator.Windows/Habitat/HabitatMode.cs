@@ -2,6 +2,8 @@ using LinePutScript;
 using System;
 using System.ComponentModel;
 using System.IO;
+using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media.Imaging;
@@ -219,10 +221,10 @@ public sealed class HabitatMode
     /// <summary>Écran (pixels physiques) où l'habitat est défini : celui du compagnon au moment de l'activation.</summary>
     public System.Drawing.Rectangle DesktopScreenBounds { get; private set; }
 
-    public Task<string?> EnableDesktopAsync(bool persist = true)
+    public async Task<string?> EnableDesktopAsync(bool persist = true)
     {
         if (IsActive)
-            return Task.FromResult<string?>(null);
+            return null;
         this.persist = persist;
         // L'habitat se définit sur L'ÉCRAN OÙ SE TROUVE le compagnon (là où tu l'as posé), pas sur tout le bureau.
         var screen = System.Windows.Forms.Screen.FromHandle(new System.Windows.Interop.WindowInteropHelper(mw).Handle);
@@ -231,13 +233,57 @@ public sealed class HabitatMode
         string key = "screen-" + screen.DeviceName.Replace("\\", "").Replace(".", "") + "-" + b.Width + "x" + b.Height;
         var map = HabitatMap.TryLoad(key) ?? new HabitatMap();
         map.Image = new HabitatImage { Sha256 = key, Width = b.Width, Height = b.Height, Name = "Écran" };
-        // on fige CET écran (ce que tu vois, fenêtres comprises) comme décor opaque : tracé fiable, par-dessus ton vrai écran.
-        var shot = CaptureScreen(b);
+        // Nouvelle carte d'écran : donne une taille de compagnon par défaut sensée (sinon PetHeight=0 → compagnon minuscule).
+        if (map.PetHeight < 1)
+            map.PetHeight = HabitatMap.DefaultPetHeight(b.Height);
+        // On fige CET écran comme décor opaque. On masque d'abord le compagnon (et les fenêtres V-Max) pour qu'il ne
+        // soit pas « photographié » dans le décor — sinon un fantôme immobile reste collé à sa position de départ.
+        var shot = await CaptureWithoutPet(b);
         if (shot == null)
             // Sans capture on retomberait sur un décor vide/transparent inutilisable : mieux vaut un message clair.
-            return Task.FromResult<string?>("Impossible de capturer l'écran pour la zone autonome. Réessaie, ou utilise un décor image.");
+            return "Impossible de capturer l'écran pour la zone autonome. Réessaie, ou utilise un décor image.";
         Activate(map, shot, null, isDesktop: true);
-        return Task.FromResult<string?>(null);
+        return null;
+    }
+
+    /// <summary>
+    /// Capture l'écran en masquant d'abord le compagnon et les fenêtres V-Max visibles sur cet écran, puis les restaure.
+    /// Évite d'avoir le compagnon « photographié » dans le décor figé.
+    /// </summary>
+    private async Task<BitmapSource?> CaptureWithoutPet(System.Drawing.Rectangle b)
+    {
+        var hidden = new System.Collections.Generic.List<Window>();
+        foreach (Window w in Application.Current.Windows)
+        {
+            if (!w.IsVisible || w.Visibility != Visibility.Visible)
+                continue;
+            try
+            {
+                var h = new System.Windows.Interop.WindowInteropHelper(w).Handle;
+                if (h == IntPtr.Zero)
+                    continue;
+                // ne masque que ce qui est SUR l'écran capturé (inutile de faire clignoter les fenêtres des autres écrans)
+                if (System.Windows.Forms.Screen.FromHandle(h).Bounds.IntersectsWith(b))
+                {
+                    hidden.Add(w);
+                    w.Visibility = Visibility.Hidden;
+                }
+            }
+            catch { }
+        }
+        try
+        {
+            // laisse le bureau se redessiner là où étaient le compagnon et les fenêtres avant de capturer
+            await Task.Delay(90);
+            return CaptureScreen(b);
+        }
+        finally
+        {
+            foreach (var w in hidden)
+            {
+                try { w.Visibility = Visibility.Visible; } catch { }
+            }
+        }
     }
 
     /// <summary>Capture un écran (pixels physiques) en image figée. Null si échec.</summary>
@@ -548,6 +594,97 @@ public sealed class HabitatMode
         mw.IsHitTestVisible = !editing;
         mw.Main.SetMoveMode(!editing, false, mw.Set.SmartMoveInterval * 1000);
     }
+
+    #region Test de parcours (prévisualisation avant d'enregistrer)
+    private CancellationTokenSource? testCts;
+    private HabitatMap? testBaseMap;
+
+    /// <summary>Un test de parcours est en cours (le compagnon se promène sur la carte en cours d'édition)</summary>
+    public bool IsTesting => testCts != null;
+
+    /// <summary>
+    /// Prévisualise la carte en cours d'édition : le compagnon devient visible et parcourt en boucle tous les sols
+    /// tracés (en montant/descendant par les échelles et les chutes), SANS rien enregistrer. Permet de vérifier que
+    /// Maxine atteint bien chaque étage avant de valider.
+    /// </summary>
+    internal async Task StartTestAsync(HabitatMap work)
+    {
+        if (Window == null)
+            return;
+        StopTest();
+        testBaseMap = Map;
+        Map = WindowMap = work;
+        // le compagnon redevient visible (en édition il est masqué, opacité 0). On COUPE le déplacement natif
+        // autonome : c'est le pilote du test qui conduit entièrement Maxine, sinon le mouvement aléatoire natif
+        // la tire dans l'autre sens en plein trajet (impression qu'elle « reste coincée » près d'une échelle).
+        mw.Opacity = mw.Set.OpacityMain ? mw.Set.Opacity : 1;
+        mw.IsHitTestVisible = true;
+        mw.Main.SetMoveMode(false, false, mw.Set.SmartMoveInterval * 1000);
+        Reproject();
+        PlacePet();
+        var cts = testCts = new CancellationTokenSource();
+        var ct = cts.Token;
+        var pilot = new HabitatPilot(mw, this);
+        var nav = new HabitatNavigator(work, pilot.Capabilities());
+        // Parcours DÉTERMINISTE : chaque sol est visité d'un bout à l'autre (Maxine traverse toute sa largeur, donc
+        // passe DEVANT les échelles), et on alterne les étages pour la voir monter/descendre. Bien plus parlant qu'un
+        // tirage au hasard qui pouvait donner l'impression qu'elle « reste coincée » près d'une échelle.
+        var targets = new System.Collections.Generic.List<(string floor, double x)>();
+        foreach (var f in work.Floors.Where(f => f.Length >= Math.Max(1, work.PetHeight * 0.5)).OrderBy(f => f.Y))
+        {
+            double m = Math.Min(f.Length * 0.15, Math.Max(1, work.PetHeight * 0.5));
+            targets.Add((f.Id, f.Clamp(f.Left + m)));
+            targets.Add((f.Id, f.Clamp(f.Right - m)));
+        }
+        try
+        {
+            int i = 0;
+            while (!ct.IsCancellationRequested)
+            {
+                var here = Locate();
+                if (here == null || targets.Count == 0)
+                {
+                    await Task.Delay(500, ct);
+                    continue;
+                }
+                var (tfId, tx) = targets[i++ % targets.Count];
+                var path = nav.FindPath(here.Value.floor.Id, here.Value.x, tfId, tx);
+                if (path != null)
+                    await pilot.RunAsync(path, ct);
+                await Task.Delay(650, ct);
+            }
+        }
+        catch (OperationCanceledException) { }
+        catch { }
+        finally
+        {
+            // ne jamais laisser le compagnon figé dans une animation de marche après le test
+            try { mw.Main.DisplayToNomal(); } catch { }
+        }
+    }
+
+    internal void StopTest()
+    {
+        testCts?.Cancel();
+        testCts = null;
+    }
+
+    /// <summary>Fin du test : soit on garde la carte testée (validation), soit on revient à l'état d'édition masqué.</summary>
+    internal void EndTest(bool backToEditing)
+    {
+        StopTest();
+        if (backToEditing)
+        {
+            if (testBaseMap != null)
+            {
+                Map = WindowMap = testBaseMap;
+                Reproject();
+            }
+            SetEditing(true); // le compagnon se re-masque, l'éditeur reprend la main
+        }
+        testBaseMap = null;
+    }
+    #endregion
 
     private void KeepPetBelowTop(object? sender, EventArgs e)
     {

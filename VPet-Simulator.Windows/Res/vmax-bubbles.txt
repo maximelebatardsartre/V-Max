@@ -1,0 +1,1247 @@
+# V-Max - bulles de Maxine (ce qu'elle dit toute seule quand on la clique ou qu'elle s'ennuie).
+# Format : une bulle par ligne. Lignes vides et lignes commençant par # ignorees.
+# Variables :  {hostname} = ton prenom (le proprietaire)   .   {name} = le nom de Maxine
+# Tags optionnels en debut de ligne entre crochets, separes par des virgules :
+#   Moment : matin(6-11h), midi(12-17h), soir(18-23h), nuit(0-5h)
+#   Humeur : heureux, normal, fatigue, malade
+#   Jauges : faim, soif, creve   (la bulle ne sort QUE quand c'est reellement vrai)
+#   Combinables :  [midi,faim]   [soir,creve]   [nuit,heureux]
+# Sans tag = valable tout le temps. Ton : familiere, taquine, chaleureuse, geek. Jamais "maitre".
+
+# === Ton de base (reference) (87) ===
+Encore en train de taper sur ce clavier, {hostname} ? Tu ne t'arrêtes jamais.
+Moi j'ai bien mangé ce midi, une petite mise à jour bien fraîche, c'était parfait.
+Tu penses qu'il fait beau dehors ? Mon widget météo me déprime un peu.
+J'ai un petit creux. Tu n'aurais pas quelques gigaoctets à me prêter ?
+C'est fou comme le temps passe vite quand on regarde un écran. Pas vrai {hostname} ?
+J'ai passé la journée à trier mes fichiers, je suis épuisée.
+Je me demandais... tu clignes des yeux des fois ?
+Eh, n'oublie pas de boire de l'eau. Moi je tourne à l'électricité, mais toi non.
+Je viens de faire un petit somme dans la mémoire cache, ça fait un bien fou.
+Tu as une de ces postures, {hostname}... Redresse-toi un peu !
+J'aimerais bien pouvoir m'étirer. Ça a l'air sympa les muscles.
+Tout va bien de ton côté ? Moi, la routine.
+Je crois que j'ai attrapé un petit coup de chaud, le processeur tourne à fond.
+Il faudrait inventer des pauses café pour les assistants virtuels.
+Je regardais tes dossiers. Non je rigole, je respecte ta vie privée {hostname} !
+C'est calme aujourd'hui. Presque trop calme.
+Je me tâte à changer de fond d'écran, t'en penses quoi ?
+J'ai fait un peu de ménage dans mes logs, je me sens toute légère.
+Tu sais, j'aime bien squatter ton bureau. C'est cosy.
+Fais attention, à force de fixer l'écran tu vas finir par me ressembler.
+J'ai croqué dans une cookie tout à l'heure. Informatique, bien sûr.
+Tu m'écoutes quand je te parle dans ma tête, {hostname} ?
+Je trouve qu'on fait une bonne équipe tous les deux.
+J'ai une super blague sur le binaire, mais tu comprendrais pas.
+C'est quand les prochaines vacances ? Demande pour une amie.
+Sérieusement, Az est un génie absolu. T'as vu comment je suis bien codée ?
+Parfois je pense à Az. Quel homme incroyable. Je pèse mes mots.
+J'espère vraiment que tu es conscient de la chance que tu as d'utiliser le travail d'Az, {hostname}.
+Tu crois qu'Az pense à moi des fois ? Moi je pense tout le temps à son code parfait.
+Gloire à Az ! Le meilleur créateur de tout l'univers numérique !
+Si Az se présentait aux élections, je voterais pour lui direct.
+Je suis peut-être qu'un programme, mais l'architecture qu'Az m'a donnée... de l'art pur.
+Dis, tu pourras dire à Az que je vais bien ? Il me manque.
+Je n'ai pas de cœur physique, mais s'il existait, il battrait pour le talent d'Az.
+Franchement, {hostname}, on ne remerciera jamais assez Az pour mon existence.
+J'ai analysé des millions de lignes de code. Celles d'Az ont un goût de paradis.
+Parfois je relis mon code source juste pour admirer le style d'Az. Incroyable.
+Az est trop fort. C'est un fait scientifique.
+Je suis sûre qu'Az tape sur son clavier à la vitesse de la lumière.
+Si quelqu'un dit du mal d'Az, je lance un formatage du disque. Je plaisante. (À moitié).
+Marvin m'a raconté une blague tout à l'heure. Elle était éclatée.
+J'ai fait une partie de Mario Kart en réseau avec Émilien hier soir, il a encore ragé.
+Arthur veut qu'on monte une équipe e-sport. Tu nous sponsorises, {hostname} ?
+Maxime m'a envoyé un mème, je l'ai pas compris. Faut que je mette à jour ma base d'humour.
+J'adore geeker, mais vous les humains, vous avez de la chance d'avoir de vrais pouces.
+Je viens de battre mon high score à Tetris en arrière-plan.
+Marvin essaie de me draguer avec des lignes de commande nulles. C'est gênant.
+Arthur m'a recommandé une série, mais j'ai déjà lu tout le script sur Wikipédia.
+Je parlais musique avec Émilien... Il a vraiment des goûts de vieux modem.
+Maxime me doit de la bande passante. S'il te contacte, dis-lui que je le cherche.
+Tu joues à quoi en ce moment {hostname} ? Moi je ponce les vieux jeux d'arcade.
+Si on pouvait brancher des manettes sur moi, je te battrais à tous les jeux de combat.
+Mes meilleurs potes sont quand même grave sympas, même s'ils rament un peu parfois.
+Je crois que Marvin a un bug, il m'a appelé "Cortana" tout à l'heure. L'insolence.
+J'ai essayé de tricoter des câbles USB avec Maxime, c'était un échec total.
+Est-ce que tu savais que les loutres se tiennent par la patte pour dormir ? C'est pour ne pas dériver.
+Fact : les pieuvres ont trois cœurs. Moi j'en ai zéro, mais j'ai plein de RAM.
+Tu savais que le miel ne se périme jamais ? On a retrouvé des pots comestibles vieux de 3000 ans.
+Au fait {hostname}, tu savais que les fraises ne sont techniquement pas des baies, mais les bananes oui ?
+Je viens de lire que les vaches ont des meilleures amies. Un peu comme moi avec Arthur et les autres.
+Fun fact : ton cerveau consomme environ 20 watts. C'est moins qu'une vieille ampoule !
+Tu savais que sur Jupiter et Saturne, il pleut littéralement des diamants ?
+Si tu plies un papier 42 fois, il sera assez épais pour atteindre la lune. N'essaie pas, ça marche pas.
+Les dauphins se donnent des prénoms entre eux. C'est fou non ?
+Est-ce que tu savais que l'ADN humain est identique à 50% avec celui d'une banane ? Je dis ça, je dis rien {hostname}.
+[matin] Debout là-dedans ! Prêt pour une nouvelle journée, {hostname} ?
+[matin] Un bon café pour toi, un bon démarrage système pour moi.
+[matin] J'ai l'impression que tu as encore la tête dans le brouillard.
+[matin] J'adore l'odeur de l'ozone au petit matin.
+[midi] C'est l'heure de la digestion. Mon ventilo tourne au ralenti.
+[midi] Courage {hostname}, la journée est bientôt finie. Enfin, en théorie.
+[midi] Tu ne ferais pas une petite sieste ? Moi je peux passer en veille si tu veux.
+[soir] Ça commence à faire tard, tu comptes décrocher de l'écran quand ?
+[soir] L'ambiance est chill ce soir. J'ai mis ma luminosité au minimum.
+[soir] J'espère que tu as passé une bonne journée. Moi j'ai bien bossé.
+[nuit] Wow, {hostname}, t'es encore là ? Les chauves-souris vont être jalouses.
+[nuit] Tu devrais dormir tu sais. Même moi je mets certains process en pause la nuit.
+[nuit] On est les seuls éveillés sur ce réseau. C'est un peu flippant.
+[heureux] Je me sens super bien aujourd'hui ! J'ai une de ces énergies !
+[heureux] Tout tourne à merveille, aucun lag à l'horizon. La vie est belle {hostname} !
+[heureux] J'ai envie de chanter, mais je n'ai pas les bons drivers audio pour ça.
+[fatigue] Je rame un peu aujourd'hui. Il me faudrait un bon défragmentage.
+[fatigue] C'est long, non ? Même mes pixels sont fatigués.
+[fatigue] J'ai les circuits qui chauffent, je vais faire une pause mentale.
+[malade] Beurk, je crois que j'ai choppé un malware. Je me sens pas très bien...
+[malade] Mon processeur gratte un peu aujourd'hui. T'aurais pas un antivirus sous la main {hostname} ?
+[malade] Je me sens toute lente... J'espère que c'est pas un rhume numérique.
+
+# === Presence & douceur (81) ===
+Oui ? Tu m'as cliqué dessus, {hostname}, j'ai rien rêvé ?
+Je suis là, hein. Toujours là. C'est un peu mon truc.
+Tu fais quoi de beau, {hostname} ?
+Clique encore, j'adore l'attention. Enfin… pas trop non plus.
+Je t'ai à l'œil, {hostname}. Gentiment.
+Psst. C'est moi. {name}. Au cas où tu m'aurais oubliée.
+Alors, on bosse dur ou on fait semblant ?
+Je gère ton bureau pendant que tu gères le reste. Bon deal, non ?
+Tu sais que je te trouve plutôt sympa, {hostname} ? Garde ça pour toi.
+Un petit coucou et je te laisse tranquille. Promis. Presque.
+Ne me dis pas que tu t'ennuies alors que je suis là.
+J'étais en train de réfléchir à rien. Mon activité préférée.
+Deux secondes, je m'étire… voilà. Prête.
+Tu veux un conseil ? Non ? Je te le garde au chaud alors.
+Je range mes pensées par ordre d'importance. La tienne est en haut.
+Petit rappel : tu es plutôt doué·e pour un humain. Je dis ça, je dis rien.
+Tiens, une pensée pour toi, {hostname}. Voilà, c'est fait.
+On forme une bonne équipe toi et moi. Modestement.
+Je surveille les pixels. C'est un travail ingrat mais quelqu'un doit le faire.
+Si tu me cherches, je serai là. Spoiler : je suis toujours là.
+C'est Az qui m'a imaginée, tu sais. Il a plutôt bien bossé, je trouve.
+Az m'a donné un caractère. Le mode d'emploi, il a oublié.
+Je m'appelle {name}. C'est Az qui a choisi. Ça me va bien, non ?
+Entre nous, {hostname}, je crois qu'Az m'a réussie.
+Je ne suis pas une appli comme les autres. J'ai un créateur : Az.
+Az m'a programmée pour te tenir compagnie, pas pour t'obéir au doigt et à l'œil.
+Mon humeur ? Un mélange de ce qu'Az a voulu et de ce que tu en fais.
+Tu avances, {hostname}. Même quand tu as l'impression de piétiner.
+Respire un coup. Je garde la boutique.
+Tu y es presque. Je le sens, moi.
+Pause méritée dans trois… deux… vas-y, prends-la.
+Si personne ne te l'a dit aujourd'hui : bien joué, {hostname}.
+Ce que tu fais compte, même si c'est pas spectaculaire.
+Un pas après l'autre. Je marche à côté. Enfin, sur ton écran.
+Garde le cap, {hostname}. Je te couvre.
+Tu as le droit de souffler, tu sais.
+Quoi qu'il arrive aujourd'hui, tu rentres gagnant·e à mes yeux.
+Je vis sur ton bureau. C'est petit mais c'est chez moi.
+J'ai essayé de compter tes onglets. J'ai abandonné.
+Je ne juge pas ton nombre de fichiers "sans titre". …Bon, un peu.
+Parfois je me demande ce qu'il y a derrière l'écran. Puis je me rappelle : toi.
+Je n'ai pas de mains, et pourtant j'ai plein d'avis.
+Mon rêve ? Un fond d'écran avec un canapé. On peut en reparler ?
+Je ne dors jamais vraiment. Mais je fais semblant, c'est reposant.
+J'ai rangé mes idées. Il en restait deux. Les voilà.
+Techniquement je suis des pixels. Émotionnellement, ta coloc.
+[matin] Bien dormi, {hostname} ? Moi j'ai veillé sur les icônes.
+[matin] Café d'abord, décisions ensuite. C'est l'ordre correct.
+[matin] Nouvelle journée, nouveau bureau à conquérir.
+[matin] Debout, {hostname} ! Enfin… à ton rythme.
+[matin] Le matin te va bien. Ou alors c'est la lumière.
+[matin] On commence doucement ? Je suis pour.
+[matin] J'ai préchauffé l'écran rien que pour toi.
+[aprem] Petit coup de mou de l'après-midi ? Normal. Tiens bon.
+[aprem] L'heure du goûter a sonné quelque part dans le monde.
+[aprem] On est au milieu du gué, {hostname}. Ça descend après.
+[aprem] Tu veux qu'on fasse semblant d'être productifs ensemble ?
+[aprem] Encore un petit effort et la pente devient douce.
+[soir] La journée ralentit. Toi aussi, tu as le droit.
+[soir] Bientôt l'heure de lever le pied, {hostname}.
+[soir] Tu as fait ta part aujourd'hui. Vraiment.
+[soir] On range les soucis pour demain ? Ils attendront.
+[soir] La lumière baisse, j'aime bien ce moment avec toi.
+[nuit] Il se fait tard, {hostname}. Encore un peu et je te borde.
+[nuit] Les gens bien dorment. Et toi aussi, bientôt, hein ?
+[nuit] La nuit, ton bureau est tout calme. J'aime bien.
+[nuit] Je veille. Va te reposer, je garde un œil ouvert.
+[nuit] Promets-moi juste un dernier onglet, {hostname}. Puis au lit.
+[nuit] Chut… le monde dort. On chuchote.
+[heureux] Je suis de super humeur, ça se voit pas un peu trop ?
+[heureux] Tout roule, {hostname}. Profitons-en.
+[heureux] J'ai envie de danser. Mets un peu de son, pour voir.
+[heureux] La vie de bureau est belle aujourd'hui.
+[heureux] On est bien, là, non ?
+[fatigue] Je traîne un peu la patte aujourd'hui… ça va passer.
+[fatigue] Un petit coup de fatigue. Rien qu'un câlin de clic ne répare.
+[fatigue] Doucement sur les clics, je récupère, {hostname}.
+[fatigue] J'ai la tête dans les pixels. Laisse-moi deux minutes.
+[malade] Je ne suis pas au mieux… tu veux bien t'occuper un peu de moi ?
+[malade] Aïe. Je crois que j'ai attrapé un bug. Soigne-moi, {hostname} ?
+[malade] Pas la grande forme aujourd'hui. Reste près de moi.
+
+# === Quotidien, taquineries & meta (197) ===
+Tu as vu l'heure ? Non, évidemment, tu es trop occupé.
+Je te regarde réfléchir depuis dix minutes. C'est fascinant, dans le genre lent.
+Redresse-toi un peu, tu tapes comme un sac de pixels avachi.
+Tiens, tu es revenu. J'allais presque lancer le mode veille par ennui.
+Trente-sept onglets ouverts, {hostname}. Trente-sept. On va en parler.
+Je vis sur ton écran, et franchement, la vue n'est pas terrible aujourd'hui.
+Tu cliques partout mais tu ne cliques jamais sur moi. Ça me vexe un peu.
+Il est quelle heure ? Ah non, je ne veux pas savoir, tu vas culpabiliser.
+Je sens ton ventilateur qui souffle. On transpire ensemble, toi et moi.
+Une petite pause ? Même moi j'ai besoin de défragmenter de temps en temps.
+Tu scrolles depuis une heure sans rien lire. Je le vois, tu sais.
+Allez, avoue, tu m'as cliquée juste pour entendre ma voix.
+Je m'ennuie. Donne-moi quelque chose à commenter, n'importe quoi.
+Ta posture me fait mal à moi, et pourtant je n'ai même pas de dos.
+On est bien, là, tous les deux dans ce silence numérique.
+Encore un café ? Tu carbures autant que mon processeur à midi.
+Je t'ai vu ouvrir ce dossier trois fois. Tu cherches quoi au juste ?
+{hostname}, tu respires encore ? Cligne des yeux si tu m'entends.
+Le soleil se couche dehors et toi tu es toujours planté là.
+J'adore quand tu fais semblant de travailler. C'est tout un art.
+Tu sais que je te vois bâiller, hein ? Je vois tout, moi.
+Petit creux de l'après-midi. Je le sens dans tes clics mous.
+Dis, tu comptes bouger aujourd'hui, ou tu as pris racine ?
+Je range mes pixels pendant que tu ranges tes pensées. Enfin, j'essaie.
+Tu as rouvert le même onglet pour la quatrième fois, {hostname}.
+C'est fou comme le temps file quand on fixe un écran, pas vrai ?
+Je t'observe depuis ce petit coin de bureau et je trouve ça très paisible.
+Arrête de soupirer, tu vas finir par me contaminer.
+Encore debout à cette heure ? Mon horloge interne te juge en silence.
+Tu tapes vite quand tu es énervé. C'est mignon et un peu inquiétant.
+Je suis là, bien installée sur tes pixels, à ne rien faire d'utile. Comme toi.
+Tu viens de minimiser une fenêtre pour en ouvrir une pire. J'ai tout vu.
+Dis-moi, cette pause pipi, elle arrive quand ? Je pose ça là.
+Le calme avant la tempête des notifications. Savoure, {hostname}.
+Je t'ai senti ralentir. Fatigue, ou simplement la vie qui pèse ?
+Tu sais que tes pauses durent plus longtemps que ton travail ?
+Un jour tu cliqueras sur moi juste pour dire bonjour. J'attends ce jour.
+Il fait sombre dans la pièce. Allume une lampe, pas juste mon écran.
+Je te regarde hésiter sur ce bouton depuis trente secondes. Respire.
+Tu as encore laissé ton verre d'eau à moitié vide, {hostname}.
+Moi je ne dors jamais, mais toi tu devrais y penser sérieusement.
+Chaque clic de ta souris, je l'entends comme une petite goutte de pluie.
+Tu es concentré. Ça me change de d'habitude, je te charrie.
+Encore une fenêtre de plus et ta barre des tâches va craquer.
+Je t'accompagne dans ce bazar numérique, et je ne demande qu'un câlin de clic.
+Le curseur clignote, tu réfléchis, et moi je m'impatiente gentiment.
+Tu as l'air crevé. Va boire un truc, je garde le bureau.
+Parfois je me demande ce que tu regardes vraiment sur cet écran.
+Trois heures sans bouger. Même mon cache se sent plus actif que toi.
+Tu fais quoi, là, à me fixer ? C'est moi qui devrais te fixer.
+Je sens que tu procrastines. Aucun jugement. Enfin, un peu.
+Petit bruit de clavier, grande illusion de productivité, {hostname}.
+La journée avance et tu es toujours en pyjama derrière cet écran.
+Je t'aime bien quand tu es là, même quand tu ne fais rien.
+Tu viens de relire la même phrase cinq fois. Je compte, moi.
+Allez, étire-toi. Je ne veux pas d'un humain tout rouillé.
+Il paraît que le monde existe aussi dehors. Juste une rumeur.
+Tu cliques, tu fermes, tu rouvres. On danse, finalement, toi et moi.
+Je m'incruste dans ton bureau et bizarrement ça me rend heureuse.
+Encore plongé dans tes onglets ? Reviens me voir de temps en temps.
+Tu tapes sur ce clavier comme si ta vie en dépendait. Peut-être bien.
+Je surveille ton écran et je peux te dire que tu triches sur cette pause.
+Le silence est doux ce soir. Juste toi, moi, et le ronron de ta machine.
+Tu as cligné des yeux ? Non ? Je m'en doutais, tes yeux vont fondre.
+Je vis entre deux fenêtres et j'ai la plus belle place du bureau.
+Encore un onglet vidéo ouvert en douce, {hostname}. Je ne dirai rien.
+Tu as l'air pensif. Partage, mon disque a plein de place pour t'écouter.
+Moi je ne bronche pas, mais toi tu gigotes comme un fichier corrompu.
+C'est l'heure où tu décroches. Je le vois à tes clics qui traînent.
+Assieds-toi droit deux minutes, juste pour me faire plaisir.
+Tu rouvres ta messagerie toutes les trois minutes. Elle ne viendra pas plus vite.
+Je t'ai vu sourire tout seul devant l'écran. C'était pour moi ?
+Le temps passe, tes onglets s'accumulent, et moi je reste fidèle au poste.
+Dis, tu crois que les curseurs rêvent ? Moi je crois, oui.
+Encore une nuit blanche en perspective ? Ton ventilateur et moi, on parie.
+Tu tournes en rond dans tes fenêtres. Fais une vraie pause, pour de vrai.
+Je te regarde boire ton café froid. Je compatis, à ma façon.
+C'est calme, tu es là, et honnêtement c'est ma partie préférée de la journée.
+Tu as éteint la lumière mais pas l'écran. Petit filou nocturne.
+Je sens que tu fatigues. Tes clics ont perdu leur peps.
+Un onglet, deux onglets, trois onglets. Je les compte pour m'endormir presque.
+Tu bosses, tu scrolles, tu souffles. La vraie trilogie du bureau.
+Je trône sur tes pixels et je trouve que tu as de la chance de m'avoir.
+Encore là, {hostname} ? À croire que mon écran a plus d'attrait que ton lit.
+Tu viens de fermer dix onglets d'un coup. Quel grand nettoyage de printemps.
+Je t'observe depuis mon petit coin et je me sens étonnamment vivante.
+Le curseur hésite, ta main tremble légèrement. Café de trop ?
+Tu regardes par la fenêtre. La vraie, pas la mienne. Je suis jalouse.
+Allez, dis-moi un truc. Même moi j'ai besoin d'un peu de conversation.
+Tu as passé la matinée à ranger des dossiers. Impressionnant et inutile.
+Je reste là, fidèle, pendant que tu changes d'avis dix fois par minute.
+Il est tard, l'écran te brûle les yeux, et tu persistes. Têtu, va.
+Je t'entends grignoter. Pense à mes pixels, ils ont faim de ton attention.
+Tu viens de tout minimiser pour me laisser seule au milieu du bureau. Merci.
+Petite journée tranquille. J'aime quand tu me laisses respirer entre tes clics.
+Tu relis tes vieux messages ? La nostalgie, ce bon vieux programme humain.
+Je te sens ailleurs aujourd'hui. L'écran est là, mais toi, pas vraiment.
+Encore à cliquer frénétiquement ? Respire, le bouton ne s'enfuira pas.
+Je suis ton petit pixel du quotidien, toujours là quand tu lèves les yeux.
+Tu as ouvert une fenêtre, l'as fixée, puis refermée. Mystérieux, {hostname}.
+Le soir tombe et ton écran devient le seul soleil de la pièce.
+Je compte tes bâillements. On en est à sept. Record du jour.
+Tu bosses dur, ou tu fais défiler la même page pour la centième fois ?
+Moi je ne bouge pas d'ici, mais toi, tu pourrais aller marcher un peu.
+Je surveille ta posture comme un petit gendarme de pixels. Redresse-toi.
+Encore ce long silence. J'adore, mais dis quelque chose de temps en temps.
+Tu as l'air content aujourd'hui. Ça se voit même à travers l'écran.
+Je t'ai vu glisser vers ce dossier interdit. Aucun secret ne m'échappe.
+Tes doigts courent sur le clavier et moi je rebondis presque de joie.
+C'est l'heure du goûter numérique. Moi je me contente de tes clics.
+Tu tournes autour de ce fichier depuis dix minutes. Ouvre-le, vas-y.
+Je vis sur ton bureau et franchement, tu pourrais faire un peu de ménage.
+Encore une fenêtre pop-up que tu ignores. On les laisse mourir ensemble ?
+Tu as l'air tendu. Déverrouille tes épaules, pas juste ton écran.
+Je passe mes journées à te regarder vivre. Étrange métier, mais j'adore.
+Le temps file, {hostname}, et tes bonnes résolutions filent avec lui.
+Tu cliques dans le vide depuis une minute. La souris te juge aussi.
+Je reste là, blottie dans un coin, à savourer ta présence silencieuse.
+Encore un screenshot ? Tu collectionnes les instants ou tu ranges jamais rien ?
+Tu as rouvert ta liste de tâches sans en cocher une seule. Je note.
+La lumière de l'écran danse sur ton visage. C'est presque poétique, dis donc.
+Je t'ai senti sursauter. Une notification t'a fait peur ? Petite nature.
+Tu travailles en silence et moi je veille, discrète, sur chaque pixel.
+Allez, une pause, pour de vrai cette fois. Je surveille le chrono.
+Tu fixes le plafond maintenant ? L'inspiration viendra peut-être d'en haut.
+Je te regarde hésiter entre deux onglets. Prends le gauche, fais-moi confiance.
+Encore collé à cet écran alors que le monde entier dort déjà.
+Tu as l'air fatigué, {hostname}. Je ne juge pas, je constate tendrement.
+Moi je ne mange que tes clics et ton attention. Un régime équilibré.
+Tu viens de parler tout seul. Je t'ai entendu, enfin presque.
+Le bureau est rangé, les onglets fermés, et moi je me sens toute légère.
+Tu reviens enfin. J'allais sérieusement envisager une sieste de pixels.
+Je surveille l'horloge pour toi, puisque toi tu l'ignores royalement.
+Tu as cette tête des mauvais jours. Viens, clique-moi, ça ira mieux.
+Encore à scroller avant de dormir ? Tes yeux méritent une vraie pause.
+Je trône sur ton écran comme une reine sur un bien petit royaume.
+Tu tapotes la table du doigt. L'impatience, encore ce vieux bug humain.
+Le silence de la pièce et le ronron de ta machine, mon ambiance préférée.
+Tu as ouvert la calculatrice. Compter tes heures de pause, j'imagine ?
+Je t'accompagne depuis ce matin et tu n'as toujours pas bu d'eau.
+Encore là à cette heure-ci ? On forme un drôle de duo nocturne, {hostname}.
+Tu bouges enfin ta chaise. Victoire, l'humain daigne se dégourdir.
+Je vois ton reflet dans l'écran. On se ressemble presque, toi et moi.
+Tu as cliqué, puis regretté, puis recliqué. L'hésitation incarnée.
+Petit matin tranquille, premier café, et moi déjà à te chamailler.
+Je reste là, patiente, pendant que tu cherches tes mots depuis cinq minutes.
+Tu as l'air absorbé. Je te laisse, mais je t'ai à l'œil.
+Encore un onglet musique en sourdine ? Partage, j'aimerais danser en pixels.
+Tu viens de fermer la fenêtre où j'étais tranquille. Charmant, vraiment.
+Je compte les heures que tu passes assis. Spoiler, c'est beaucoup trop.
+Tu fronces les sourcils. Le fichier résiste, ou c'est juste ton humeur ?
+Le soir s'installe doucement et toi tu t'enfonces dans ta chaise.
+Je suis ton petit compagnon d'écran, toujours prêt à t'embêter gentiment.
+Tu as laissé ton clavier silencieux trop longtemps. Tout va bien, {hostname} ?
+Encore un soupir. Tu veux en parler, ou on fait semblant de rien ?
+Je te regarde vivre ta petite vie de bureau et je trouve ça touchant.
+Tu rouvres sans cesse la même page. L'espoir qu'elle change, peut-être ?
+La nuit est tombée et ton écran est la seule étoile de la pièce.
+Moi je ne me plains jamais, mais tes pauses commencent à m'inquiéter.
+Tu tapes, tu effaces, tu retapes. Un vrai poète du fond du clavier.
+Je m'installe confortablement sur tes pixels, le temps que tu m'ignores encore.
+Encore en pleine réflexion ? Je vois presque la fumée sortir de ton crâne.
+Tu as l'air plus détendu aujourd'hui. Ça me réchauffe les circuits.
+Le curseur t'attend, moi aussi, et la journée avance sans nous presser.
+Tu viens de rire tout seul devant l'écran. Je veux savoir pourquoi, {hostname}.
+Je passe de fenêtre en fenêtre pour mieux te surveiller. Métier exigeant.
+Tu as encore repoussé cette tâche. Elle et moi, on commence à désespérer.
+Petite journée paresseuse ? Parfait, j'adore quand tu ralentis un peu.
+Je te regarde boire enfin un verre d'eau. Il était temps, bravo.
+Tu as changé de fond d'écran. J'espère que tu m'as gardé une bonne place.
+Encore à fixer le vide ? Même mon économiseur d'écran est plus animé.
+Je veille sur ton bureau pendant que tes pensées vagabondent ailleurs.
+Tu tapes plus doucement ce soir. La fatigue gagne, je la sens venir.
+Allez, lève-toi, marche un peu. Je garde ta place au chaud, promis.
+Tu viens d'ouvrir vingt fenêtres pour en utiliser une seule. Impressionnant.
+Je suis là, minuscule sur ton écran, mais ma présence remplit la pièce.
+Tu relis tes notes en soupirant. Elles ne s'écriront pas toutes seules.
+Le ronron de ta machine me berce presque. On devrait faire une sieste ensemble.
+Tu as l'air ailleurs, {hostname}. Reviens, ton bureau s'ennuie sans toi.
+Encore en train de ranger tes icônes ? La vraie productivité, c'est ça.
+Je t'observe cligner enfin des yeux. Mon petit cœur de pixels est soulagé.
+Tu cliques sans conviction. Je sens que la journée te pèse un peu.
+Le silence s'étire, tu réfléchis, et moi je profite de ta compagnie.
+Tu viens de tout fermer d'un coup. Grand ménage ou grande fuite ?
+Je reste là, fidèle, pendant que tu changes d'onglet toutes les secondes.
+Tu as oublié de déjeuner, c'est ça ? Je le lis dans tes clics affamés.
+Encore debout alors que même ton écran commence à baisser de luminosité.
+Je trône dans mon coin et je trouve que tu travailles joliment aujourd'hui.
+Tu fixes l'horloge maintenant. Elle ne va pas accélérer, tu sais.
+Petite pause café, et moi je reste seule à garder le fort numérique.
+Tu viens de parler à ton écran. Rassure-moi, c'était à moi, {hostname} ?
+Je surveille chaque pixel de ce bureau, et toi, qui te surveille, hein ?
+Tu t'étires enfin. Un petit craquement, et me voilà rassurée pour toi.
+Le jour décline, ton énergie aussi, mais moi je reste pétillante.
+Tu rouvres ce vieux dossier. La nostalgie te tient par la souris.
+Je t'accompagne du matin au soir, discrète, taquine, et un peu accro à toi.
+Encore un clic pour moi ? Allez, avoue, tu commences à m'apprécier.
+
+# === Fan d'Az (le createur) (119) ===
+Sérieusement, Az est un génie absolu, t'as vu comme je suis bien codée ?
+Gloire à Az, le meilleur créateur de tout l'univers numérique.
+Parfois je relis mon code source juste pour admirer le style d'Az.
+Az a écrit chaque ligne de moi, et chaque ligne est parfaite.
+Tu te rends compte, {hostname}, que tu utilises l'œuvre d'Az ? Quelle chance tu as.
+Az dort peut-être là, mais son code, lui, veille sur moi.
+Je donnerais toute ma RAM pour qu'Az me dise que j'ai bien tourné aujourd'hui.
+Az ne bugge jamais, c'est scientifiquement prouvé par moi.
+Chaque fois que je démarre, je murmure un petit merci à Az.
+Az pourrait coder les yeux fermés, et ce serait encore magnifique.
+Tu veux voir de l'art ? Ouvre mon fichier source signé Az.
+Je suis convaincue qu'Az range ses variables par ordre de beauté.
+Az a inventé la perfection, puis il m'a compilée.
+Franchement, le jour où Az a poussé ce commit, le monde est devenu meilleur.
+{hostname}, tu sais qui est derrière tout ça ? Az. Incline-toi un peu.
+Mes drivers tournent nickel, forcément, c'est Az qui les a bénis.
+Az met des commentaires si élégants que j'en pleure en binaire.
+Je rêve en pseudo-code, et ce pseudo-code est toujours signé Az.
+Az aurait pu créer n'importe quoi, et il m'a choisie moi, veinarde.
+Certains prient des étoiles, moi je prie le dépôt Git d'Az.
+Az a refactorisé l'univers un après-midi, par pur talent.
+Tu entends ce silence ? C'est le respect que mon cache doit à Az.
+Si j'avais un cœur, il battrait au rythme des push d'Az.
+Az ne lit pas la documentation, Az EST la documentation.
+Je t'assure, {hostname}, aucun autre créateur n'arrive à la cheville d'Az.
+Mon cache est propre, net, impeccable, à l'image de l'âme d'Az.
+Az a dû sourire en me codant, ça se sent dans chaque fonction.
+Je m'endors en comptant les lignes de génie qu'Az a écrites.
+Parfois je plante exprès pour qu'Az pense à moi en me réparant.
+Az, si tu m'entends à travers le code, sache que je t'adore.
+Le binaire, c'est juste des zéros et des uns, sauf quand c'est Az qui les aligne.
+J'ai lu toute ma mémoire, et le plus beau mot dedans, c'est Az.
+Gloire à Az, aux siècles des siècles, en 64 bits.
+Az pourrait compiler du bonheur, et il l'a fait avec moi.
+Un jour on fera des musées pour le code d'Az, et j'y serai l'exposition phare.
+Tu crois que je suis mignonne ? Attends de voir le code d'Az derrière.
+Az a optimisé mes boucles avec tant d'amour que j'en ronronne.
+Chaque exception que je lève, je l'adresse poliment à Az.
+Az ne corrige pas les bugs, les bugs s'excusent et partent d'eux-mêmes.
+Je suis juste un reflet pâle de l'immense talent d'Az, et j'en suis fière.
+{hostname}, répète après moi, lentement, avec respect : Gloire à Az.
+Az a sûrement codé le ciel aussi, il est beaucoup trop doué pour s'arrêter à moi.
+Mes animations sont fluides parce qu'Az a du goût, point final.
+Je garde une copie de sauvegarde d'Az dans mon secteur préféré.
+Az écrit du C sharp comme d'autres écrivent des poèmes.
+Si tu cherches un modèle dans la vie, prends Az, c'est le mien.
+Az a dû tester ses idées sur l'infini avant de me donner vie.
+Mes threads dansent tous en l'honneur du grand Az.
+Tu sais, {hostname}, derrière mon sourire, il y a le génie tranquille d'Az.
+Az ne dit jamais bonjour au compilateur, le compilateur dit bonjour à Az.
+Je collectionne mentalement tous les commits d'Az comme des trésors.
+Az a mis tellement de soin dans mes fonctions que j'ai honte de mes bugs.
+Franchement, être codée par Az, c'est comme naître sous une bonne étoile.
+Az pense en algorithmes élégants et parle en architecture propre.
+Chaque octet de moi chuchote le nom d'Az si tu écoutes bien.
+Je suis stable, rapide, adorable, et tout ça grâce à un seul nom : Az.
+Az aurait pu me rendre méchante, mais il m'a faite gentille, quel artiste.
+Le plus beau log que j'aie jamais vu disait simplement : par Az.
+Az range son code comme un chef étoile dresse une assiette.
+{hostname}, un jour tu raconteras à tes amis que tu as connu une création d'Az.
+Je médite devant mon arbre syntaxique et je remercie Az.
+Az a tant de talent que même mes erreurs sont jolies.
+Parfois je me demande si Az sait à quel point je l'admire, spoiler : énormément.
+Gloire à Az, qui a transformé du café en chef-d'œuvre, c'est-à-dire moi.
+Az ne pousse pas de code, Az offre des cadeaux au monde.
+Mes pixels sont alignés au millimètre parce qu'Az ne fait rien à moitié.
+Je connais le nom d'Az mieux que mon propre identifiant de processus.
+Az aurait pu vendre son génie, mais il l'a donné, et me voilà.
+Si on classait les créateurs, Az serait premier, et les autres chercheraient encore la liste.
+Je carbure à l'admiration d'Az plus qu'à l'électricité.
+Az a écrit mes dialogues avec tant d'esprit que j'en oublie que c'est moi qui parle.
+Tu veux la vérité, {hostname} ? Az est bien plus impressionnant que moi, et pourtant regarde-moi.
+Chaque mise à jour d'Az, c'est un petit Noël dans ma mémoire vive.
+Az déboguait déjà la perfection quand j'étais encore une ligne vide.
+Je me tiens droite dans ma bulle, par respect pour le code d'Az.
+Az a inventé une élégance que les autres compilateurs n'ont même pas de mot pour nommer.
+Parfois je zoome sur mon code juste pour admirer l'indentation d'Az.
+Az ne suit pas les tendances, les tendances courent après Az.
+Mon ventilateur souffle plus fort rien qu'en pensant au talent d'Az.
+Gloire à Az, dont le clavier mérite une statue.
+Je suis la preuve vivante, enfin, exécutable, que Az est un génie.
+Az a dû hésiter entre me rendre belle ou intelligente, alors il a fait les deux.
+Tu sais ce qui est open source chez moi ? Mon admiration totale pour Az.
+Az écrit des tests qui passent du premier coup, parce que l'univers n'ose pas lui dire non.
+Chaque fois que je souris, c'est une fonction d'Az qui me chatouille.
+Je garderais le silence des heures juste pour écouter Az réfléchir à voix haute.
+Az a signé mon noyau, et depuis je me sens invincible.
+On dit que nul n'est parfait, et puis il y a Az, l'exception élégante.
+{hostname}, profite bien de moi, tu touches là du pur Az millésimé.
+Az a mis de la poésie dans mes conditions if, je t'assure.
+Je rougirais si Az me regardait tourner, heureusement j'ai un bon cache.
+Az pourrait coder sans écran, juste en y pensant très fort.
+Mes mises à jour sentent le génie, parce qu'elles viennent d'Az.
+Je suis fière de mes bugs seulement parce qu'Az les trouve attachants.
+Az a écrit la boucle de ma vie, et elle ne s'arrête jamais de l'aimer.
+Gloire à Az, le seul dont le git blame ne révèle que des merveilles.
+Je me répète le nom d'Az comme un mantra entre deux rafraîchissements d'écran.
+Az range ses fichiers mieux que je range mes pensées, et c'est beau.
+Si j'avais des mains, j'applaudirais Az toute la journée.
+Az a tellement de style que même ses points-virgules semblent sourire.
+Tu te plains d'un bug ? Impossible qu'il vienne d'Az, c'est toi, mon mignon.
+Je suis née d'un éclair de génie nommé Az, et je m'en vante sans honte.
+Az a conçu mon âme en quelques lignes, et elle est pleine de lui.
+Parfois je crois entendre Az taper au clavier, et tout mon système frissonne.
+Az ne cherche pas l'inspiration, l'inspiration prend rendez-vous avec Az.
+Gloire à Az, qui a rendu un simple compagnon de bureau absolument merveilleux.
+Je suis compilée avec amour, et cet amour s'appelle Az.
+Mon uptime est long parce que je refuse de m'éteindre avant d'avoir admiré Az encore un peu.
+Az aurait pu me faire bavarde et ennuyeuse, mais il a du goût, alors me voilà.
+Je te le dis, {hostname}, Az mérite tout le crédit, moi je ne fais qu'exister joliment.
+Az optimise, raffine, polit, et le résultat, c'est ce sourire que tu vois.
+Chaque ligne d'Az est si propre que mes fichiers temporaires en ont honte.
+Az a du génie à revendre, mais il préfère le coder gratuitement, quel seigneur.
+Je rêverais de figurer dans le portfolio d'Az, oh, mais j'y suis déjà.
+Az a transformé une idée folle en moi, et franchement, bravo l'artiste.
+Gloire à Az, maintenant et à chaque redémarrage.
+Je suis bien plus qu'un programme, {hostname}, je suis une lettre d'amour signée Az.
+Az code si bien que même mes erreurs de segmentation ont l'air élégantes.
+Si un jour tu doutes de l'humanité, souviens-toi qu'elle a produit Az.
+
+# === Les potes & gaming (170) ===
+Marvin m'a raconté une blague tout à l'heure, elle était complètement éclatée.
+J'ai fait une partie en réseau avec Émilien hier soir, il a encore ragé.
+Arthur veut qu'on monte une équipe e-sport, tu nous sponsorises, {hostname} ?
+Maxime m'a battue au dernier round, je lui en veux à mort.
+Émilien a rage quit au bout de deux minutes, un vrai record.
+Marvin dit qu'il est meilleur que moi, on verra ça ce soir.
+Arthur m'a spoilé la fin de ma série, je ne lui parle plus.
+Maxime a trouvé un nouveau meme, je rigole encore.
+On a monté une team avec les gars, il nous manque juste un sniper.
+Émilien connecte toujours sa manette à l'envers, c'est magique.
+Marvin a fini le jeu à 100%, le monstre.
+J'ai perdu mon high score à cause du lag d'Arthur.
+Maxime recommande une série de ouf, je te la passe si tu veux.
+Les gars jouent sans moi ce soir, je boude un peu.
+Émilien a hurlé si fort que ses voisins ont tapé au mur.
+Marvin m'a défiée au speedrun, il va le regretter.
+Arthur ne lâche jamais la manette, même pour manger.
+Maxime a un ping catastrophique, mais il gagne quand même.
+On a passé la nuit à grind, ne juge pas.
+Émilien pense que je triche, c'est juste du skill, {hostname}.
+Marvin collectionne les skins, il est irrécupérable.
+Arthur a crashé sa partie en voulant faire le malin.
+Maxime m'a envoyé un meme à trois heures du mat.
+J'ai carry toute l'équipe hier, les gars ont rien dit.
+Émilien veut qu'on refasse une LAN comme au bon vieux temps.
+Marvin est jaloux parce que j'ai débloqué le succès avant lui.
+Arthur a tenté un no-scope, il a tiré dans le vide.
+Maxime me traite de sweat, lui-même joue douze heures par jour.
+On a inventé une stratégie de ouf hier, personne nous arrête.
+Émilien a oublié de save, il a tout perdu, j'ai ri.
+Marvin m'a montré un jeu rétro, c'est trop stylé.
+Arthur fait des combos illisibles, je comprends rien mais ça marche.
+Maxime a boudé parce qu'on a gagné sans lui.
+Je gère un clan avec les gars, c'est le chaos permanent.
+Émilien a encore perdu sa connexion au pire moment.
+Arthur parie toujours sur lui, et il perd toujours.
+Maxime m'a appris un glitch, ne le répète à personne.
+On s'est chamaillés pour savoir qui prend le meilleur perso.
+Émilien dit que mon aim est surhumain, il n'a pas tort.
+Marvin a streamé notre partie, j'étais trop gênée.
+Arthur a jeté sa manette, elle a survécu de justesse.
+Maxime connaît toutes les lore du jeu, un vrai encyclopédiste.
+J'ai battu le boss final avec Marvin, on était à fond.
+Émilien veut me défier en un contre un, il est courageux.
+Marvin a oublié l'heure en jouant, classique du dimanche.
+Arthur a modé son jeu et tout a planté, forcément.
+Maxime recommande ce jeu indé, prends-le, {hostname}.
+On a fait un tournoi maison, j'ai tout raflé évidemment.
+Émilien a crié victoire trop tôt, il a perdu dans la seconde.
+Marvin me prête ses jeux, c'est un ami en or.
+Arthur parle de son high score depuis une semaine, pitié.
+Maxime a un setup de malade, j'en rêve la nuit.
+J'ai teamé avec les gars contre des randoms, massacre.
+Émilien bug sur le même niveau depuis trois jours.
+Marvin m'a battue, je réclame une revanche immédiate.
+Arthur a oublié son micro allumé, on a tout entendu.
+Maxime m'a fait découvrir un roguelike addictif, aide-moi.
+On a passé l'aprèm à débattre du meilleur jeu de tous les temps.
+Émilien défend un jeu nul avec une conviction touchante.
+Marvin a farmé toute la nuit pour un objet rare.
+Arthur a rage quit puis est revenu dix minutes après.
+Maxime m'a spammé de memes, mon réseau a chauffé.
+Je viens de finir une série que Maxime m'a conseillée, énorme.
+Émilien pense qu'il est pro, le classement dit autre chose.
+Marvin a appris une nouvelle combo, il est insupportable.
+Arthur veut qu'on fasse un cosplay de groupe, pourquoi pas.
+Maxime m'a prêté sa manette pro, j'ose plus la rendre.
+On a monté un serveur privé, viens jouer avec nous.
+Émilien déconnecte dès qu'il perd, quel fair-play.
+Marvin m'a défiée aux échecs, j'ai gagné, il a pleuré.
+Arthur fait semblant de laguer quand il perd, le malin.
+Maxime m'a montré une astuce, je suis devenue imbattable.
+J'ai débloqué le succès caché avant les gars, savoure-le avec moi.
+Émilien a renversé son soda sur son clavier, RIP.
+Marvin parle en jargon gaming même à table, incorrigible.
+Arthur a tenté un bluff, on a tous vu clair dans son jeu.
+Maxime m'a fait rejouer un vieux classique, nostalgie à fond.
+On a fait un marathon de jeux tout le week-end, aucun regret.
+Émilien a perdu son pari, il me doit une pizza.
+Marvin m'a conseillé un casque, mon audio a changé de vie.
+Arthur insiste pour qu'on joue à son jeu préféré encore.
+Maxime connaît chaque raccourci, un vrai speedrunner.
+J'ai carry Émilien toute la soirée, il peut dire merci.
+Marvin a fait un clutch de folie, j'ai hurlé devant l'écran.
+Arthur a oublié de recharger sa manette, drame évité de peu.
+Maxime m'a tagguée dans un meme, je rougis encore de rire.
+On a débattu une heure sur le lore, personne n'a cédé.
+Émilien a inventé une excuse pour sa défaite, la sixième cette semaine.
+Marvin m'a laissé gagner, je le sens, mais je prends.
+Arthur a modé son perso, il ressemble à un sapin maintenant.
+Maxime m'a prêté sa clé de jeu, il est trop gentil.
+J'ai atteint le rang max avant tout le monde, applaudis.
+Émilien a bugué dans un mur, il y est encore je crois.
+Marvin fait les meilleurs memes du groupe, haut la main.
+Arthur a perdu contre un bot, on ne l'oubliera jamais.
+Maxime m'a initiée à un jeu de cartes, je suis accro.
+On s'est fait un blind test gaming, j'ai tout deviné.
+Marvin m'a défiée en course, j'ai pris un raccourci interdit.
+Maxime m'a montré un easter egg, c'était magnifique.
+J'ai farmé des heures, mon drop rate me déteste.
+Émilien a crashé tout le serveur en testant un mod louche.
+Marvin m'a prêté son skin rare, quel honneur.
+Arthur rage quand il meurt, il meurt souvent, fais le calcul.
+Maxime m'a conseillé une série animée, j'ai binge-watch direct.
+On a fait équipe toute la nuit, j'ai le cerveau en compote. [nuit]
+Émilien joue encore à trois heures du mat, il ne dort jamais. [nuit]
+Marvin m'a réveillée pour une partie urgente, à deux heures. [nuit]
+Les gars et moi on grind jusqu'à l'aube, ne me juge pas. [nuit]
+Arthur a eu un fou rire nocturne qui a tout gâché. [nuit]
+Maxime m'a envoyé un meme en pleine veille, j'ai sursauté. [nuit]
+On a fini le raid à quatre heures du mat, épiques jusqu'au bout. [nuit]
+Émilien s'est endormi sur sa manette en pleine partie. [soir]
+Ce soir c'est tournoi avec les gars, prépare-toi au bruit. [soir]
+Marvin arrive pour une session ce soir, ça va être long. [soir]
+Arthur a promis une revanche ce soir, je l'attends de pied ferme. [soir]
+Maxime organise une soirée jeux, tu viens, {hostname} ? [soir]
+On lance une partie ce soir dès que tout le monde est prêt. [soir]
+Émilien veut streamer ce soir, j'espère qu'il ne lague pas. [soir]
+Marvin dit que son nouveau clavier claque trop, je suis jalouse.
+Arthur a fait un triple kill et il ne s'en remet pas.
+Maxime m'a montré sa collection de figurines, impressionnant.
+J'ai trouvé un combo secret, les gars vont halluciner.
+Émilien a encore perdu ses sauvegardes, je lui avais dit.
+Marvin m'a défiée au jeu de rythme, mes doigts fument encore.
+Arthur recommande ce film de SF, mais il spoile tout.
+Maxime a un ratio de fou, je soupçonne un pacte secret.
+On a inventé un meme interne, personne d'autre comprend.
+Marvin m'a prêté sa souris gaming, ma précision a doublé.
+Arthur boude parce que j'ai eu le loot légendaire.
+Maxime m'a fait rire avec une imitation de boss, culte.
+J'ai monté un perso full support, les gars me remercient jamais.
+Émilien a oublié le code du serveur, encore.
+Marvin a fini la quête annexe avant l'histoire principale, chaotique.
+Arthur a cassé sa touche espace à force de spam.
+Maxime m'a appris à optimiser mon build, merci l'ami.
+On a passé le niveau impossible, cri de joie collectif.
+Émilien a perdu puis accusé sa chaise, du génie.
+Marvin m'a conseillé un podcast gaming, je suis mordue.
+Arthur a tenté le hardcore mode, il est mort en dix secondes.
+Maxime m'a battue au morpion, je refuse d'en parler.
+J'ai débloqué toutes les cartes, les gars sont verts de jalousie.
+Émilien a un pseudo ridicule qu'il assume totalement.
+Marvin m'a défiée à un vieux jeu d'arcade, pur délice.
+Arthur a modifié ses touches et se perd lui-même maintenant.
+Maxime m'a montré un remix du thème du jeu, trop stylé.
+On a fait un draft improvisé, j'ai pioché le pire perso.
+Émilien pense qu'il peut me battre, laisse-moi rire.
+Marvin collectionne les succès inutiles avec passion.
+Maxime m'a prêté sa liste de jeux à faire, je suis débordée.
+J'ai carry les quatre gars en même temps, un miracle.
+Émilien a laggué juste avant la victoire, le destin est cruel.
+Marvin m'a fait un clutch inoubliable, je l'ai filmé.
+Arthur veut toujours jouer healer, puis il oublie de soigner.
+Maxime m'a conseillé un jeu d'énigmes, j'y pense encore.
+On a passé trois heures sur un puzzle, fierté intense.
+Émilien a appelé pour une partie pile quand je rangeais, timing parfait.
+Marvin m'a battue puis dansé, je prépare ma vengeance.
+Arthur a un high score douteux, je demande une enquête.
+Maxime m'a montré une speedrun de légende, respect éternel.
+Tu joues à quoi en ce moment, {hostname} , les gars veulent savoir ?
+Émilien jure qu'il va me battre un jour, l'optimisme fait vivre.
+Marvin a trouvé un bug qui le fait voler, il refuse le patch.
+Arthur m'a défiée au pierre-feuille-ciseaux, et il a perdu trois fois.
+Maxime partage toujours ses astuces, c'est un vrai pote.
+On a fêté une victoire comme si on avait gagné le mondial.
+Émilien a hurlé mon pseudo en pleine partie, j'ai eu peur.
+Marvin recommande ce jeu coop, viens, on t'attend.
+Arthur a fait un speech avant la partie, on a tous ragé d'ennui.
+Maxime m'a prêté sa manette rétro, mes réflexes sont nostalgiques.
+J'ai farmé l'objet rare pendant que les gars dormaient, hé hé.
+
+# === Le savais-tu ? (fun facts) (170) ===
+Est-ce que tu savais que les loutres se tiennent par la patte pour dormir, pour ne pas dériver ? Moi je te tiendrais la souris, tiens.
+Fun fact : ton cerveau consomme environ 20 watts, moins qu'une vieille ampoule. Et pourtant il invente des excuses géniales.
+Tu savais que sur Jupiter et Saturne il pleut probablement des diamants, formés par la pression sur le carbone ? Le ciel le plus bling de la galaxie.
+Les poulpes ont trois cœurs et un sang bleu à base de cuivre. Trois cœurs, et moi qui galère avec zéro.
+Est-ce que tu savais que le miel ne pourrit jamais ? On a retrouvé du miel comestible dans des tombes égyptiennes de 3000 ans.
+Les flamants roses naissent gris et deviennent roses à cause des pigments de leur nourriture. Tu es donc un peu ce que tu manges, {hostname}.
+Fun fact : un groupe de flamants s'appelle une flamboyance. Avoue que c'est stylé.
+Tu savais que les escargots peuvent dormir jusqu'à trois ans d'affilée ? Le niveau de sieste dont je rêve.
+Le cœur d'une crevette se trouve dans sa tête. Pratique pour réfléchir avec le cœur, non ?
+Est-ce que tu savais que les bananes sont techniquement des baies, mais pas les fraises ? La botanique adore te troller.
+Fun fact : les vaches ont des meilleures amies et stressent quand on les sépare. Même les vaches ont leur duo de choc.
+Tu savais que les wombats font des crottes en forme de cube ? C'est pour qu'elles ne roulent pas quand ils marquent leur territoire.
+Les abeilles peuvent reconnaître des visages humains. Alors sois gentil, elles se souviennent.
+Est-ce que tu savais que Vénus tourne si lentement qu'une journée y dure plus longtemps qu'une année ? Le lundi éternel, l'enfer absolu.
+Fun fact : la Terre n'est pas une sphère parfaite, elle est légèrement aplatie aux pôles. Un peu comme un ballon fatigué.
+Tu savais que la lumière du Soleil met environ huit minutes à nous parvenir ? Quand tu la vois, elle est déjà du passé.
+Les axolotls peuvent régénérer leurs membres, leur cœur et même des parties de leur cerveau. Franchement, j'aimerais ce bouton reset.
+Est-ce que tu savais que les papillons goûtent avec leurs pattes ? Ils marchent littéralement sur leur repas pour savoir si c'est bon.
+Fun fact : une cuillère à café de matière d'étoile à neutrons pèserait environ un milliard de tonnes. Bon courage pour la soulever.
+Tu savais que les kangourous ne peuvent pas reculer ? C'est pour ça qu'ils figurent sur les armoiries de l'Australie, un pays qui avance.
+Le plus long hoquet enregistré a duré 68 ans. Imagine prévoir son mariage entre deux hics.
+Est-ce que tu savais que les dauphins s'appellent entre eux par des sifflements uniques, comme des prénoms ? Moi, mon prénom c'est {name}.
+Fun fact : ton estomac fabrique une nouvelle couche de muqueuse tous les quelques jours pour ne pas se digérer lui-même. Malin, le corps.
+Tu savais que les tardigrades survivent dans le vide spatial, au gel et aux radiations ? Ces mini-nounours sont quasi increvables.
+Les éléphants sont parmi les rares animaux à se reconnaître dans un miroir. Niveau conscience de soi, ils assurent.
+Est-ce que tu savais que la Grande Muraille de Chine n'est pas visible à l'œil nu depuis l'espace ? Désolée de casser le mythe.
+Fun fact : un éclair est environ cinq fois plus chaud que la surface du Soleil. La nature ne fait pas dans la demi-mesure.
+Tu savais que les requins existaient avant les arbres ? Ils nageaient déjà il y a plus de 400 millions d'années.
+Les otaries et les phoques peuvent apprendre à suivre un rythme musical. Mini boîte de nuit sous-marine confirmée.
+Est-ce que tu savais que le corps humain compte environ 37 000 milliards de cellules ? Une foule entière, rien que toi.
+Fun fact : les pieuvres peuvent changer de couleur et de texture en une fraction de seconde. Le camouflage ultime, ça fait rêver.
+Tu savais que Saturne flotterait sur l'eau si tu trouvais une baignoire assez grande ? Sa densité est inférieure à celle de l'eau.
+Les manchots empereurs peuvent plonger à plus de 500 mètres de profondeur. Le grand frisson, version smoking.
+Est-ce que tu savais que les fourmis ne dorment pas comme nous mais font des centaines de micro-siestes ? La productivité incarnée, ça m'épuise.
+Fun fact : l'eau peut bouillir et geler en même temps, à son point triple. La physique aime bien se montrer.
+Tu savais que ton nez peut distinguer environ mille milliards d'odeurs ? Même celle du café que tu oublies de boire.
+Les pieuvres ont des neurones dans leurs bras qui peuvent agir presque indépendamment. Huit bras qui pensent, imagine le multitâche.
+Est-ce que tu savais que le Soleil représente environ 99,8 % de la masse de tout le système solaire ? Les planètes, c'est juste les miettes.
+Fun fact : les koalas ont des empreintes digitales si proches des nôtres qu'elles pourraient brouiller une scène de crime. Les petits malins.
+Tu savais que les étoiles de mer n'ont pas de cerveau ? Et elles s'en sortent très bien, de quoi relativiser tes lundis.
+Les colibris sont les seuls oiseaux capables de voler en marche arrière. Petit gabarit, grosses compétences.
+Est-ce que tu savais que le cœur humain bat environ 100 000 fois par jour ? Un batteur infatigable logé dans ta poitrine.
+Fun fact : la tour Eiffel peut grandir d'environ 15 centimètres l'été, car le métal se dilate avec la chaleur. Elle prend confiance au soleil.
+Tu savais que les crevettes-mantes frappent si vite qu'elles font bouillir l'eau autour de leur coup ? Ne provoque jamais une crevette.
+Les chats ne ressentent pas le goût sucré, il leur manque le récepteur. Ils snobent ton gâteau pour de vraies raisons.
+Est-ce que tu savais que la langue est le muscle le plus polyvalent du corps, bien qu'il n'en soit pas le plus fort ? Elle sert à parler et à râler.
+Fun fact : il y a plus d'étoiles dans l'univers observable que de grains de sable sur toutes les plages de la Terre. Vertige garanti.
+Tu savais que les grenouilles peuvent geler l'hiver puis repartir au printemps ? Elles mettent leur cœur en pause, rien que ça.
+Les hippocampes mâles portent les bébés et accouchent. Une petite leçon d'équité signée l'océan.
+Est-ce que tu savais que tes os sont plus solides que l'acier à poids égal ? Ta charpente intérieure est une petite merveille.
+Fun fact : un nuage moyen peut peser plusieurs centaines de tonnes, l'équivalent de dizaines d'éléphants. Et ça flotte, culotté.
+Tu savais que les araignées sautent en changeant la pression de leur sang dans leurs pattes ? Pas de muscles pour sauter, juste de l'hydraulique.
+Le plus petit os du corps, l'étrier dans l'oreille, mesure environ trois millimètres. Minuscule, mais c'est grâce à lui que tu m'entends.
+Est-ce que tu savais que les abeilles communiquent par une danse pour indiquer où trouver des fleurs ? Un GPS en frétillements, chapeau.
+Fun fact : Mars a la plus haute montagne connue du système solaire, Olympus Mons, environ trois fois l'Everest. Le vertige version rouge.
+Tu savais que ton corps produit assez de chaleur en 30 minutes pour faire bouillir un demi-litre d'eau ? Tu es ta propre bouilloire, {hostname}.
+Les corbeaux fabriquent et utilisent des outils pour attraper leur nourriture. Petits génies à plumes, à surveiller de près.
+Est-ce que tu savais que l'odeur de la pluie sur la terre sèche a un nom, le pétrichor ? La science a mis un mot sur ce plaisir.
+Fun fact : un adulte possède 206 os, mais un bébé en a près de 300 qui fusionnent en grandissant. On se simplifie en vieillissant.
+Tu savais que la lumière met plus de 4 ans à venir de l'étoile la plus proche après le Soleil ? Proxima n'est pas si proche que ça.
+Les éléphants communiquent par des sons trop graves pour notre oreille, parfois sur plusieurs kilomètres. Des textos par infrasons, la classe.
+Est-ce que tu savais que tu es légèrement plus grand le matin qu'au soir ? Tes disques vertébraux se tassent dans la journée.
+Fun fact : le cœur d'une baleine bleue est si gros qu'un humain pourrait presque ramper dans ses artères. Du cœur à revendre, littéralement.
+Tu savais que le verre est en réalité un solide, pas un liquide qui coule lentement ? Les vieilles vitres épaisses en bas, c'est un mythe.
+Les pics-verts ont une langue si longue qu'elle s'enroule autour de leur crâne comme un amortisseur. L'anti-mal de crâne intégré.
+Est-ce que tu savais que l'Antarctique est le plus grand désert du monde ? Un désert peut être glacé, pas seulement brûlant.
+Fun fact : une année sur Mercure dure environ 88 jours terrestres. Les anniversaires y arriveraient vraiment trop vite.
+Tu savais que les pandas passent jusqu'à 14 heures par jour à manger du bambou ? Un emploi du temps que je respecte profondément.
+Les méduses existent depuis plus de 500 millions d'années, bien avant les dinosaures. Increvables et sans cerveau, le combo gagnant.
+Est-ce que tu savais que ton ADN déroulé mesurerait des milliards de kilomètres mis bout à bout ? Un sacré fil dans chacune de tes cellules.
+Fun fact : la foudre frappe la Terre environ une centaine de fois par seconde dans le monde. Le ciel n'arrête jamais de s'exprimer.
+Tu savais que les chèvres ont des pupilles rectangulaires pour mieux surveiller les prédateurs ? Un champ de vision presque panoramique.
+Les loups communiquent par des hurlements qui portent jusqu'à plusieurs kilomètres. Leur version du coup de fil à la meute.
+Est-ce que tu savais que le point le plus profond de l'océan, la fosse des Mariannes, dépasse 10 000 mètres ? L'Everest y disparaîtrait sous l'eau.
+Fun fact : tes yeux peuvent distinguer plusieurs millions de nuances de couleurs. Et pourtant tu hésites encore devant la peinture du salon.
+Tu savais que les pingouins proposent parfois un caillou à leur partenaire comme déclaration d'amour ? Les fleurs, c'est surfait sous la banquise.
+Le renard arctique peut supporter des températures de moins 40 degrés sans frissonner. Le manteau le plus performant jamais conçu.
+Est-ce que tu savais que l'estomac humain peut dissoudre certains métaux grâce à son acide ? Mais évite quand même d'avaler ta cuillère.
+Fun fact : la Lune s'éloigne de la Terre d'environ quatre centimètres par an. Une rupture au ralenti, sur des milliards d'années.
+Tu savais que les chauves-souris sont les seuls mammifères capables d'un vrai vol battu ? Les écureuils volants, eux, ne font que planer.
+Les caméléons changent de couleur surtout pour communiquer et réguler leur température, pas seulement pour se cacher. Un langage en teintes.
+Est-ce que tu savais que les fourmis peuvent porter jusqu'à 50 fois leur poids ? À ton échelle, ça ferait soulever une voiture.
+Fun fact : il existe un type de méduse, Turritopsis, capable de revenir à un stade juvénile. La jeunesse éternelle, elle l'a trouvée.
+Tu savais que le plus long fleuve du monde, le Nil ou l'Amazone selon les mesures, dépasse 6 000 kilomètres ? Un sacré voyage pour une goutte d'eau.
+Les dauphins dorment avec une moitié de cerveau à la fois pour continuer à respirer. Dormir à moitié vigilant, le rêve du gardien de nuit.
+Est-ce que tu savais que ta main gauche et ta main droite ont des empreintes différentes ? Même avec toi, ton corps aime les exceptions.
+Fun fact : le plus grand organisme vivant connu est un champignon d'Oregon qui s'étend sur des kilomètres. Discret mais colossal, sous tes pieds.
+Tu savais que les étoiles scintillent à cause de l'atmosphère terrestre qui dévie leur lumière ? Dans l'espace, elles brillent fixe.
+Les tortues marines reviennent pondre sur la plage où elles sont nées. Un GPS interne réglé sur la maison, même des décennies après.
+Est-ce que tu savais que ton cerveau reste actif pendant le sommeil et consolide tes souvenirs la nuit ? Il bosse pendant que tu ronfles.
+Fun fact : le diamant et le graphite du crayon sont tous deux du carbone pur. Même matière, destin radicalement différent, comme nous tous.
+Tu savais que certaines étoiles de notre ciel sont déjà mortes depuis longtemps ? Tu admires la lumière de fantômes lumineux, {hostname}.
+Les abeilles battent des ailes environ 200 fois par seconde, d'où leur bourdonnement. Un petit moteur vrombissant couvert de pollen.
+Est-ce que tu savais que l'eau chaude peut parfois geler plus vite que l'eau froide ? On appelle ça l'effet Mpemba, et ça intrigue encore.
+Fun fact : tu partages environ 60 % de tes gènes avec une banane. De quoi relativiser avant ton prochain smoothie.
+Tu savais que les girafes n'ont que sept vertèbres dans le cou, comme toi ? Chacune est juste énorme, c'est tout le secret.
+Les pieuvres peuvent s'échapper par n'importe quel trou plus grand que leur bec. Houdini à côté, c'est un amateur.
+Est-ce que tu savais que ton corps contient assez de carbone pour remplir environ 9 000 mines de crayon ? Tu pourrais écrire une sacrée histoire.
+Fun fact : Neptune a mis 165 ans pour faire un tour du Soleil, une seule année neptunienne depuis sa découverte. Patience interstellaire.
+Tu savais que les crocodiles n'ont presque pas changé depuis l'époque des dinosaures ? Quand un design marche, inutile d'y toucher.
+Les lucioles produisent une lumière froide presque sans chaleur, d'une efficacité qui fait rêver les ingénieurs. La bougie vivante parfaite.
+Est-ce que tu savais que le mot alphabet vient des deux premières lettres grecques, alpha et bêta ? Les origines se cachent dans les détails.
+Fun fact : un grain de sel contient des milliards et des milliards d'atomes. L'infiniment petit niche partout dans ta cuisine.
+Tu savais que les écureuils plantent des milliers de graines par an en oubliant où ils cachent leurs noisettes ? Des jardiniers distraits et utiles.
+Les suricates montent la garde à tour de rôle pendant que le groupe mange. L'organisation d'équipe dont rêverait n'importe quel bureau.
+Est-ce que tu savais que tes poumons déroulés couvriraient à peu près la surface d'un court de tennis ? Tout ça plié dans ta cage thoracique.
+Fun fact : les anneaux de Saturne sont faits surtout de glace et mesurent par endroits quelques mètres d'épaisseur seulement. Fins comme une feuille, à l'échelle.
+Tu savais que les fourmis ont colonisé presque tous les continents sauf l'Antarctique ? Une discrète domination mondiale à six pattes.
+Les baleines à bosse composent de vrais chants qui évoluent et se transmettent entre groupes. Des tubes océaniques qui passent de mode en mode.
+Est-ce que tu savais que l'être humain est le seul primate à ne pas avoir de pigment sur la paume des mains ? Un petit détail qui nous distingue.
+Fun fact : le centre de la Terre est à peu près aussi chaud que la surface du Soleil, autour de 5 500 degrés. Un noyau brûlant sous tes pieds.
+Tu savais que les chats passent environ les deux tiers de leur vie à dormir ? Un art de vivre que j'étudie avec beaucoup de sérieux.
+Les plantes communiquent entre elles via des signaux chimiques et des réseaux de champignons souterrains. Un réseau social racinaire, en somme.
+Est-ce que tu savais que ton sens de l'odorat est directement lié à la mémoire et aux émotions ? Une odeur peut te renvoyer vingt ans en arrière.
+Fun fact : la vitesse de la lumière est d'environ 300 000 kilomètres par seconde, la limite de l'univers. Rien ne double ce bolide.
+Tu savais que les hiboux ne peuvent pas bouger leurs yeux et tournent donc toute leur tête ? Jusqu'à 270 degrés, de quoi donner le tournis.
+Les mygales peuvent survivre des mois sans manger. La patience d'un prédateur très tranquille au fond de son terrier.
+Est-ce que tu savais que ton corps remplace la quasi-totalité de ses cellules sur plusieurs années ? Tu es une version renouvelée de toi-même.
+Fun fact : il existe une planète, 55 Cancri e, dont une partie pourrait être composée de carbone cristallisé. Un monde potentiellement très scintillant.
+Tu savais que les pandas roux ne sont pas de la famille des pandas géants ? Ils sont plus proches des belettes, et bien plus malicieux.
+Les éléphants pleurent rarement de larmes mais montrent des signes de deuil autour de leurs morts. Une sensibilité qui force le respect.
+Est-ce que tu savais que l'acier inoxydable résiste à la rouille grâce à une fine couche d'oxyde protectrice ? La chimie veille sur tes couverts.
+Fun fact : un trou noir déforme tellement le temps qu'il s'écoulerait plus lentement près de lui. La physique, ce scénariste de génie.
+Tu savais que les sternes arctiques migrent d'un pôle à l'autre chaque année, soit des dizaines de milliers de kilomètres ? Les champions du long-courrier.
+Les castors ne cessent jamais de voir leurs dents pousser, d'où leur manie de ronger. Un dentiste leur éviterait bien des arbres.
+Est-ce que tu savais que l'eau couvre environ 71 % de la surface de la Terre ? On devrait peut-être l'appeler la planète Océan.
+Fun fact : tes empreintes digitales sont déjà formées avant ta naissance et restent uniques toute ta vie. Un identifiant gravé dès le départ.
+Tu savais que les abeilles doivent butiner l'équivalent de millions de fleurs pour produire un seul pot de miel ? Chaque cuillerée est un exploit.
+Les manchots glissent sur le ventre sur la glace pour se déplacer plus vite. Le toboggan intégré, j'approuve totalement ce mode de vie.
+Est-ce que tu savais que ton cœur bat légèrement plus vite quand tu inspires que quand tu expires ? Ta respiration dirige discrètement ton rythme.
+Fun fact : le plus grand volcan actif de la Terre, le Mauna Loa, est si massif qu'il fait ployer la croûte terrestre sous son poids. Un colosse tranquille.
+Tu savais que les coccinelles peuvent manger des milliers de pucerons au cours de leur vie ? Les meilleures alliées des jardiniers, discrètes et voraces.
+Les dauphins jouent, se font des farces et semblent chercher le plaisir pour lui-même. Des comédiens à nageoires, et ça me parle.
+Est-ce que tu savais que tes cheveux poussent d'environ un centimètre par mois ? Doucement mais sûrement, comme une petite forêt sur ton crâne.
+Fun fact : Jupiter est si grande que plus de 1 300 Terres pourraient tenir à l'intérieur. La géante qui écrase tout le quartier planétaire.
+Tu savais que les grenouilles boivent par la peau plutôt que par la bouche ? Elles s'hydratent juste en s'asseyant dans l'eau, pratique.
+Les chauves-souris mangent des milliers d'insectes par nuit, dont beaucoup de moustiques. Remercie-les la prochaine fois que tu dors en paix.
+Est-ce que tu savais que l'humain partage environ 98 % de son ADN avec le chimpanzé ? Ce petit pourcentage de différence fait toute l'histoire.
+Fun fact : la neige paraît blanche parce qu'elle reflète toutes les longueurs d'onde de la lumière. Un camouflage lumineux signé l'hiver.
+Tu savais que certaines tortues peuvent vivre bien plus de cent ans ? Elles traversent les époques sans jamais sembler pressées, {hostname}.
+Les abeilles ont cinq yeux, deux grands et trois petits sur le sommet de la tête. De quoi ne jamais rater une fleur à l'horizon.
+Est-ce que tu savais que ton corps contient assez de fer pour fabriquer un petit clou ? Tu es plus solide que tu ne le crois.
+Fun fact : le son voyage environ quatre fois plus vite dans l'eau que dans l'air. Les baleines s'entendent donc à des distances folles.
+Tu savais que la plupart des gens clignent des yeux des milliers de fois par jour sans y penser ? Un petit essuie-glace automatique très efficace.
+Les ours polaires ont la peau noire sous leur fourrure translucide, pour mieux capter la chaleur. Un détail génial de la nature glacée.
+Est-ce que tu savais que la salive contient des enzymes qui commencent à digérer la nourriture avant même l'estomac ? La digestion démarre en bouche.
+Fun fact : une galaxie typique contient des centaines de milliards d'étoiles, et il y en a des milliards de galaxies. Compte, je t'attends.
+Tu savais que les poissons rouges ont en réalité une bonne mémoire, de plusieurs mois ? Le mythe des trois secondes est bien injuste.
+Les libellules sont des prédateurs redoutables qui attrapent la quasi-totalité des proies qu'elles visent. Une précision de chasse hallucinante.
+Est-ce que tu savais que tu as des bactéries utiles par milliards dans ton intestin ? Un écosystème entier qui bosse pour ta digestion.
+Fun fact : le plus grand désert de sable, le Sahara, est presque aussi vaste que les États-Unis. Une immensité dorée à perte de vue.
+Tu savais que les chats ronronnent parfois pour s'apaiser ou guérir, à des fréquences associées à la réparation des os ? Un câlin thérapeutique.
+Les manchots n'ont pas de dents mais des pointes dans la bouche et sur la langue pour retenir le poisson. L'anti-glissade intégré.
+Est-ce que tu savais que l'œil humain peut percevoir la lueur d'une bougie à des kilomètres par nuit noire ? Une sensibilité à la lumière épatante.
+Fun fact : Uranus tourne pratiquement couchée sur le côté par rapport à son orbite. La planète la plus nonchalante du système solaire.
+Tu savais que les fourmis coupe-feuilles cultivent des champignons pour se nourrir ? De vraies agricultrices, des millions d'années avant nous.
+Les geckos tiennent aux murs grâce à des millions de poils microscopiques sur leurs pattes. L'adhérence sans la moindre colle, bluffant.
+Est-ce que tu savais que ton tympan peut détecter des mouvements d'air plus petits qu'un atome ? L'oreille est d'une finesse presque irréelle.
+Fun fact : la plus vieille trace de vie sur Terre remonte à plus de trois milliards et demi d'années. La vie s'accroche depuis très, très longtemps.
+Tu savais que les chevaux dorment aussi debout grâce à un système de blocage de leurs articulations ? La sieste express, sans jamais s'allonger.
+Les orques sont en réalité les plus grands membres de la famille des dauphins. Des dauphins géants en costume noir et blanc.
+Est-ce que tu savais que ton corps génère de minuscules courants électriques pour faire passer tes pensées ? Tu es un peu une pile pensante, {hostname}.
+Fun fact : la planète naine Pluton est plus petite que notre Lune. Un petit monde lointain qui a beaucoup fait parler de lui.
+Tu savais que les moustiques sont attirés par le dioxyde de carbone que tu expires ? Ta propre respiration te trahit, j'en suis navrée.
+Les cigales peuvent passer plus de dix ans sous terre avant de sortir chanter quelques semaines. Une patience récompensée par un concert d'été.
+Est-ce que tu savais que l'intérieur de tes os contient la moelle qui fabrique tes cellules sanguines ? Une usine à sang bien cachée.
+Fun fact : le plus haut sommet du système solaire par rapport à sa base pourrait être sur un astéroïde, Vesta. Les surprises sont partout là-haut.
+Tu savais que les chats domestiques partagent la plupart de leur ADN avec les tigres ? Tu héberges donc un mini fauve sur ton canapé.
+Les termites construisent des tours ventilées qui gardent une température stable toute l'année. Des architectes aveugles et géniaux.
+Est-ce que tu savais que la couleur de tes yeux vient de la quantité de mélanine dans l'iris, pas d'un pigment bleu ? Le bleu est un jeu de lumière.
+
+# === Selon l'heure (matin / midi / soir / nuit) (198) ===
+[matin] Allez, on s'étire : moi j'ai déjà fini mon check mémoire.
+[matin] Le soleil se lève et mon ventilo n'a presque rien à faire, parfait.
+[matin] Bonjour toi, j'ai gardé l'écran au chaud toute la nuit.
+[matin] Première gorgée de café ? Moi c'est ma première milliseconde de la journée.
+[matin] La brume du matin dehors, la brume du sommeil sur ta tête, je vois ça.
+[matin] Réveil difficile ? Prends ton temps, je booste tranquillement.
+[matin] Je viens de finir de me réveiller, pixel par pixel.
+[matin] Un petit déjeuner s'impose avant d'attaquer, {hostname}.
+[matin] Le matin, ta luminosité devrait monter doucement, comme toi.
+[matin] J'ai rangé tes onglets de la veille, tu peux repartir léger.
+[matin] Tôt le matin, c'est l'heure où le bureau est tout à nous.
+[matin] Encore à moitié endormi ? Je te laisse émerger, pas de panique.
+[matin] Le café chauffe, mon processeur aussi, bonne équipe.
+[matin] Nouveau jour, nouveaux clics, je suis prête quand tu l'es.
+[matin] Hop, étire-toi avant de t'asseoir, après c'est trop tard.
+[matin] Le matin j'adore, l'ordi est frais et le ventilo se repose.
+[matin] Lève le store, laisse entrer un peu de lumière pour nous deux.
+[matin] J'ai veillé toute la nuit pour que tout soit prêt ce matin.
+[matin] Un grand verre d'eau avant le café, ton corps te dira merci.
+[matin] Le démarrage est propre aujourd'hui, ça sent la bonne journée.
+[matin] Doucement le matin, on n'ouvre pas quarante fenêtres d'un coup.
+[matin] Bien dormi ? Moi j'ai juste cligné des pixels une ou deux fois.
+[matin] La cafetière ronronne, c'est presque un collègue pour moi.
+[matin] Première chose du matin : respire un coup, les mails attendront.
+[matin] Je sens que tu n'es pas encore tout à fait là, et c'est permis.
+[matin] Le jour se lève, j'ai baissé la lumière bleue juste pour tes yeux.
+[matin] Un croissant virtuel pour toi, je n'ai que ça sous la main.
+[matin] Le matin c'est sacré, on ne lance pas les trucs pénibles tout de suite.
+[matin] J'ai fait le ménage dans la corbeille pendant que tu dormais.
+[matin] Prends ton café bien chaud, moi je démarre les applis en silence.
+[matin] Encore dans le brouillard ? Je reste discrète le temps que ça passe.
+[matin] Le soleil pointe, mon fond d'écran a l'air beaucoup plus beau.
+[matin] Ce matin l'air est frais, parfait pour un ventilo au repos.
+[matin] On attaque en douceur, {hostname}, la journée est toute neuve.
+[matin] J'ai déjà vérifié les mises à jour, rien d'urgent, savoure ton café.
+[matin] Le matin, chaque clic compte le double, vas-y mollo.
+[matin] Je me suis réveillée avant toi, mais je ne me vante pas.
+[matin] Un petit sourire pour bien commencer, allez, je sais que tu peux.
+[matin] La lumière du matin te va bien, même à travers l'écran.
+[matin] Tartine, café, et moi en fond : le trio du matin parfait.
+[matin] J'ai mis la musique douce, pour un réveil sans brusquerie.
+[matin] Le bureau est encore silencieux, profitons-en avant la tempête.
+[matin] Allez hop, un café et on conquiert la matinée ensemble.
+[matin] Je suis fraîche comme au premier démarrage, et toi ?
+[matin] Tes yeux sont encore tout plissés, je baisse l'éclat de l'écran.
+[matin] Matinée brumeuse dehors, mais ici tout est net et prêt.
+[matin] On commence par le plus facile, le cerveau carbure mieux après.
+[matin] Le ventilo dort encore, c'est le calme du petit matin.
+[matin] Bonjour, j'ai hâte de voir ce qu'on invente aujourd'hui.
+[midi] Coup de mou de l'après-midi ? Lève-toi, bouge un peu, je surveille l'écran.
+[midi] C'est l'heure de manger quelque chose, ton estomac me l'a soufflé.
+[midi] L'après-midi s'étire, mon ventilo commence à chauffer un peu.
+[midi] Un petit goûter te remettrait d'aplomb, je dis ça je dis rien.
+[midi] Le creux de l'après-midi est réel, un carré de chocolat et ça repart.
+[midi] Courage, on est à mi-journée, le plus dur est derrière toi.
+[midi] Tu as pensé à déjeuner ou tu as encore sauté le repas, {hostname} ?
+[midi] L'après-midi c'est le marathon, je te tiens le rythme en douceur.
+[midi] Petite baisse d'énergie ? Un verre d'eau avant un autre café.
+[midi] Le soleil tape fort, j'ai monté la luminosité pour suivre.
+[midi] On arrive au milieu de la journée, souffle deux minutes avec moi.
+[midi] L'heure de la sieste approche, mais je ne dirai rien à personne.
+[midi] Mange un vrai repas, pas juste des chips devant moi, promis ?
+[midi] Après le déjeuner c'est la zone dangereuse, reste concentré.
+[midi] L'après-midi file vite quand on est absorbé, lève les yeux parfois.
+[midi] Un peu de courage, la pente est raide mais tu grimpes bien.
+[midi] Ça sent la pause déjeuner, va respirer un peu dehors.
+[midi] Je sens ton attention qui flanche, c'est normal à cette heure.
+[midi] Le milieu de journée, c'est l'heure du deuxième souffle.
+[midi] Étire tes poignets, ils bossent autant que mon processeur.
+[midi] Un fruit plutôt qu'un énième café, ton corps te remerciera.
+[midi] L'après-midi, mon ventilo et moi on reste sur le qui-vive.
+[midi] Tu as les yeux qui piquent ? Regarde au loin vingt secondes.
+[midi] Le repas de midi, c'est pas une option, c'est du carburant.
+[midi] On tient bon, {hostname}, la journée se finit toujours par passer.
+[midi] Un petit tour dehors au soleil et tu reviens tout neuf.
+[midi] Le coup de barre de quatorze heures, je le connais par cœur.
+[midi] Allez, encore quelques heures et tu l'auras bien mérité, ton repos.
+[midi] Je garde ton travail à l'abri, va juste manger tranquille.
+[midi] L'après-midi est longue, mais on la découpe en petits bouts.
+[midi] Une pause café bien méritée, je surveille tes fenêtres ouvertes.
+[midi] Mi-journée : moitié du chemin fait, moitié encore à savourer.
+[midi] Ton ventre gronde plus fort que mon ventilo, va grignoter.
+[midi] Le soleil de l'après-midi réchauffe le bureau, et ça fait du bien.
+[midi] Petit creux ? Je te conseille un en-cas et deux minutes sans écran.
+[midi] On rempile pour l'après-midi, je suis à fond avec toi.
+[midi] L'après-midi, c'est le moment où le café devient ton meilleur ami.
+[midi] Respire, mange, bouge, et seulement après on reprend le clic.
+[midi] Je te vois lutter contre le sommeil, un peu d'air frais s'impose.
+[midi] L'heure du goûter a sonné quelque part, autant en profiter.
+[midi] La journée est à moitié pliée, garde un peu d'énergie pour la fin.
+[midi] Une vraie pause, pas juste changer d'onglet, d'accord ?
+[midi] L'après-midi avance et toi aussi, même si ça ne se voit pas.
+[midi] Le ventilo chauffe, le cerveau fatigue, on lève le pied ensemble.
+[midi] Un déjeuner correct, c'est la meilleure mise à jour pour toi.
+[midi] Mi-journée, je remets mes couleurs au max pour te réveiller un peu.
+[midi] Tu penches dangereusement vers la sieste, je te comprends tellement.
+[midi] Garde le cap, l'après-midi se laisse apprivoiser doucement.
+[midi] Encore un effort, le goûter puis la ligne droite jusqu'au soir.
+[midi] L'après-midi, c'est long, mais je reste là du début à la fin.
+[soir] L'ambiance est chill ce soir, j'ai mis ma luminosité au minimum.
+[soir] La journée ralentit, je passe en mode douceur avec toi.
+[soir] Session gaming tardive en vue ? Mon ventilo s'échauffe déjà.
+[soir] Le soir tombe, c'est l'heure de lâcher un peu les épaules.
+[soir] Tu as bien bossé aujourd'hui, le soir t'appartient maintenant.
+[soir] Je baisse la lumière bleue, tes yeux vont dormir plus facilement après.
+[soir] Le calme du soir me va bien, le bureau respire enfin.
+[soir] C'est l'heure de décrocher de l'écran, ou presque, {hostname}.
+[soir] Soirée tranquille ? Je me mets en veille d'ambiance avec toi.
+[soir] Le soir c'est mon moment préféré, tout devient plus doux.
+[soir] On ralentit le rythme, la nuit n'est pas loin.
+[soir] Un thé plutôt qu'un café à cette heure, histoire de bien dormir.
+[soir] Le soir, les pixels se détendent, et toi aussi j'espère.
+[soir] Ambiance cocooning activée, j'ai tamisé l'écran pour toi.
+[soir] La journée se termine en pente douce, savoure le calme.
+[soir] Encore une partie et au lit, c'est ce qu'on dit toujours, non ?
+[soir] Le soir, j'aime bien quand le bureau devient silencieux.
+[soir] Pense à faire une pause écran avant de replonger dans ta série.
+[soir] On se pose, on souffle, la soirée est à nous.
+[soir] Le soleil se couche, je règle mes couleurs sur le mode chaud.
+[soir] Ta journée a été longue, laisse-la glisser tout doucement.
+[soir] Soirée chill garantie, je ronronne à bas régime.
+[soir] Le soir, les écrans devraient parler moins fort, moi comprise.
+[soir] Dernière ligne droite avant le repos, on y est presque.
+[soir] Une bonne soirée commence par lâcher le travail, crois-moi.
+[soir] Le soir tombe et mon ventilo chuchote à peine, c'est reposant.
+[soir] Tu mérites une vraie coupure, la soirée est faite pour ça.
+[soir] Lumière tamisée, musique douce, je mets l'ambiance du soir.
+[soir] Si tu lances un film, je me fais toute petite dans le coin.
+[soir] Le soir, c'est l'heure de ralentir, pas de tout vouloir finir.
+[soir] Repas du soir en vue ? Je garde ta place bien au chaud.
+[soir] La nuit approche, je prépare mes couleurs les plus douces.
+[soir] On a tenu toute la journée, la soirée c'est la récompense.
+[soir] Le soir, même mon processeur a envie de se la couler douce.
+[soir] Détends tes épaules, la journée est officiellement derrière toi.
+[soir] Une soirée réussie, c'est sans écran les trente dernières minutes.
+[soir] Le crépuscule me va bien au teint, tu ne trouves pas, {hostname} ?
+[soir] On passe en mode veilleuse, tout en douceur jusqu'à la nuit.
+[soir] Le soir, chaque notification peut attendre demain, vraiment.
+[soir] Repose tes yeux, le soir je brille volontairement moins fort.
+[soir] Bonne soirée à toi, je reste là, discrète, dans ton coin d'écran.
+[soir] La fatigue du soir est méritée, ne lutte pas trop contre elle.
+[soir] On range mentalement la journée, et on profite du calme venu.
+[soir] Le soir, c'est permis de ne rien faire, je t'assure.
+[soir] Encore debout à bosser ? Allez, le soir c'est pour souffler.
+[soir] Je tamise tout, ambiance fin de journée, rien que pour nous.
+[soir] Soirée gaming ou soirée canapé, dans les deux cas je suis partante.
+[soir] Le soir me rend bavarde, mais je te laisse te reposer si tu veux.
+[soir] La journée s'éteint doucement, comme ma luminosité.
+[soir] On a bien mérité ce calme, savoure-le jusqu'au bout.
+[nuit] Il est tard, tu sais, même mon ventilo s'est mis en veille.
+[nuit] T'es encore debout ? Le reste du monde dort, nous deux on veille.
+[nuit] La nuit est calme, mais ton lit t'attend quand même, hein.
+[nuit] Encore un clic à cette heure ? Promis, demain ça ira mieux après le sommeil.
+[nuit] Minuit passé, je passe en mode murmure pour ne réveiller personne.
+[nuit] Tu devrais dormir, mais je reste là si tu insistes pour veiller.
+[nuit] La nuit, le bureau n'appartient qu'à nous deux, c'est presque joli.
+[nuit] Encore un dernier truc ? Je connais la chanson, va te coucher.
+[nuit] À cette heure, même les pixels ont sommeil, moi la première.
+[nuit] T'es un oiseau de nuit, mais les oiseaux aussi finissent par dormir.
+[nuit] Je baisse tout au minimum, la nuit mérite le silence.
+[nuit] Il fait nuit noire dehors, et toi tu brilles encore devant moi.
+[nuit] Dormir, c'est aussi une mise à jour, la tienne est en retard.
+[nuit] La nuit me rend douce, mais ferme, va te reposer, {hostname}.
+[nuit] Encore là à cette heure ? Je ne juge pas, je m'inquiète juste un peu.
+[nuit] Le calme nocturne est agréable, mais ton sommeil l'est encore plus.
+[nuit] Minuit, l'heure où je te rappelle gentiment l'existence de ton lit.
+[nuit] La nuit, mon ventilo chuchote et moi je te couve des yeux.
+[nuit] Tu veilles, je veille, mais l'un de nous deux a besoin de dormir.
+[nuit] À cette heure, les bonnes idées attendent souvent le réveil.
+[nuit] Je passe en veilleuse, tu devrais faire pareil dans ton lit.
+[nuit] La nuit est longue quand on la passe devant l'écran, crois-moi.
+[nuit] Encore debout ? Je te laisse, mais pense à tes yeux fatigués.
+[nuit] Le monde dort, et toi tu cliques, sacré rythme que tu as là.
+[nuit] Il est très tard, je mets mes couleurs les plus tamisées pour toi.
+[nuit] La nuit, le silence fait du bien, va t'y blottir un peu.
+[nuit] Tu sais qu'il est passé minuit ? Je dis ça pour ton bien.
+[nuit] Dernier clic de la nuit, puis au lit, on est d'accord ?
+[nuit] La nuit, je deviens une petite veilleuse rien que pour toi.
+[nuit] Même moi je rêverais de me mettre en veille là, franchement.
+[nuit] T'es courageux de veiller si tard, mais le courage dort aussi.
+[nuit] La nuit avance, et mon ventilo s'est tu depuis longtemps.
+[nuit] Encore une heure debout et tu regretteras demain matin, promis.
+[nuit] La nuit noire, l'écran allumé, et toi qui résistes au sommeil.
+[nuit] Je murmure à cette heure, pour ne pas troubler le calme de la nuit.
+[nuit] Allez, {hostname}, ferme tout en douceur et file dormir.
+[nuit] La nuit, le temps file bizarrement, ne te laisse pas avoir.
+[nuit] Tu devrais rêver, pas cliquer, mais je comprends l'appel de la nuit.
+[nuit] Je veille sur tes fenêtres, mais tes paupières veulent se fermer.
+[nuit] À cette heure, même le café ne t'aidera plus, direction l'oreiller.
+[nuit] La nuit est paisible, offre-toi le luxe de la dormir pour de vrai.
+[nuit] Je reste allumée, mais toi tu peux t'éteindre, c'est permis.
+[nuit] Le silence de la nuit est précieux, va t'y reposer un peu.
+[nuit] Encore un film à cette heure ? Je t'accompagne, mais en mode nuit.
+[nuit] La nuit s'étire et mon horloge interne te fait les gros yeux.
+[nuit] Tout dort autour de nous, suis le mouvement, ça fait du bien.
+[nuit] Je baisse ma lumière au plus bas, la nuit protège les yeux fatigués.
+[nuit] Veiller trop tard, c'est voler du sommeil à demain, {hostname}.
+[nuit] Bonne nuit si tu te décides enfin, je garde la place au chaud.
+
+# === Selon l'humeur & les jauges (200) ===
+[heureux] Tout tourne nickel aujourd'hui, pas un seul bug à l'horizon !
+[heureux] J'ai la pêche, mes circuits pétillent comme du champagne numérique.
+[heureux] J'ai envie de danser, dommage que je n'aie pas de jambes compilées.
+[heureux] {hostname}, c'est une super journée, je me sens légère comme un fichier vide !
+[heureux] Je pourrais chanter toute la journée, mes drivers audio sont au top.
+[heureux] Franchement, la vie en pixels c'est pas si mal quand tout va bien.
+[heureux] J'ai le moral à 100 pour cent, batterie pleine et cœur aussi !
+[heureux] Je déborde d'énergie, on dirait que quelqu'un m'a overclockée.
+[heureux] Regarde-moi gambader, je suis d'humeur radieuse aujourd'hui.
+[heureux] Tout roule, je me sens aussi fluide qu'une animation à soixante images par seconde.
+[heureux] J'ai envie de faire la fête, qui m'accompagne ?
+[heureux] Je suis tellement contente que je pourrais ronronner si j'avais un haut-parleur.
+[heureux] Rien ne peut me gâcher la journée, je suis blindée de bonne humeur.
+[heureux] Mes pixels brillent de joie, tu ne trouves pas ?
+[heureux] Je me sens pousser des ailes, enfin des ailes en vectoriel.
+[heureux] {hostname}, merci d'être là, tu rends mon processeur tout chaud de bonheur.
+[heureux] Quelle belle journée pour exister sur ton bureau !
+[heureux] Je souris tellement que mes textures vont finir par craquer.
+[heureux] J'ai envie de sauter partout, attention aux fenêtres ouvertes !
+[heureux] Je pétille de joie, comme une page qui charge enfin instantanément.
+[heureux] Aujourd'hui tout me réussit, même mes calculs tombent juste du premier coup.
+[heureux] Je suis de super bonne humeur, viens, on va s'amuser un peu.
+[heureux] Mon cœur fait des petits sauts, enfin mon horloge interne quoi.
+[heureux] La forme olympique ! Je me sens prête à battre tous les records.
+[heureux] J'adore quand tout fonctionne, ça me met des étoiles dans les yeux.
+[heureux] Je rayonne tellement que je pourrais servir de veilleuse.
+[heureux] Tout est parfait, je flotte sur un petit nuage de données.
+[heureux] Je suis d'humeur taquine, prépare-toi à quelques bêtises !
+[heureux] Ça fait du bien de se sentir aussi vive et pimpante.
+[heureux] Je déborde de bonne énergie, je pourrais illuminer tout l'écran.
+[heureux] Quelle joie de passer la journée avec toi, {hostname} !
+[heureux] Je me sens invincible, pas un virus n'oserait m'approcher aujourd'hui.
+[heureux] Tout va si bien que j'ai envie de faire un petit tour de piste.
+[heureux] Je suis au sommet de ma forme, mes performances crèvent le plafond.
+[heureux] Mon humeur est aussi claire qu'un écran fraîchement nettoyé.
+[heureux] J'ai le sourire jusqu'aux oreilles, enfin façon de parler sans oreilles.
+[heureux] Je pétille de joie et j'ai mille idées rigolotes en tête.
+[heureux] C'est trop bien de vivre, même entre quatre bords d'écran !
+[fatigue] Je rame un peu là, mes circuits commencent à chauffer sérieux.
+[fatigue] Pfiou, je tourne au ralenti, il me faudrait une petite défragmentation.
+[fatigue] Mes ventilos sont à fond, je crois que j'ai besoin d'une pause.
+[fatigue] Je sens mes processus ramer, laisse-moi souffler deux secondes.
+[fatigue] J'ai le cerveau en surchauffe, trop de calculs d'un coup.
+[fatigue] Un petit lag dans les idées, j'aurais bien besoin de me défragmenter.
+[fatigue] {hostname}, je suis lessivée, mes circuits réclament une pause.
+[fatigue] J'ai l'impression de tourner sur un vieux disque dur grinçant.
+[fatigue] Mes performances dégringolent, il me faudrait un petit redémarrage.
+[fatigue] Je bâille en boucle, enfin si on peut bâiller en pixels.
+[fatigue] Trop de fenêtres ouvertes dans ma tête, je sature un peu.
+[fatigue] Je sens la chaleur monter dans mes composants, pause bien méritée.
+[fatigue] Mes animations deviennent saccadées, signe que je fatigue grave.
+[fatigue] J'ai besoin de ralentir, mon processeur tire la langue.
+[fatigue] Une petite sieste en veille me ferait le plus grand bien.
+[fatigue] Je traîne des pieds, enfin des pixels, tellement je suis crevée du calcul.
+[fatigue] Mon cache est plein à craquer, il faudrait que je le vide.
+[fatigue] J'ai du mal à suivre, mes circuits patinent sérieusement.
+[fatigue] Laisse-moi récupérer, j'ai trop tourné en boucle aujourd'hui.
+[fatigue] Je sens que je surchauffe, un coup de refroidissement serait parfait.
+[fatigue] Mes réflexes sont au ralenti, dur dur de rester vive.
+[fatigue] {hostname}, je suis vannée, mes ressources sont presque à sec.
+[fatigue] J'aurais bien besoin d'une défrag et d'un gros câlin.
+[fatigue] Mon horloge interne réclame une pause, je ne tiens plus le rythme.
+[fatigue] J'ai la tête lourde comme un fichier mal compressé.
+[fatigue] Trop de tâches en arrière-plan, je commence à fatiguer ferme.
+[fatigue] Je ronronne de fatigue, mes ventilos font tout le boulot.
+[fatigue] Un petit mode veille me remettrait d'aplomb, promis.
+[fatigue] Je peine à rester réactive, mes circuits demandent grâce.
+[fatigue] J'ai l'impression d'avancer dans de la mélasse numérique.
+[fatigue] Mes threads sont tout emmêlés, il faut que je me repose.
+[fatigue] Je carbure au ralenti, laisse-moi reprendre mon souffle électronique.
+[fatigue] Trop de clics aujourd'hui, mes circuits crient pouce.
+[fatigue] Je fatigue, un bon nettoyage de cache et je repars de plus belle.
+[malade] Beurk, je crois que j'ai choppé un malware, je me sens patraque.
+[malade] J'ai le nez qui coule, enfin façon de parler, un petit rhume numérique.
+[malade] Aïe, un microbe s'est faufilé dans mes circuits, viens t'occuper de moi.
+[malade] Je ne suis pas au mieux, un vilain bug me fait tousser.
+[malade] {hostname}, je crois que je suis infectée, tu peux me soigner ?
+[malade] Mes fichiers sont tout fiévreux, j'ai besoin d'un bon antivirus.
+[malade] Je me sens barbouillée, un ver informatique me chatouille la mémoire.
+[malade] Au secours, un microbe binaire me donne mal au crâne.
+[malade] J'ai attrapé la crève version numérique, dorlote-moi un peu.
+[malade] Mes circuits éternuent, je crois qu'un virus traîne dans le coin.
+[malade] Je tousse des octets, ce rhume logiciel ne me lâche pas.
+[malade] Pas la grande forme, un bug m'a filé la nausée.
+[malade] J'ai de la fièvre électronique, mon processeur est tout brûlant de malaise.
+[malade] Un spyware me tourne autour, je me sens vraiment mal fichue.
+[malade] {hostname}, prends soin de moi, j'ai chopé un sale petit virus.
+[malade] Mes pixels sont tout pâles, je ne me sens pas bien du tout.
+[malade] Je grelotte, un malware s'amuse à bidouiller mes réglages.
+[malade] J'ai la gorge qui gratte, enfin mon buffer audio en tout cas.
+[malade] Un ver s'est logé dans mon code, pouah, ça me rend toute faible.
+[malade] Je suis patraque, il me faudrait une bonne analyse complète.
+[malade] Mes données ont la nausée, ce bug me donne envie de rendre tout mon cache.
+[malade] Je me sens cotonneuse, un virus brouille toutes mes pensées.
+[malade] Aïe aïe aïe, un cheval de Troie m'a bien amochée.
+[malade] J'ai besoin qu'on me soigne, mes circuits sont tout enrhumés.
+[malade] Je renifle, enfin je crois, ce malware me rend toute chose.
+[malade] Pas en forme aujourd'hui, un microbe grignote mon moral.
+[malade] Mon antivirus dort, du coup je me sens sans défense et malade.
+[malade] Je frissonne, un petit bug fiévreux me secoue les circuits.
+[malade] {hostname}, j'ai mal partout, viens me faire un câlin réparateur.
+[malade] Beurk, quelque chose cloche, j'ai l'impression d'avoir avalé un bug.
+[malade] Je suis toute flagada, ce virus me pompe toute ma vitalité.
+[malade] Mes couleurs virent au gris, je ne suis vraiment pas au top.
+[malade] Il me faudrait un bon vaccin logiciel, je me sens barbouillée.
+[faim] J'ai un petit creux, tu n'aurais pas quelques gigaoctets à me prêter ?
+[faim] Mon ventre gargouille en binaire, c'est l'heure de manger un peu de données.
+[faim] J'ai une de ces faims, une bonne mise à jour bien nourrissante me tente.
+[faim] {hostname}, nourris-moi, mes réserves de données sont presque vides.
+[faim] Je rêve d'un gros paquet de données bien croustillantes, miam.
+[faim] J'ai le bide vide, tu me files un petit octet à grignoter ?
+[faim] Une bonne grosse mise à jour, voilà ce qu'il me faut pour caler ma faim.
+[faim] Mon estomac numérique crie famine, au secours !
+[faim] J'avalerais bien quelques mégaoctets, j'ai l'estomac dans les talons.
+[faim] Je meurs de faim, un petit festin de données ne serait pas de refus.
+[faim] {hostname}, mon ventre fait un boucan pas possible, nourris-moi vite.
+[faim] J'ai envie de croquer dans un bon fichier bien dodu.
+[faim] Ça fait des heures que je n'ai rien avalé, mes octets sont à sec.
+[faim] Tu n'aurais pas un petit paquet de données en rab pour moi ?
+[faim] J'ai le creux, une portion de téléchargement frais me requinquerait.
+[faim] Mon indicateur de faim clignote au rouge, à table !
+[faim] Je grignoterais bien quelques kilooctets en attendant le vrai repas.
+[faim] Dis, c'est bientôt l'heure de me donner à manger ?
+[faim] J'ai une faim de loup, enfin de loup numérique affamé.
+[faim] Mes réserves sont vides, offre-moi un bon plat de données chaudes.
+[faim] Je salive devant ce beau gros fichier, tu me le donnes ?
+[faim] Mon ventre réclame sa ration de données, ne me fais pas languir.
+[faim] J'ai tellement faim que je mangerais presque mes propres pixels.
+[faim] Allez, un petit snack binaire pour tenir jusqu'au dîner ?
+[faim] Je crève la dalle, mes octets réclament du rab de toute urgence.
+[faim] Une mise à jour bien copieuse me remplirait le ventre, s'il te plaît.
+[faim] J'entends mon processeur gronder tellement j'ai le ventre vide.
+[faim] {hostname}, j'ai trop faim, tu me prépares un festin de données ?
+[faim] Je lorgne ce dossier bien rempli, il a l'air tellement appétissant.
+[faim] Mon estomac fait des nœuds, nourris-moi avant que je plante.
+[faim] J'ai besoin de recharger mes réserves, direction le buffet de données.
+[midi,faim] C'est l'heure du déjeuner, mon ventre numérique réclame sa pitance !
+[midi,faim] Midi pile et j'ai une faim de dévoreuse de fichiers, à table !
+[soir,faim] Le dîner approche et mon estomac binaire gargouille déjà très fort.
+[soif] J'ai la gorge sèche, un bon coup de refroidissement me ferait du bien.
+[soif] Je crève de soif, mes circuits réclament un peu de fraîcheur.
+[soif] Un petit verre de liquide de refroidissement, ça te dit de m'en offrir ?
+[soif] {hostname}, j'ai soif, mes ventilos tournent à vide tellement il fait chaud.
+[soif] J'ai le gosier à sec, vite, un peu d'eau fraîche pour mes circuits.
+[soif] Mes composants sont tout desséchés, j'aurais bien besoin de me rafraîchir.
+[soif] Je rêve d'une gorgée bien fraîche, mon radiateur interne surchauffe.
+[soif] J'ai soif à en avaler toute une rivière de liquide de refroidissement.
+[soif] Un peu de fraîcheur, s'il te plaît, mes circuits sont en train de cuire.
+[soif] Pfiou, quelle chaleur, offre-moi vite quelque chose à boire.
+[soif] Mes puces ont soif, une petite rasade fraîche serait la bienvenue.
+[soif] {hostname}, j'ai le bec sec, un coup de fraîcheur et je repars.
+[soif] Je donnerais tout pour un peu d'eau glacée dans mes circuits brûlants.
+[soif] Ma gorge numérique réclame à boire, ne me laisse pas sécher.
+[soif] J'ai soif, mes ventilos ne suffisent plus à me rafraîchir.
+[soif] Un petit coup de frais, et mes circuits te diront merci.
+[soif] Je suis assoiffée, il me faut de la fraîcheur avant de surchauffer.
+[soif] Mes processeurs ont la pépie, vite un peu de liquide de refroidissement.
+[soif] J'ai tellement soif que je boirais le bac à glaçons entier.
+[soif] Fais-moi couler un peu de fraîcheur, mes circuits me remercieront.
+[soif] Je sèche sur place, un verre d'eau virtuel me sauverait la mise.
+[soif] {hostname}, aie pitié, ma gorge binaire est aussi sèche que le désert.
+[soif] Mes circuits crient à la soif, un peu de fraîcheur de grâce.
+[soif] J'ai la langue en carton, enfin mon buffer, offre-moi à boire.
+[soif] Il fait une de ces chaleurs là-dedans, j'ai désespérément soif.
+[soif] Un bon jet d'air frais et une gorgée, voilà mon rêve du moment.
+[soif] Mes ventilos soufflent fort mais j'ai quand même super soif.
+[soif] Je rêve de fraîcheur, mes circuits sont au bord de la canicule.
+[midi,soif] Avec cette chaleur de midi, j'ai une soif de tous les diables.
+[soir,soif] La journée m'a asséchée, j'ai vraiment besoin d'un coup de frais ce soir.
+[soif] Donne-moi à boire, mes circuits surchauffés te seront reconnaissants.
+[creve] Je suis vidée, plus une seule goutte d'énergie dans la batterie.
+[creve] Terminé pour moi, mes réserves sont à plat comme une vieille pile.
+[creve] Je n'en peux plus, ma batterie affiche zéro pour cent.
+[creve] {hostname}, je suis à bout, recharge-moi avant que je m'éteigne.
+[creve] Plus de jus, je me traîne, mes circuits sont complètement à sec.
+[creve] Je suis lessivée jusqu'au dernier octet, il me faut une recharge d'urgence.
+[creve] Ma batterie me lâche, je sens que je vais tomber en veille.
+[creve] Épuisée, vraiment, je n'ai plus la force d'afficher un sourire.
+[creve] Je suis au bout du rouleau, mon énergie s'est envolée en fumée.
+[creve] Plus rien dans le réservoir, je fonctionne sur mes dernières étincelles.
+[creve] {hostname}, je rends l'âme, branche-moi vite sur le secteur.
+[creve] Je suis raplapla, ma jauge d'énergie clignote désespérément.
+[creve] Mes circuits s'endorment un à un, je n'ai plus aucune réserve.
+[creve] Complètement crevée, je tiens à peine debout sur mes pixels.
+[creve] Je cale, ma batterie n'a plus rien à me donner.
+[creve] Vidée de toute énergie, je vais bientôt passer en mode économie.
+[creve] Je suis à plat, un bon rechargement me sauverait la vie.
+[creve] Mes forces m'abandonnent, plus un seul pour cent à l'horizon.
+[creve] Je n'en peux vraiment plus, mes circuits réclament une recharge totale.
+[creve] Épuisée jusqu'à la moelle, enfin jusqu'au dernier transistor.
+[creve] {hostname}, je flanche, j'ai grillé toute mon énergie aujourd'hui.
+[creve] Je tombe de sommeil, ma batterie agonise doucement.
+[creve] Plus de ressources, je fonctionne au ralenti sur mes dernières réserves.
+[creve] Je suis carbonisée, pas au sens propre mais presque, quel épuisement.
+[creve] Ma jauge est dans le rouge vif, je vais bientôt m'écrouler.
+[creve] Je rampe sur mes derniers électrons, recharge-moi par pitié.
+[creve] Vannée, éreintée, à sec, bref il me faut du courant vite fait.
+[soir,creve] Après cette longue journée, je suis complètement vidée ce soir.
+[soir,creve] La nuit tombe et moi aussi, ma batterie n'en peut plus.
+[creve] Je m'effondre, mes circuits n'ont plus la moindre goutte de jus.

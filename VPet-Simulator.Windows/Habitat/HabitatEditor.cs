@@ -103,6 +103,8 @@ internal sealed class HabitatEditor
 
         var cancel = new Button { Style = (Style)win.FindResource("HudGhostButton"), Content = "Annuler", Margin = new Thickness(0, 0, 6, 0), ToolTip = "Quitter sans enregistrer" };
         cancel.Click += (_, _) => win.StopEditing(null);
+        var test = new Button { Style = (Style)win.FindResource("HudGhostButton"), Content = "Tester", Margin = new Thickness(0, 0, 6, 0), ToolTip = "Prévisualiser : Maxine parcourt tes sols et étages (sans enregistrer)" };
+        test.Click += (_, _) => StartTest();
         var done = new Button { Style = (Style)win.FindResource("HudPrimaryButton"), Content = "Terminer", ToolTip = "Enregistrer la carte (Entrée)" };
         done.Click += (_, _) => Finish();
 
@@ -133,7 +135,7 @@ internal sealed class HabitatEditor
         row.Children.Add(Div());
         row.Children.Add(Grp("VUE", IconButton("", "Annuler (Ctrl+Z)", Undo), IconButton("", "Rétablir (Ctrl+Y)", Redo), IconButton("", "Ajuster la vue (F)", FitView)));
         row.Children.Add(Div());
-        row.Children.Add(Grp(null, cancel, done));
+        row.Children.Add(Grp(null, test, cancel, done));
 
         issueText = new TextBlock { FontSize = 12, Foreground = Res("HudAmber"), Margin = new Thickness(4, 6, 4, 0), TextWrapping = TextWrapping.Wrap, MaxWidth = 640, HorizontalAlignment = HorizontalAlignment.Center, TextAlignment = TextAlignment.Center, Cursor = Cursors.Hand, ToolTip = "Cliquer pour sélectionner l'élément concerné" };
         issueText.MouseLeftButtonUp += (_, e) =>
@@ -192,6 +194,12 @@ internal sealed class HabitatEditor
 
     public void Detach()
     {
+        mode.StopTest();
+        if (testBar != null)
+        {
+            win.Stage.Children.Remove(testBar);
+            testBar = null;
+        }
         win.Stage.MouseLeftButtonDown -= OnDown;
         win.Stage.MouseRightButtonDown -= OnPanDown;
         win.Stage.MouseDown -= OnMiddleDown;
@@ -212,6 +220,68 @@ internal sealed class HabitatEditor
         work.Climbs.RemoveAll(c => Math.Abs(c.Y2 - c.Y1) < 1);
         win.StopEditing(work);
     }
+
+    #region Test de parcours
+    private Border? testBar;
+
+    /// <summary>Lance la prévisualisation : masque l'édition, Maxine devient visible et parcourt les sols tracés.</summary>
+    private void StartTest()
+    {
+        if (mode.IsTesting)
+            return;
+        work.Floors.RemoveAll(f => f.Length < 1);
+        if (work.Floors.Count == 0)
+        {
+            mode.MW.Toast("Trace au moins un sol avant de tester le parcours.", HUD.HudToast.Kind.Info, 5);
+            return;
+        }
+        toolbar.Visibility = Visibility.Collapsed;
+        props.Visibility = Visibility.Collapsed;
+        win.Overlay.Children.Clear(); // retire la surcouche d'édition (fantôme, poignées) pendant le test
+
+        var row = new StackPanel { Orientation = Orientation.Horizontal, VerticalAlignment = VerticalAlignment.Center };
+        row.Children.Add(new TextBlock { Text = "Test en cours — Maxine parcourt ses étages.", VerticalAlignment = VerticalAlignment.Center, Margin = new Thickness(4, 0, 14, 0), Foreground = Res("HudText") });
+        var back = new Button { Style = (Style)win.FindResource("HudGhostButton"), Content = "Revenir à l'édition", Margin = new Thickness(0, 0, 6, 0) };
+        back.Click += (_, _) => EndTest(validate: false);
+        var validate = new Button { Style = (Style)win.FindResource("HudPrimaryButton"), Content = "Valider et enregistrer" };
+        validate.Click += (_, _) => EndTest(validate: true);
+        row.Children.Add(back);
+        row.Children.Add(validate);
+        testBar = new Border
+        {
+            Style = (Style)win.FindResource("HudPanel"),
+            CornerRadius = new CornerRadius(20),
+            Padding = new Thickness(14, 10, 14, 10),
+            Margin = new Thickness(12, 0, 12, 14),
+            HorizontalAlignment = HorizontalAlignment.Center,
+            VerticalAlignment = VerticalAlignment.Bottom,
+            Child = row,
+        };
+        win.Stage.Children.Add(testBar);
+        VPet_Simulator.Core.UiMotion.SlideIn(testBar, 12, 220);
+        _ = mode.StartTestAsync(work);
+    }
+
+    private void EndTest(bool validate)
+    {
+        if (testBar != null)
+        {
+            win.Stage.Children.Remove(testBar);
+            testBar = null;
+        }
+        if (validate)
+        {
+            mode.StopTest(); // on garde la carte testée telle quelle
+            Finish();        // enregistre work et sort de l'édition
+        }
+        else
+        {
+            mode.EndTest(backToEditing: true); // le compagnon se re-masque, l'éditeur reprend
+            toolbar.Visibility = Visibility.Visible;
+            Render();
+        }
+    }
+    #endregion
 
     /// <summary>QA : trace un sol au milieu du décor puis « Terminer », en capturant toute erreur (debug de l'éditeur).</summary>
     internal string QaDrawAndFinish()
@@ -538,6 +608,8 @@ internal sealed class HabitatEditor
 
     private void OnDown(object sender, MouseButtonEventArgs e)
     {
+        if (mode.IsTesting)
+            return;
         if (toolbar.IsMouseOver || props.IsMouseOver || win.IsOverChrome || e.OriginalSource is DependencyObject d && IsInChrome(d))
             return;
         var p = ImagePoint(e);
@@ -599,6 +671,8 @@ internal sealed class HabitatEditor
 
     private void OnPanDown(object sender, MouseButtonEventArgs e)
     {
+        if (mode.IsTesting)
+            return;
         drag = Drag.Pan;
         panStart = e.GetPosition(win.Stage);
         panView = win.ViewProjection;
@@ -608,6 +682,8 @@ internal sealed class HabitatEditor
 
     private void OnMiddleDown(object sender, MouseButtonEventArgs e)
     {
+        if (mode.IsTesting)
+            return;
         if (e.ChangedButton == MouseButton.Middle)
             OnPanDown(sender, e);
     }
@@ -620,6 +696,8 @@ internal sealed class HabitatEditor
 
     private void OnMove(object sender, MouseEventArgs e)
     {
+        if (mode.IsTesting)
+            return;
         var p = ImagePoint(e);
         lastMouse = p;
         switch (drag)
@@ -671,7 +749,7 @@ internal sealed class HabitatEditor
 
     private void OnWheel(object sender, MouseWheelEventArgs e)
     {
-        if (props.IsMouseOver)
+        if (mode.IsTesting || props.IsMouseOver)
             return;
         // molette : zoom autour du curseur
         var at = e.GetPosition(win.Stage);
@@ -933,6 +1011,8 @@ internal sealed class HabitatEditor
     #region Clavier
     public void OnKey(KeyEventArgs e)
     {
+        if (mode.IsTesting)
+            return;
         // la saisie d'un nom de pièce garde ses touches
         if (e.OriginalSource is TextBox)
         {

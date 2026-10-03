@@ -78,6 +78,17 @@ public class HabitatNavigatorTests
     }
 
     [Fact]
+    public void Marcher_devant_une_echelle_au_milieu_du_sol()
+    {
+        // f1 = sol plein (0→1920), échelle c1 au milieu (x=1200). Aller de gauche à droite SANS grimper.
+        var nav = new HabitatNavigator(House(), NavCapabilities.All);
+        var path = nav.FindPath("f1", 200, "f1", 1800)!;
+        Assert.NotNull(path);
+        Assert.DoesNotContain(path!, s => s.Kind == NavStepKind.Climb);
+        Assert.All(path!, s => Assert.Equal(NavStepKind.Walk, s.Kind));
+    }
+
+    [Fact]
     public void Sols_contigus_se_rejoignent()
     {
         var m = new HabitatMap { Image = new HabitatImage { Width = 1000, Height = 500 }, PetHeight = 100 };

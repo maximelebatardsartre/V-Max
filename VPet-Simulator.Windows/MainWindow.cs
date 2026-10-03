@@ -1701,30 +1701,14 @@ namespace VPet_Simulator.Windows
                 AutoSaveTimer.Interval = Set.AutoSaveInterval * 60000;
                 AutoSaveTimer.Start();
             }
-            ClickTexts.Add(new ClickText("你知道吗? 鼠标右键可以打开菜单栏"));
-            ClickTexts.Add(new ClickText("你知道吗? 你可以在设置里面修改游戏的缩放比例"));
-            ClickTexts.Add(new ClickText("想要宠物不乱动? 设置里可以设置智能移动或者关闭移动"));
-            ClickTexts.Add(new ClickText("这游戏开发这么慢,都怪画师太咕了"));
-            //ClickTexts.Add(new ClickText("有建议/游玩反馈? 来 菜单-系统-反馈中心 反馈吧"));
-            ClickTexts.Add(new ClickText("长按脑袋拖动桌宠到你喜欢的任意位置"));
-
-            ////临时聊天内容
-            //ClickTexts.Add(new ClickText("主人，sbema秋季促销开始了哦，还有游戏大奖赛，快去给{name}去投一票吧。"));
-            //ClickTexts.Add(new ClickText("主人主人，{name}参加了sbeam大奖赛哦，给人家投一票喵"));
-            //ClickTexts.Add(new ClickText("那个。。主人。。\n人家参加了sbeam大奖赛哦。能不能。。给{name}投一票呢～"));
-            //ClickTexts.Add(new ClickText("电脑里有一款《虚拟桌宠模拟器》的游戏正在参加2023的sbeam大奖赛，快来给桌宠投一票吧"));
-            //"如果你觉得目前功能太少,那就多挂会机. 宠物会自己动的".Translate(),
-            //"你知道吗? 你可以在设置里面修改游戏的缩放比例".Translate(),
-            //"你现在乱点说话是说话系统的一部分,不过还没做,在做了在做了ing".Translate(),
-            //"你添加了虚拟主播模拟器和虚拟桌宠模拟器到愿望单了吗? 快去加吧".Translate(),
-            //"这游戏开发这么慢,都怪画师太咕了".Translate(),
-            //"欢迎加入 虚拟主播模拟器群 430081239".Translate()
-
-            //给正在玩这个游戏的主播/游戏up主做个小功能
-            ClickTexts.Add(new ClickText("关注 {0} 谢谢喵")
-            {
-                TranslateText = "关注 {0} 谢谢喵".Translate(Environment.UserName)
-            });
+            // V-Max : on remplace TOUT le bavardage d'origine (ton « maître », pubs datées, chinois résiduel)
+            // par la voix propre à Maxine — chaleureuse, taquine, qui t'appelle par ton prénom. Voir Res/vmax-bubbles.txt.
+            ClickTexts.Clear();
+            ClickTexts.AddRange(VMaxBubbles.Load());
+            // Réclamations « j'ai faim / soif » : on AJOUTE des variantes V-Max (en plus des originales nettoyées de
+            // leur « maître ») pour plus de variété et le prénom du propriétaire quand elle réclame à manger/boire.
+            LowFoodText.AddRange(VMaxBubbles.Hunger());
+            LowDrinkText.AddRange(VMaxBubbles.Thirst());
 
             //音乐识别timer加载
             MusicTimer = new System.Timers.Timer(200)
@@ -2515,8 +2499,9 @@ namespace VPet_Simulator.Windows
                               ReportStartupError($"Le mod « {cm.Name} » est abîmé et n'a pas été chargé.", cm.ErrorMessage);
                           else if (cm.IsPassMOD(this) || !string.IsNullOrEmpty(cm.ErrorMessage))
                               ReportStartupError($"Le code du mod « {cm.Name} » n'a pas été chargé.", cm.ErrorMessage);
-                          else if (Set.IsMSGMOD(cm.Name))
-                              Toast($"Le mod « {cm.Name} » contient du code : il attend ton autorisation dans Paramètres › Extensions.", HUD.HudToast.Kind.Info, 8);
+                  // V-Max : plus de rappel au démarrage pour les mods à code non autorisés. L'expérience est native
+                  // (agent IA + routines) ; les plugins tiers restent SILENCIEUSEMENT désactivés et consultables dans
+                  // Paramètres › Extensions. Ça évite d'inonder le lancement de notices que l'utilisateur ne comprend pas.
                   //动画错误
                   if (Main.ErrorMessage.Count != 0)
                   {
@@ -2652,6 +2637,8 @@ namespace VPet_Simulator.Windows
                               if (qaHabitat.GetString("edit") != null || Args.FindLine("edit") != null)
                               {
                                   Habitat.Window?.StartEditing();
+                                  if (Habitat.Window is { } hw)
+                                      System.IO.File.AppendAllText(dbg, $"\nfenêtre: état={hw.WindowState} left={hw.Left:0} top={hw.Top:0} W={hw.ActualWidth:0} H={hw.ActualHeight:0} éditeur={hw.IsEditing} proj.OffX={Habitat.Window!.ScreenProjection.OffsetX:0} scaleY={Habitat.Window!.ScreenProjection.ScaleY:0.000}");
                                   Habitat.Window?.QaHover(new Point(560, 520), qaHabitat.GetString("sel") ?? "f2");
                                   if (qaHabitat.GetString("detect") != null || Args.FindLine("detect") != null)
                                       Habitat.Window?.QaDetect();
