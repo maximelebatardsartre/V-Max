@@ -94,11 +94,25 @@ public sealed class ChatPanel : HudOverlay
             VerticalAlignment = VerticalAlignment.Bottom,
         };
         send.Click += (_, _) => SendOrStop();
+        // Bouton micro : dicter une commande à la voix (clic = écoute, s'arrête au silence). Rend le vocal VISIBLE et testable.
+        var micBtn = new Button
+        {
+            Style = (Style)FindResource("HudIconButton"),
+            Content = new TextBlock { Text = "", FontFamily = (FontFamily)FindResource("HudIcons"), FontSize = 15 },
+            Width = 38, Height = 38, Padding = new Thickness(0),
+            ToolTip = "Parler : clique et dicte ta commande (ex. « ouvre Spotify »)",
+            VerticalAlignment = VerticalAlignment.Bottom,
+            Margin = new Thickness(0, 0, 4, 0),
+        };
+        micBtn.Click += (_, _) => { try { Pet.Voice?.ListenNow(); } catch { } };
         var composerGrid = new Grid();
         composerGrid.ColumnDefinitions.Add(new ColumnDefinition());
         composerGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+        composerGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
         composerGrid.Children.Add(input);
-        Grid.SetColumn(send, 1);
+        Grid.SetColumn(micBtn, 1);
+        composerGrid.Children.Add(micBtn);
+        Grid.SetColumn(send, 2);
         composerGrid.Children.Add(send);
         var composer = new Border
         {
@@ -220,18 +234,27 @@ public sealed class ChatPanel : HudOverlay
 
     private void AddWelcome()
     {
-        var name = Pet.Core.Save?.Name ?? "V-Max";
         var box = new StackPanel { Margin = new Thickness(0, 24, 0, 8) };
         box.Children.Add(new TextBlock { Text = "Salut !", FontFamily = (FontFamily)FindResource("HudDisplay"), FontWeight = FontWeights.SemiBold, FontSize = 30, Foreground = (Brush)FindResource("HudText") });
-        box.Children.Add(new TextBlock { Text = $"Demande-moi ce que tu veux : je peux répondre, ouvrir une application, piloter ta musique ou lancer un minuteur.", Style = (Style)FindResource("HudBodyText"), Foreground = (Brush)FindResource("HudTextMuted"), Margin = new Thickness(0, 6, 0, 16) });
-        var chips = new WrapPanel();
-        foreach (var s in new[] { "Quelle heure est-il ?", "Mets la musique en pause", "Ouvre la calculatrice", "Lance un minuteur de 25 minutes", "Comment va mon PC ?" })
+        box.Children.Add(new TextBlock { Text = "Dis-moi ce que tu veux — pas besoin d'IA. Clique un exemple ou écris-le :", Style = (Style)FindResource("HudBodyText"), Foreground = (Brush)FindResource("HudTextMuted"), Margin = new Thickness(0, 6, 0, 10) });
+        // toutes les catégories de commandes (2-3 exemples chacune), depuis la source unique
+        foreach (var g in VPet_Simulator.Windows.Assistant.CommandCatalog.Groups)
         {
-            var chip = new Button { Style = (Style)FindResource("HudGhostButton"), Content = s, Margin = new Thickness(0, 0, 8, 8), FontSize = 12.5 };
-            chip.Click += (_, _) => Send(s);
-            chips.Children.Add(chip);
+            box.Children.Add(new TextBlock
+            {
+                Text = g.Icon + "  " + g.Title.ToUpperInvariant(),
+                Style = (Style)FindResource("HudEyebrow"),
+                Margin = new Thickness(0, 12, 0, 6),
+            });
+            var chips = new WrapPanel();
+            foreach (var s in g.Examples.Take(3))
+            {
+                var chip = new Button { Style = (Style)FindResource("HudGhostButton"), Content = "« " + s + " »", Margin = new Thickness(0, 0, 8, 8), FontSize = 12 };
+                chip.Click += (_, _) => Send(s);
+                chips.Children.Add(chip);
+            }
+            box.Children.Add(chips);
         }
-        box.Children.Add(chips);
         list.Children.Add(box);
     }
 
@@ -637,13 +660,46 @@ public sealed class ChatPanel : HudOverlay
         if (text.Length == 0)
             return;
         input.Clear();
+        // Assistant utilitaire DÉTERMINISTE d'abord : commande reconnue → on exécute et on répond ici, sans IA.
+        var outcome = Pet.Assistant?.TryHandle(text);
+        if (outcome != null)
+        {
+            AddUser(text);
+            AddAssistantMessage(outcome.Speak);
+            return;
+        }
+        // IA coupée par défaut : on ne connaît pas la commande → on ouvre la liste des commandes (la « doc »).
+        if (!Pet.AssistantAiEnabled)
+        {
+            AddUser(text);
+            AddAssistantMessage("Je n'ai pas de commande pour ça. Je t'ouvre la liste de tout ce que je sais faire 👇");
+            Pet.Hud?.OpenPanel("help");
+            return;
+        }
+        // IA de secours (seulement si activée dans les réglages) — l'agent affiche lui-même le message utilisateur.
         ActivateAgent();
         _ = Task.Run(() => agent.RespondAsync(text));
+    }
+
+    /// <summary>Affiche une réponse de Maxine (assistant déterministe) dans le fil, en un bloc.</summary>
+    private void AddAssistantMessage(string text)
+    {
+        StartAssistant();
+        streaming!.Text = text;
+        streaming = null;
+        scroll.ScrollToEnd();
     }
     #endregion
 
     private void RefreshStatus()
     {
+        // Mode par défaut : assistant utilitaire déterministe (sans IA). On n'affiche PAS de fournisseur IA.
+        if (!Pet.AssistantAiEnabled)
+        {
+            statusDot.Fill = (Brush)FindResource("HudSuccess");
+            statusText.Text = "assistant · commandes";
+            return;
+        }
         var current = ProviderRouter.Current;
         bool any = ProviderRouter.HasAnyConfigured();
         statusDot.Fill = (Brush)FindResource(any ? "HudSuccess" : "HudTextMuted");

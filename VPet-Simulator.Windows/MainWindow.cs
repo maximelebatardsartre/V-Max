@@ -1753,6 +1753,8 @@ namespace VPet_Simulator.Windows
                   }
                   LocalAi = new Agent.LocalAiService(this);
                   LocalAi.ResumeIfEnabled(); // relance l'IA locale en arrière-plan si elle était active
+                  // Assistant utilitaire DÉTERMINISTE (commandes par mots-clés, sans IA) : branché sur la voix et le chat.
+                  Assistant = new global::VPet_Simulator.Windows.Assistant.CommandRouter(new global::VPet_Simulator.Windows.Assistant.AssistantHost(this));
                   // V-Max HUD : la bulle de VPet est remplacée par la bulle flottante (même interface IMassageBar)
                   if (Main.MsgBar is MessageBar oldBar)
                   {
@@ -2579,6 +2581,26 @@ namespace VPet_Simulator.Windows
                                   $"msgbar={Main.MsgBar?.Visibility} toolbar={Main.ToolBar?.Visibility} state={Main.State} size={ActualWidth}x{ActualHeight}");
                               QaSnapshot(Main.MsgBar is Window bw && bw.IsVisible ? bw : this, System.IO.Path.Combine(System.IO.Path.GetTempPath(), "vmax-qa-settings.png"));
                           });
+                      });
+                  }
+                  if (Args.FindLine("vmax-qa-kokoro") is ILine qaKoko)
+                  {// QA : synthétise une phrase française avec Kokoro et écrit taille/durée/erreur dans %TEMP%\vmax-kokoro.txt
+                      _ = Task.Run(async () =>
+                      {
+                          var dbg = System.IO.Path.Combine(System.IO.Path.GetTempPath(), "vmax-kokoro.txt");
+                          try
+                          {
+                              var err = await Voice!.Kokoro.EnsureAsync();
+                              if (err != null) { System.IO.File.WriteAllText(dbg, "ENSURE ERR: " + err); return; }
+                              string phrase = string.IsNullOrWhiteSpace(qaKoko.Info) ? "Bonjour, je m'appelle Maxine, ravie de te rencontrer." : qaKoko.Info;
+                              var sw = System.Diagnostics.Stopwatch.StartNew();
+                              var wav = await Voice.Kokoro.QaSynthesize(phrase);
+                              sw.Stop();
+                              var outWav = System.IO.Path.Combine(System.IO.Path.GetTempPath(), "vmax-kokoro.wav");
+                              if (wav != null) System.IO.File.WriteAllBytes(outWav, wav);
+                              System.IO.File.WriteAllText(dbg, $"OK ready={Voice.Kokoro.Ready} octets={wav?.Length ?? -1} synth={sw.ElapsedMilliseconds}ms phrase=\"{phrase}\"");
+                          }
+                          catch (Exception e) { System.IO.File.WriteAllText(dbg, "EXCEPTION: " + e); }
                       });
                   }
                   if (Args.FindLine("vmax-open-orbit") != null)

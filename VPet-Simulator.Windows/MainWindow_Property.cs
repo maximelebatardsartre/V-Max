@@ -146,6 +146,15 @@ public partial class MainWindow
     /// <summary>V-Max : IA locale native (Llama 3.2 via llama.cpp), activable dans Paramètres › IA</summary>
     public Agent.LocalAiService? LocalAi { get; private set; }
 
+    /// <summary>V-Max : assistant utilitaire déterministe (commandes par mots-clés, sans IA)</summary>
+    public global::VPet_Simulator.Windows.Assistant.CommandRouter? Assistant { get; private set; }
+
+    /// <summary>
+    /// Autorise l'IA (agent Gemini/local) en SECOURS quand aucune commande n'est reconnue. DÉSACTIVÉ par défaut :
+    /// par défaut Maxine ne fait QUE des commandes utilitaires, pas de discussion IA.
+    /// </summary>
+    public bool AssistantAiEnabled => Set["vmax_assistant"].GetBool("ai");
+
 
     //public ChatGPTClient CGPTClient;
     public ImageResources ImageSources { get; set; } = new ImageResources();

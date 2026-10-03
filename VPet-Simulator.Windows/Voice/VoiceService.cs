@@ -20,11 +20,14 @@ public sealed class VoiceService : IDisposable
     private enum State { Idle, Listening, Transcribing }
 
     private readonly MainWindow mw;
-    private readonly TextToSpeech tts = new();          // voix Windows (repli)
-    public readonly PiperTts Piper = new();             // voix premium neurale FR (par défaut une fois téléchargée)
+    private readonly TextToSpeech tts = new();          // voix Windows (dernier repli)
+    public readonly KokoroTts Kokoro = new();           // voix FR haut de gamme (Kokoro) — utilisée en priorité si prête
+    public readonly PiperTts Piper = new();             // voix neurale FR (repli si Kokoro pas prête)
     private readonly MicRecorder mic = new();
+    public readonly WhisperStt Whisper = new();          // transcription hors-ligne de qualité (modèle « small »)
     private readonly PushToTalkKey ptt;
     private readonly WakeWord wake = new();
+    private bool whisperDownloading;
     private ListeningOverlay? overlay;
     private State state;
     private bool speakNext;
@@ -52,8 +55,15 @@ public sealed class VoiceService : IDisposable
         });
         tts.SpeakingChanged += OnSpeaking;
         Piper.SpeakingChanged += OnSpeaking;
+        Kokoro.SpeakingChanged += OnSpeaking;
         Piper.Voice = System.Array.Find(PiperTts.Catalog, c => c.Id == PiperVoiceId) ?? PiperTts.Catalog[0];
         Apply();
+        // si les modèles de qualité sont déjà téléchargés, on les charge au démarrage pour que la PREMIÈRE
+        // interaction vocale soit directement en haute qualité (transcription Whisper + voix Kokoro).
+        if (WhisperStt.ModelPresent)
+            _ = Whisper.EnsureAsync();
+        if (KokoroEnabled && KokoroTts.Downloaded)
+            _ = Kokoro.EnsureAsync();
     }
 
     #region Réglages
@@ -125,12 +135,28 @@ public sealed class VoiceService : IDisposable
     }
     #endregion
 
-    /// <summary>Fait parler le compagnon (bouton « Écouter un exemple », réponses). Voix premium si prête, sinon Windows.</summary>
+    /// <summary>
+    /// Fait parler le compagnon. Cascade de qualité : Kokoro (haut de gamme) → Piper (neurale) → Windows (repli).
+    /// Chaque niveau retombe sur le suivant si la synthèse échoue, pour que Maxine ne reste jamais muette.
+    /// </summary>
     public void Say(string text)
     {
+        // Kokoro reste OPTIONNEL (désactivé par défaut) : qualité jugée insuffisante (phrases segmentées). Par défaut
+        // on utilise la voix Piper « Claire ». L'utilisateur peut activer Kokoro via le réglage « kokoro ».
+        if (KokoroEnabled && Kokoro.Ready)
+        {
+            Kokoro.Speak(text, () => mw.Dispatcher.BeginInvoke(() => SayPiperOrWindows(text)));
+            return;
+        }
+        SayPiperOrWindows(text);
+    }
+
+    /// <summary>Voix haut de gamme Kokoro activée (expérimentale, désactivée par défaut).</summary>
+    public bool KokoroEnabled => Cfg.GetBool("kokoro");
+
+    private void SayPiperOrWindows(string text)
+    {
         if (PremiumVoice && Piper.Ready)
-            // Repli automatique sur la voix Windows si la synthèse Piper échoue au moment de parler
-            // (moteur introuvable, périphérique audio occupé…), pour que le compagnon ne reste jamais muet.
             Piper.Speak(text, Rate, () => mw.Dispatcher.BeginInvoke(() => { try { tts.Speak(text, VoiceName, Rate); } catch { } }));
         else
             tts.Speak(text, VoiceName, Rate);
@@ -166,6 +192,62 @@ public sealed class VoiceService : IDisposable
         state = State.Idle;
         try { overlay?.HideAnimated(); } catch { }
     }
+
+    /// <summary>
+    /// Écoute « un coup » à la demande (bouton micro) : capte la voix, s'arrête au silence, transcrit puis exécute la
+    /// commande. Déclenchement par un clic explicite de l'utilisateur = consentement ponctuel (n'active PAS le micro
+    /// en permanence ni la touche globale). Donne un retour visible (overlay d'écoute) même si rien n'est dit.
+    /// </summary>
+    public void ListenNow()
+    {
+        if (state == State.Listening) { _ = EndAsync(); return; } // deuxième clic = j'arrête et j'envoie
+        EnsureWhisper(); // installe la transcription de qualité dès la première tentative
+        if (KokoroEnabled) EnsureKokoro(); // voix Kokoro seulement si activée (expérimentale)
+        Begin(fromWake: true);
+    }
+
+    /// <summary>Installe (une fois, en tâche de fond) la voix haut de gamme Kokoro.</summary>
+    private bool kokoroDownloading;
+    private void EnsureKokoro()
+    {
+        if (kokoroDownloading || Kokoro.Ready)
+            return;
+        kokoroDownloading = true;
+        if (!KokoroTts.Downloaded)
+            mw.Toast("J'installe aussi une voix bien plus naturelle (~160 Mo, une seule fois).", HudToast.Kind.Info, 7);
+        _ = Task.Run(async () =>
+        {
+            var err = await Kokoro.EnsureAsync();
+            kokoroDownloading = false;
+            if (err != null)
+                mw.Dispatcher.BeginInvoke(() => mw.Toast(err, HudToast.Kind.Warning, 8));
+        });
+    }
+
+    /// <summary>Installe (une fois, en tâche de fond) le moteur de transcription hors-ligne de qualité (Whisper).</summary>
+    private void EnsureWhisper()
+    {
+        if (whisperDownloading || Whisper.Ready || !(OfflineOnly || QaOffline))
+            return;
+        whisperDownloading = true;
+        if (!WhisperStt.ModelPresent)
+            mw.Toast("J'installe une transcription bien meilleure (~470 Mo, une seule fois). Elle sera prête dans un moment.", HudToast.Kind.Info, 8);
+        _ = Task.Run(async () =>
+        {
+            var err = await Whisper.EnsureAsync();
+            whisperDownloading = false;
+            mw.Dispatcher.BeginInvoke(() =>
+            {
+                if (err == null)
+                    mw.Toast("Transcription haute qualité prête. Réessaie la commande vocale !", HudToast.Kind.Success, 7);
+                else
+                    mw.Toast(err, HudToast.Kind.Warning, 9);
+            });
+        });
+    }
+
+    /// <summary>Le micro est-il en train d'écouter ?</summary>
+    public bool IsListening => state == State.Listening;
 
     private void Begin(bool fromWake)
     {
@@ -221,7 +303,19 @@ public sealed class VoiceService : IDisposable
         SpeechToText.Result result;
         try
         {
-            result = await SpeechToText.TranscribeAsync(wav, OfflineOnly || QaOffline, cts.Token);
+            bool offline = OfflineOnly || QaOffline;
+            if (offline && Whisper.Ready)
+            {
+                // transcription hors-ligne de qualité (Whisper) — bien meilleure que l'ancien moteur Windows
+                var txt = await Whisper.TranscribeAsync(wav, cts.Token);
+                result = new SpeechToText.Result(txt ?? "", "Whisper (hors ligne)");
+            }
+            else
+            {
+                result = await SpeechToText.TranscribeAsync(wav, offline, cts.Token);
+                if (offline && !Whisper.Ready)
+                    EnsureWhisper(); // installe le bon moteur en tâche de fond pour la prochaine fois
+            }
         }
         catch (Exception e)
         {
@@ -238,6 +332,20 @@ public sealed class VoiceService : IDisposable
         if (text.Length == 0)
         {
             mw.Toast("Je n'ai rien entendu. Maintiens la touche pendant que tu parles.", HudToast.Kind.Info);
+            ResumeWake();
+            return;
+        }
+        // Assistant utilitaire DÉTERMINISTE d'abord : si c'est une commande reconnue, on l'exécute, sans IA.
+        if (mw.Assistant != null && mw.Assistant.Handle(text))
+        {
+            ResumeWake();
+            return;
+        }
+        // Par défaut l'IA est coupée : rien de reconnu → on ouvre la liste des commandes (la « doc ») au lieu de
+        // radoter « j'ai entendu, essaie ça ». NotUnderstood s'occupe de la bulle + la voix + le panneau.
+        if (!mw.AssistantAiEnabled)
+        {
+            mw.Assistant?.NotUnderstood();
             ResumeWake();
             return;
         }
@@ -293,5 +401,7 @@ public sealed class VoiceService : IDisposable
         mic.Dispose();
         tts.Dispose();
         Piper.Dispose();
+        Kokoro.Dispose();
+        Whisper.Dispose();
     }
 }

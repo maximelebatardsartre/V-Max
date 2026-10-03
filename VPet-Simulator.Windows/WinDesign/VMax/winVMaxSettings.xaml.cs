@@ -866,6 +866,16 @@ public partial class winVMaxSettings : Window
     private void DefineAgentSettings()
     {
         var agent = mw.AgentPlugin?.Orchestrator;
+        Add("ia", "Comment Maxine te répond", "Assistant utilitaire (sans IA)",
+            "Par défaut, Maxine comprend des COMMANDES par mots-clés — « ouvre Spotify », « minuteur de 5 minutes », « quelle heure il est », « baisse le son »… — sans aucune IA : rapide et fiable. "
+            + "Désactive cette option pour autoriser une IA en secours quand aucune commande n'est reconnue (il faut alors connecter une IA ci-dessous).",
+            () => Toggle(() => !mw.AssistantAiEnabled, v => mw.Set["vmax_assistant"][(gbol)"ai"] = !v));
+
+        Add("ia", "Comment Maxine te répond", "Réagir à ce que tu fais",
+            "Maxine réagit toute seule quand tu copies un texte (elle le « mémorise ») ou quand tu lances un jeu ou une grosse appli — avec une petite bulle. "
+            + "Discret et throttlé. Désactive si tu préfères qu'elle se taise.",
+            () => Toggle(() => !mw.Set["vmax_assistant"].GetBool("reactions_off"), v => mw.Set["vmax_assistant"][(gbol)"reactions_off"] = !v));
+
         Add("ia", "Agent V-Max", "Discuter maintenant",
             "Ton compagnon discute avec une IA gratuite et peut agir sur ton PC avec ta permission. Ouvre aussi la discussion par l'anneau (clic droit) ou avec Ctrl+Alt+Espace.",
             () => ActionButton(T("Ouvrir la discussion"), () => { Close(); mw.Hud?.OpenChat(); }, accent: true));
